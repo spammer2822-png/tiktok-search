@@ -15,6 +15,7 @@ import sys
 import time
 from pathlib import Path
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import httpx
@@ -36,7 +37,15 @@ class Origin(ProxyWireTests):
                 raw = await reader.readuntil(b'\r\n\r\n')
                 self.received += 1
                 await asyncio.sleep(.02)
-                payload = direct_profile() if b'/api/user/detail/' in raw else worker_profile()
+                target = raw.split(b' ', 2)[1].decode('ascii')
+                direct = target.startswith('/api/user/detail/')
+                query = parse_qs(urlsplit(target).query)
+                username = query['uniqueId' if direct else 'username'][0]
+                payload = direct_profile() if direct else worker_profile()
+                if direct:
+                    payload['userInfo']['user']['uniqueId'] = username
+                else:
+                    payload['data']['username'] = username
                 body = json.dumps(payload).encode()
                 writer.write(b'HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: '
                              + str(len(body)).encode() + b'\r\nConnection: keep-alive\r\n\r\n' + body)
