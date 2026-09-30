@@ -17,6 +17,34 @@ class AuditTests(unittest.IsolatedAsyncioTestCase):
     asyncTearDown = fixtures.HybridTests.asyncTearDown
     make = fixtures.HybridTests.make
 
+    def test_resume_preview_closes_database_on_success_and_error(self):
+        connect = s.sqlite3.connect
+        db = connect(self.root/'state.sqlite3')
+        db.execute('CREATE TABLE jobs(status TEXT)')
+        db.execute("INSERT INTO jobs VALUES ('pending')")
+        db.commit()
+        db.close()
+        for valid in (True, False):
+            connections = []
+            def tracked(*args, **kwargs):
+                connection = connect(*args, **kwargs)
+                connections.append(connection)
+                return connection
+            with patch.object(s.sqlite3, 'connect', side_effect=tracked):
+                if valid:
+                    self.assertEqual(s.resume_progress(self.root, {'scan_mode':'normal'}, {})['summary']['remaining_profiles'], 1)
+                else:
+                    with self.assertRaises(s.ExporterError):
+                        s.resume_progress(self.root, {'scan_mode':'normal'}, {})
+            self.assertEqual(len(connections), 1)
+            with self.assertRaises(s.sqlite3.ProgrammingError):
+                connections[0].execute('SELECT 1')
+            if valid:
+                db = connect(self.root/'state.sqlite3')
+                db.execute('DROP TABLE jobs')
+                db.commit()
+                db.close()
+
     async def test_latency_spike_reduces_direct_even_without_errors(self):
         metrics = BackendMetrics()
         gate = h.BackendGate(self.gate, 'direct', self.settings, metrics)

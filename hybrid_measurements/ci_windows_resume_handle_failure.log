@@ -1,0 +1,32 @@
+GitHub run 36722649274. Both Windows Python 3.11 and 3.12 exposed an unclosed SQLite resume-preview handle. 213 tests ran; one error, one POSIX-only skip.
+ERROR: test_resume_back_does_not_create_folder (test_configured_scanner.ConfigurationTests.test_resume_back_does_not_create_folder)
+2026-09-30T13:38:19.0767630Z ----------------------------------------------------------------------
+2026-09-30T13:38:19.0768041Z Traceback (most recent call last):
+2026-09-30T13:38:19.0774552Z   File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\shutil.py", line 633, in _rmtree_unsafe
+2026-09-30T13:38:19.0775183Z     os.unlink(fullname)
+2026-09-30T13:38:19.0776008Z PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\tmpoxbz8pn1\\logs\\wanted\\state.sqlite3'
+2026-09-30T13:38:19.0776994Z 
+2026-09-30T13:38:19.0777227Z During handling of the above exception, another exception occurred:
+2026-09-30T13:38:19.0777540Z 
+2026-09-30T13:38:19.0777665Z Traceback (most recent call last):
+2026-09-30T13:38:19.0778199Z   File "D:\a\tiktok-search\tiktok-search\tests\test_configured_scanner.py", line 21, in tearDown
+2026-09-30T13:38:19.0778719Z     def tearDown(self):self.tmp.cleanup()
+2026-09-30T13:38:19.0779078Z                        ^^^^^^^^^^^^^^^^^^
+2026-09-30T13:38:19.0779598Z   File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\tempfile.py", line 954, in cleanup
+2026-09-30T13:38:19.0780153Z     self._rmtree(self.name, ignore_errors=self._ignore_cleanup_errors)
+2026-09-30T13:38:19.0780722Z   File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\tempfile.py", line 934, in _rmtree
+2026-09-30T13:38:19.0781208Z     _shutil.rmtree(name, onexc=onexc)
+2026-09-30T13:38:19.0781673Z   File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\shutil.py", line 781, in rmtree
+2026-09-30T13:38:19.0782467Z     return _rmtree_unsafe(path, onexc)
+2026-09-30T13:38:19.0782792Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-30T13:38:19.0783265Z   File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\shutil.py", line 635, in _rmtree_unsafe
+2026-09-30T13:38:19.0783744Z     onexc(os.unlink, fullname, err)
+2026-09-30T13:38:19.0784217Z   File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\tempfile.py", line 909, in onexc
+2026-09-30T13:38:19.0784877Z     _os.unlink(path)
+2026-09-30T13:38:19.0785682Z PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\tmpoxbz8pn1\\logs\\wanted\\state.sqlite3'
+2026-09-30T13:38:19.0786343Z 
+2026-09-30T13:38:19.0786537Z ----------------------------------------------------------------------
+2026-09-30T13:38:19.0786914Z Ran 213 tests in 183.838s
+2026-09-30T13:38:19.0787078Z 
+2026-09-30T13:38:19.0787231Z FAILED (errors=1, skipped=1)
+2026-09-30T13:38:19.1450895Z 

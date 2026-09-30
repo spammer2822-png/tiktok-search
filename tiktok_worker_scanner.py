@@ -4043,7 +4043,10 @@ def resume_progress(root: Path, config: dict[str, Any], snapshot: dict[str, Any]
     database = root / "state.sqlite3"
     if not database.is_file():
         return snapshot
-    with sqlite3.connect(database.resolve().as_uri() + "?mode=ro", uri=True) as connection:
+    # Connection.__exit__ ends transactions but does not close the handle.
+    # Closing is essential when returning to the menu, especially on Windows.
+    from contextlib import closing
+    with closing(sqlite3.connect(database.resolve().as_uri() + "?mode=ro", uri=True)) as connection:
         tables = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")}
         if "jobs" not in tables:
             raise ExporterError("Saved queue database has no jobs table.")
