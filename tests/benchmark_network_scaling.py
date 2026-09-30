@@ -14,6 +14,7 @@ import statistics
 import sys
 import time
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import httpx
@@ -61,7 +62,12 @@ def loopback_bytes():
 async def measure(mode, workers):
     origin = Origin()
     origin.connections = origin.received = 0
-    await origin.asyncSetUp()
+    start_server = asyncio.start_server
+    async def server_with_backlog(*args, **kwargs):
+        kwargs.setdefault('backlog', max(128, workers))
+        return await start_server(*args, **kwargs)
+    with patch.object(asyncio, 'start_server', side_effect=server_with_backlog):
+        await origin.asyncSetUp()
     ceiling = runtime_ceiling(workers)
     gate = s.AsyncRequestGate(0, 0, asyncio.Event(), ceiling=ceiling, initial=ceiling, adaptive=False)
     clients = []
