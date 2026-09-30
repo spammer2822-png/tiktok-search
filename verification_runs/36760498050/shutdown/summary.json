@@ -27,6 +27,22 @@
         "stderr_type": "none",
         "resume_seconds": 0.10956562099999445
       }
+    },
+    {
+      "variant": "final",
+      "repeated": true,
+      "returncode": 0,
+      "measurement": {
+        "version": "shutdown-verification-zv8052lg",
+        "repeat": true,
+        "injected_report_delay_seconds": 0.25,
+        "shutdown_seconds": 1.1065956309999976,
+        "exit_code": 130,
+        "report_count": 1,
+        "pending": 1000,
+        "stderr_type": "none",
+        "resume_seconds": 0.10991278099999846
+      }
     }
   ]
 }
