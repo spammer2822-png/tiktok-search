@@ -1,0 +1,11 @@
+{
+  "version": "shutdown-verification-zv8052lg",
+  "repeat": true,
+  "injected_report_delay_seconds": 0.25,
+  "shutdown_seconds": 0.44976520099999817,
+  "exit_code": 130,
+  "report_count": 1,
+  "pending": 1000,
+  "stderr_type": "none",
+  "resume_seconds": 0.015635971999998333
+}
