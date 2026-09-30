@@ -18,6 +18,8 @@ from unittest.mock import patch
 from urllib.parse import parse_qs, urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+if '--source' in sys.argv:
+    sys.path.insert(0, str(Path(sys.argv[sys.argv.index('--source')+1]).resolve()))
 import httpx
 import hybrid_backend as h
 import tiktok_worker_scanner as s
@@ -68,7 +70,7 @@ def loopback_bytes():
         return {}
 
 
-async def measure(mode, workers):
+async def measure(mode, workers, original=False):
     origin = Origin()
     origin.connections = origin.received = 0
     start_server = asyncio.start_server
@@ -89,7 +91,8 @@ async def measure(mode, workers):
         client = httpx.AsyncClient(**{**options, 'verify': origin.verify, 'event_hooks': hooks})
         clients.append(client)
         return client
-    client = h.HybridClient(gate, s.ProxyPool([]), settings={**h.DEFAULTS, 'backend_mode': mode}, client_factory=factory)
+    dispatcher = s.WorkerApiClient if original else h.create_client
+    client = dispatcher(gate, s.ProxyPool([]), settings={**h.DEFAULTS, 'backend_mode': mode}, client_factory=factory)
     lags, latencies, errors = [], [], []
     active_jobs = peak_jobs = peak_connections = 0
     active_area = idle_area = 0.
@@ -113,10 +116,10 @@ async def measure(mode, workers):
         peak_jobs = max(peak_jobs, active_jobs)
         try:
             for _ in range(2):
-                backend = client.choose()
+                backend = client.backends[client.choose()] if hasattr(client, 'backends') else client
                 start = time.perf_counter()
                 try:
-                    result = await client.backends[backend].request_json('profile', {'username': f'bench{i}'})
+                    result = await backend.request_json('profile', {'username': f'bench{i}'})
                     assert result['status'] == 'ok'
                 except Exception as exc:
                     errors.append(type(exc).__name__)
@@ -133,11 +136,13 @@ async def measure(mode, workers):
             finally:
                 done.set()
                 await ticker
-            metrics = client.metrics.snapshot()
+            metrics = client.metrics.snapshot() if hasattr(client, 'metrics') else {}
         elapsed, cpu = time.perf_counter()-start, time.process_time()-cpu
         after_bytes = loopback_bytes()
         values = sorted(latencies)
         output = dict(scope='real verified loopback TLS; synthetic upstream, no profile persistence',
+            harness_version=2, production_dispatcher=True,
+            source_file_sha256=__import__('hashlib').sha256(Path(s.__file__).read_bytes()).hexdigest(),
             mode=mode, configured_workers=workers, actual_connection_ceiling=ceiling,
             peak_active_jobs=peak_jobs, peak_admitted_requests=gate.peak_active,
             sampled_peak_active_connections=peak_connections,
@@ -172,9 +177,11 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--mode', choices=['worker','direct','hybrid'], required=True)
     p.add_argument('--workers', type=int, required=True)
+    p.add_argument('--source', type=Path)
+    p.add_argument('--original', action='store_true')
     p.add_argument('--result', type=Path, required=True)
     args = p.parse_args()
     args.result.parent.mkdir(parents=True, exist_ok=True)
-    result = asyncio.run(measure(args.mode, args.workers))
+    result = asyncio.run(measure(args.mode, args.workers, args.original))
     args.result.write_text(json.dumps(result, indent=2), encoding='utf-8')
     print(json.dumps({k: result[k] for k in ('mode','configured_workers','elapsed_seconds','successful_rps','errors')}))

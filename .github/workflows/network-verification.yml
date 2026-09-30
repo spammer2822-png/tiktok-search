@@ -1,7 +1,7 @@
 name: Real TLS worker scaling verification
 on:
   push:
-    paths: ['.github/workflows/network-verification.yml', 'tests/benchmark_network_scaling.py']
+    paths: ['.github/workflows/network-verification.yml', 'tests/ci_network.py', 'tests/benchmark_network_scaling.py']
   workflow_dispatch:
 permissions:
   contents: write
@@ -34,7 +34,7 @@ jobs:
           echo "PLAYWRIGHT_MODULE=$RUNNER_TEMP/browser/node_modules/playwright" >> "$GITHUB_ENV"
           node -e 'console.log("CHROMIUM="+require(process.argv[1]).chromium.executablePath())' "$RUNNER_TEMP/browser/node_modules/playwright" >> "$GITHUB_ENV"
       - name: Run isolated sequential verification and checkpoint each result
-        run: python tests/ci_verification.py ${{ matrix.job }}
+        run: python tests/ci_network.py ${{ matrix.job }}
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         if: always()
         with:
