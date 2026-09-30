@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/home/runner/work/tiktok-search/tiktok-search/tests/ci_verification.py", line 157, in <module>
+    {'comparison': compare, 'network': network, 'browser': browser}[JOB]()
+  File "/home/runner/work/tiktok-search/tiktok-search/tests/ci_verification.py", line 132, in network
+    run([PYTHON,str(HARNESS/'benchmark_network_scaling.py'),'--mode',mode,
+  File "/home/runner/work/tiktok-search/tiktok-search/tests/ci_verification.py", line 80, in run
+    raise RuntimeError(f'{name}: exit {result.returncode}')
+RuntimeError: worker_100_tls: exit 1
