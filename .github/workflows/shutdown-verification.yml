@@ -1,0 +1,43 @@
+name: Shutdown and resume comparison
+on:
+  push:
+    paths: ['.github/workflows/shutdown-verification.yml', 'tests/ci_shutdown.py', 'tests/benchmark_shutdown.py']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        job: [shutdown]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements-test.txt
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        if: matrix.job == 'browser'
+        with:
+          node-version: '22'
+      - name: Install pinned browser harness
+        if: matrix.job == 'browser'
+        shell: bash
+        run: |
+          npm install --prefix "$RUNNER_TEMP/browser" playwright@1.63.0
+          "$RUNNER_TEMP/browser/node_modules/.bin/playwright" install --with-deps chromium
+          echo "PLAYWRIGHT_MODULE=$RUNNER_TEMP/browser/node_modules/playwright" >> "$GITHUB_ENV"
+          node -e 'console.log("CHROMIUM="+require(process.argv[1]).chromium.executablePath())' "$RUNNER_TEMP/browser/node_modules/playwright" >> "$GITHUB_ENV"
+      - name: Run isolated sequential verification and checkpoint each result
+        run: python tests/ci_shutdown.py ${{ matrix.job }}
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with:
+          name: specification-${{ matrix.job }}
+          path: verification_runs/${{ github.run_id }}/${{ matrix.job }}/
+          retention-days: 90
