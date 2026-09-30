@@ -1,0 +1,77 @@
+name: Pristine upstream baseline
+on:
+  push:
+    paths: ['.github/workflows/upstream-baseline.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  upstream:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: timescale/timescaledb-ha:pg17
+        env:
+          POSTGRES_DB: dtk_test
+          POSTGRES_USER: dtk
+          POSTGRES_PASSWORD: dtk_test_password
+        ports: ['55432:5432']
+        options: >-
+          --health-cmd "pg_isready -U dtk -d dtk_test"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+      redis:
+        image: redis:8-alpine
+        ports: ['56379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      DTK_SECRET_KEY: ci-secret-key-not-used-for-anything-real-0123456789
+      DTK_DATABASE_URL: postgresql+asyncpg://dtk:dtk_test_password@127.0.0.1:55432/dtk_test
+      DTK_REDIS_URL: redis://127.0.0.1:56379/0
+      DTK_DOWNLOADER_URL: http://127.0.0.1:59999
+      UV_FROZEN: '1'
+    defaults:
+      run:
+        working-directory: upstream
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Restore exact unmodified 737bf3d source
+        working-directory: .
+        run: python -c "from zipfile import ZipFile; ZipFile('hybrid_baseline/upstream_737bf3d_unmodified.zip').extractall('upstream')"
+      - uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22'
+      - name: Install documented dependencies
+        run: uv sync --all-extras
+      - name: Build the upstream console served by integration tests
+        run: |
+          cd web
+          npm ci
+          npm run build
+      - name: Database migrations
+        run: uv run alembic upgrade head
+      - name: Original unit, parser, signer, scheduler and replay tests
+        id: unit
+        run: |
+          set -o pipefail
+          uv run pytest tests/unit tests/replay -q --junitxml=baseline-unit.xml 2>&1 | tee baseline-unit.log
+      - name: Original integration tests with real PostgreSQL and Redis
+        if: always() && steps.unit.outcome != 'skipped'
+        run: |
+          set -o pipefail
+          export DTK_CONSOLE_DIR="$PWD/web/dist"
+          uv run pytest tests/integration -q -m integration --junitxml=baseline-integration.xml 2>&1 | tee baseline-integration.log
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with:
+          name: pristine-upstream-baseline
+          path: |
+            upstream/baseline-*.xml
+            upstream/baseline-*.log
+          retention-days: 30

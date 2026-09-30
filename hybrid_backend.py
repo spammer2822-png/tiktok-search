@@ -294,7 +294,7 @@ class ApiBackend(s.WorkerApiClient):
                         records = 1
                     else:
                         page = s.parse_list_page(checked, operation)
-                        records = len(page.records)
+                        records = sum(s.member_identity(row) is not None for row in page.records)
                 success = True
                 self.gate.controller.succeeded(self.name, generation)
                 return checked

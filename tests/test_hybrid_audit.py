@@ -1,5 +1,6 @@
 """Requirements discovered in the final review: healthy-load adaptation and telemetry."""
 import asyncio
+import json
 import unittest
 from unittest.mock import patch
 from collections import Counter
@@ -118,3 +119,27 @@ class AuditTests(unittest.IsolatedAsyncioTestCase):
         async with self.make(handle) as client:
             self.assertEqual(client.rate_limits.direct_state, 'RECOVERING')
             self.assertEqual(client.backends['direct'].gate.limit, 1)
+
+    async def test_invalid_members_do_not_inflate_successful_records(self):
+        payload = fixtures.direct_page([1, 2])
+        payload['userList'].extend([None, {'user': {'id': False, 'uniqueId': '?'}}])
+        async def handle(req): return httpx.Response(200, json=payload)
+        async with self.make(handle) as client:
+            await client.backends['direct'].request_json('followers', {'secUid': 'sec1', 'minCursor': '0'})
+            self.assertEqual(client.metrics.snapshot()['direct_followers_received'], 2)
+
+    async def test_committed_direct_export_recovers_before_queue_record(self):
+        import test_persistent_scanner as saved
+        state, success = saved.setup(self.root, 1)
+        try:
+            self.assertEqual(state.claim().username, 'user0')
+            saved.write_valid(self.root, 'user0')
+            path = s.output_file_path(self.root, 'user0', s.SELECTED_LISTS)
+            payload = json.loads(path.read_text())
+            payload['source'] = 'tiktok_hybrid_api'
+            s.atomic_write_json(path, payload)
+            state.recover(success)
+            self.assertEqual(state.summary()['completed_overall'], 1)
+            self.assertIsNone(state.claim())
+        finally:
+            state.close()

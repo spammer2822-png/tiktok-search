@@ -1,22 +1,25 @@
 test_150_queued_worker_requests_migrate_without_leakage (test_rate_limit_control.RateLimitTests.test_150_queued_worker_requests_migrate_without_leakage) ... [PROXY] No usable proxies remain; using direct connection.
 [429] Worker disabled for this execution. Remaining compatible work moves to Direct.
 ok
-test_2500_active_worker_requests_cancel_and_migrate (test_rate_limit_control.RateLimitTests.test_2500_active_worker_requests_cancel_and_migrate) ... Executing <Task pending name='Task-463' coro=<RateLimitTests.test_2500_active_worker_requests_cancel_and_migrate() running at /workspace/scratch/44b13c627f46/recovery_20260930/work/TikTokScanner/tests/test_rate_limit_control.py:62> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:712> cb=[_run_until_complete_cb() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:181] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:100> took 0.219 seconds
+test_2500_active_worker_requests_cancel_and_migrate (test_rate_limit_control.RateLimitTests.test_2500_active_worker_requests_cancel_and_migrate) ... Executing <Task pending name='Task-463' coro=<RateLimitTests.test_2500_active_worker_requests_cancel_and_migrate() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/tests/test_rate_limit_control.py:62> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:712> cb=[_run_until_complete_cb() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:181] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:100> took 0.365 seconds
 [PROXY] No usable proxies remain; using direct connection.
-Executing <Task pending name='coalesced-profile' coro=<HybridClient.lookup_profile.<locals>.lookup() running at /workspace/scratch/44b13c627f46/recovery_20260930/work/TikTokScanner/hybrid_backend.py:466> wait_for=<Future pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:448> cb=[shield.<locals>._inner_done_callback() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:905] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> took 0.127 seconds
-Executing <Task pending name='worker-api-request' coro=<ApiBackend.request_json.<locals>.send() running at /workspace/scratch/44b13c627f46/recovery_20260930/work/TikTokScanner/hybrid_backend.py:260> wait_for=<Future pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:448> cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> took 0.163 seconds
-Executing <Task pending name='coalesced-profile' coro=<HybridClient.lookup_profile.<locals>.lookup() running at /workspace/scratch/44b13c627f46/recovery_20260930/work/TikTokScanner/hybrid_backend.py:466> wait_for=<Task pending name='worker-api-request' coro=<ApiBackend.request_json.<locals>.send() running at /workspace/scratch/44b13c627f46/recovery_20260930/work/TikTokScanner/hybrid_backend.py:236> cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> cb=[shield.<locals>._inner_done_callback() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:905] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> took 0.198 seconds
+Executing <Task pending name='coalesced-profile' coro=<HybridClient.lookup_profile.<locals>.lookup() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/hybrid_backend.py:466> wait_for=<Future pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:448> cb=[shield.<locals>._inner_done_callback() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:905] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> took 0.142 seconds
+Executing <Task pending name='coalesced-profile' coro=<HybridClient.lookup_profile.<locals>.lookup() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/hybrid_backend.py:466> wait_for=<Future pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:448> cb=[shield.<locals>._inner_done_callback() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:905] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> took 0.134 seconds
+Executing <Task pending name='worker-api-request' coro=<ApiBackend.request_json.<locals>.send() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/hybrid_backend.py:260> wait_for=<Future pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:448> cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> took 0.212 seconds
+Executing <Task pending name='coalesced-profile' coro=<HybridClient.lookup_profile.<locals>.lookup() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/hybrid_backend.py:466> wait_for=<Task pending name='worker-api-request' coro=<ApiBackend.request_json.<locals>.send() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/hybrid_backend.py:236> cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> cb=[shield.<locals>._inner_done_callback() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:905] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> took 0.271 seconds
 [429] Worker disabled for this execution. Remaining compatible work moves to Direct.
 ok
 test_bootstrap_client_boundary_retains_disable_but_new_execution_resets (test_rate_limit_control.RateLimitTests.test_bootstrap_client_boundary_retains_disable_but_new_execution_resets) ... [PROXY] No usable proxies remain; using direct connection.
 [429] Worker disabled for this execution. Remaining compatible work moves to Direct.
 [PROXY] No usable proxies remain; using direct connection.
+Executing <Task pending name='Task-10481' coro=<to_thread() running at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/threads.py:25> wait_for=<Future pending cb=[_chain_future.<locals>._call_check_cancel() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/futures.py:389, Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:448> cb=[shield.<locals>._inner_done_callback() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:905] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> took 0.166 seconds
 ok
 test_cancel_during_cooldown_leaves_no_timers_or_permits (test_rate_limit_control.RateLimitTests.test_cancel_during_cooldown_leaves_no_timers_or_permits) ... [PROXY] No usable proxies remain; using direct connection.
 [ASYNC] Active request limit adjusted to 1 (ceiling 100).
 [429] Direct paused for 60.00s. One recovery probe will follow.
 ok
-test_direct_cooldown_single_timer_probe_and_gradual_recovery (test_rate_limit_control.RateLimitTests.test_direct_cooldown_single_timer_probe_and_gradual_recovery) ... [PROXY] No usable proxies remain; using direct connection.
+test_direct_cooldown_single_timer_probe_and_gradual_recovery (test_rate_limit_control.RateLimitTests.test_direct_cooldown_single_timer_probe_and_gradual_recovery) ... Executing <Task pending name='Task-10500' coro=<RateLimitTests.test_direct_cooldown_single_timer_probe_and_gradual_recovery() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/tests/test_rate_limit_control.py:112> wait_for=<Future pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:448> cb=[_run_until_complete_cb() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:181] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:100> took 0.142 seconds
+[PROXY] No usable proxies remain; using direct connection.
 [ASYNC] Active request limit adjusted to 1 (ceiling 100).
 [429] Direct paused for 0.12s. One recovery probe will follow.
 [429] Direct recovery succeeded; increasing concurrency with valid responses.
@@ -48,6 +51,7 @@ test_worker_429_in_both_cursor_directions_preserves_dedup_and_target (test_rate_
 [429] Worker disabled for this execution. Remaining compatible work moves to Direct.
 [@person1] [FOLLOWING] Page 2: received 2, +1 unique, total 3, has_more=False
 ok
+test_committed_direct_export_recovers_before_queue_record (test_hybrid_audit.AuditTests.test_committed_direct_export_recovers_before_queue_record) ... ok
 test_cooldown_and_recovery_survive_client_boundary (test_hybrid_audit.AuditTests.test_cooldown_and_recovery_survive_client_boundary) ... [PROXY] No usable proxies remain; using direct connection.
 [ASYNC] Active request limit adjusted to 1 (ceiling 100).
 [429] Direct paused for 0.10s. One recovery probe will follow.
@@ -56,6 +60,8 @@ test_cooldown_and_recovery_survive_client_boundary (test_hybrid_audit.AuditTests
 [ASYNC] Active request limit adjusted to 1 (ceiling 2500).
 ok
 test_http_200_rate_limit_text_does_not_disable_or_stop (test_hybrid_audit.AuditTests.test_http_200_rate_limit_text_does_not_disable_or_stop) ... [PROXY] No usable proxies remain; using direct connection.
+ok
+test_invalid_members_do_not_inflate_successful_records (test_hybrid_audit.AuditTests.test_invalid_members_do_not_inflate_successful_records) ... [PROXY] No usable proxies remain; using direct connection.
 ok
 test_latency_spike_reduces_direct_even_without_errors (test_hybrid_audit.AuditTests.test_latency_spike_reduces_direct_even_without_errors) ... [ASYNC] Active request limit adjusted to 50 (ceiling 100).
 [ASYNC] Active request limit adjusted to 100 (ceiling 100).
@@ -133,11 +139,13 @@ test_switch_to_worker_mode_restarts_direct_cursor (test_hybrid_review.ReviewTest
 [@person1] [FOLLOWERS] Page 2: received 2, +1 unique, total 2, has_more=False
 ok
 test_uid_match_survives_renamed_username_on_resume (test_hybrid_review.ReviewTests.test_uid_match_survives_renamed_username_on_resume) ... ok
-test_real_407_then_direct_fallback (test_hybrid_review.WireReuseTests.test_real_407_then_direct_fallback) ... ok
-test_real_connect_auth_isolated_from_https_origin (test_hybrid_review.WireReuseTests.test_real_connect_auth_isolated_from_https_origin) ... Executing <Task pending name='Task-11985' coro=<ProxyWireTests.asyncSetUp() running at /workspace/scratch/44b13c627f46/recovery_20260930/work/TikTokScanner/tests/test_proxy_wire.py:22> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:712> cb=[_run_until_complete_cb() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:181] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:100> took 0.139 seconds
+test_real_407_then_direct_fallback (test_hybrid_review.WireReuseTests.test_real_407_then_direct_fallback) ... Executing <Task pending name='Task-11773' coro=<ProxyWireTests.test_real_407_then_direct_fallback() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/tests/test_proxy_wire.py:82> wait_for=<Task pending name='worker-api-request' coro=<WorkerApiClient.request_json.<locals>.send_request() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/tiktok_worker_scanner.py:1714> cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> cb=[_run_until_complete_cb() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:181] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:100> took 0.117 seconds
+Executing <Task pending name='worker-api-request' coro=<WorkerApiClient.request_json.<locals>.send_request() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/tiktok_worker_scanner.py:1726> cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> took 0.131 seconds
 ok
+test_real_connect_auth_isolated_from_https_origin (test_hybrid_review.WireReuseTests.test_real_connect_auth_isolated_from_https_origin) ... ok
 test_real_tls_connect_is_reused (test_hybrid_review.WireReuseTests.test_real_tls_connect_is_reused) ... ok
-test_real_two_proxies_concurrently (test_hybrid_review.WireReuseTests.test_real_two_proxies_concurrently) ... ok
+test_real_two_proxies_concurrently (test_hybrid_review.WireReuseTests.test_real_two_proxies_concurrently) ... Executing <Task pending name='Task-11820' coro=<ProxyWireTests.asyncSetUp() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/tests/test_proxy_wire.py:22> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:712> cb=[_run_until_complete_cb() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:181] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:100> took 0.169 seconds
+ok
 test_background_backfill_runs_before_scan_completion_and_closes (test_report_avatar_fix.ReportAvatarFixTests.test_background_backfill_runs_before_scan_completion_and_closes) ... [PROXY] No usable proxies remain; using direct connection.
 ok
 test_background_cancellation_finishes_before_cache_close (test_report_avatar_fix.ReportAvatarFixTests.test_background_cancellation_finishes_before_cache_close) ... ok
@@ -156,7 +164,8 @@ test_connection_budget_and_legacy_config (test_optimization.MetricsTests.test_co
 test_history_append_resume_and_torn_tail_repair (test_optimization.MetricsTests.test_history_append_resume_and_torn_tail_repair) ... ok
 test_report_markers_in_metadata_do_not_break_generation (test_optimization.MetricsTests.test_report_markers_in_metadata_do_not_break_generation) ... ok
 test_rolling_window_eta_unique_profiles_and_request_counts (test_optimization.MetricsTests.test_rolling_window_eta_unique_profiles_and_request_counts) ... ok
-test_10000_workers_429_preserves_pending_stats_and_completed_data (test_optimization.RuntimeTests.test_10000_workers_429_preserves_pending_stats_and_completed_data) ... ok
+test_10000_workers_429_preserves_pending_stats_and_completed_data (test_optimization.RuntimeTests.test_10000_workers_429_preserves_pending_stats_and_completed_data) ... Executing <Task pending name='Task-11983' coro=<RuntimeTests.test_10000_workers_429_preserves_pending_stats_and_completed_data() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/tests/test_optimization.py:188> wait_for=<Future pending cb=[shield.<locals>._outer_done_callback() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:922, Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:448> cb=[_run_until_complete_cb() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:181] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:100> took 0.119 seconds
+ok
 test_429_headers_stop_before_reading_slow_body (test_optimization.RuntimeTests.test_429_headers_stop_before_reading_slow_body) ... ok
 test_client_pool_count_bounded_with_many_proxy_routes (test_optimization.RuntimeTests.test_client_pool_count_bounded_with_many_proxy_routes) ... ok
 test_periodic_stats_write_and_five_minute_history (test_optimization.RuntimeTests.test_periodic_stats_write_and_five_minute_history) ... ok
@@ -200,7 +209,8 @@ test_auth_is_proxy_only_and_clients_reused (test_async_scanner.AsyncTests.test_a
 test_bad_auth_fails_over_without_leaking (test_async_scanner.AsyncTests.test_bad_auth_fails_over_without_leaking) ... ok
 test_cancel_mid_list_writes_partial (test_async_scanner.AsyncTests.test_cancel_mid_list_writes_partial) ... ok
 test_cancel_orchestrator_waits_for_partial_writes (test_async_scanner.AsyncTests.test_cancel_orchestrator_waits_for_partial_writes) ... ok
-test_concurrent_shared_files_and_restart (test_async_scanner.AsyncTests.test_concurrent_shared_files_and_restart) ... ok
+test_concurrent_shared_files_and_restart (test_async_scanner.AsyncTests.test_concurrent_shared_files_and_restart) ... Executing <Task pending name='profile-worker-2' coro=<worker_loop() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/tiktok_worker_scanner.py:2890> wait_for=<Future pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:448> cb=[_wait.<locals>._on_completion() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:534] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> took 0.111 seconds
+ok
 test_connect_timeout_rotates_but_response_timeout_does_not (test_async_scanner.AsyncTests.test_connect_timeout_rotates_but_response_timeout_does_not) ... ok
 test_dead_proxy_direct_fallback (test_async_scanner.AsyncTests.test_dead_proxy_direct_fallback) ... ok
 test_delayed_client_preparation_cannot_bunch_request_starts (test_async_scanner.AsyncTests.test_delayed_client_preparation_cannot_bunch_request_starts) ... ok
@@ -236,9 +246,12 @@ test_missing_pagination_not_empty_success (test_async_scanner.ConfigTests.test_m
 test_proxy_cooldown_recovery (test_async_scanner.ConfigTests.test_proxy_cooldown_recovery) ... ok
 test_relationship_mapping (test_async_scanner.ConfigTests.test_relationship_mapping) ... ok
 test_urls_reserved_chars_and_socks (test_async_scanner.ConfigTests.test_urls_reserved_chars_and_socks) ... ok
-test_real_407_then_direct_fallback (test_proxy_wire.ProxyWireTests.test_real_407_then_direct_fallback) ... ok
-test_real_connect_auth_isolated_from_https_origin (test_proxy_wire.ProxyWireTests.test_real_connect_auth_isolated_from_https_origin) ... ok
-test_real_two_proxies_concurrently (test_proxy_wire.ProxyWireTests.test_real_two_proxies_concurrently) ... ok
+test_real_407_then_direct_fallback (test_proxy_wire.ProxyWireTests.test_real_407_then_direct_fallback) ... Executing <Task pending name='Task-13009' coro=<ProxyWireTests.asyncSetUp() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/tests/test_proxy_wire.py:22> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:712> cb=[_run_until_complete_cb() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:181] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:100> took 0.209 seconds
+ok
+test_real_connect_auth_isolated_from_https_origin (test_proxy_wire.ProxyWireTests.test_real_connect_auth_isolated_from_https_origin) ... Executing <Task pending name='Task-13023' coro=<ProxyWireTests.asyncSetUp() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/tests/test_proxy_wire.py:22> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:712> cb=[_run_until_complete_cb() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:181] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:100> took 0.123 seconds
+ok
+test_real_two_proxies_concurrently (test_proxy_wire.ProxyWireTests.test_real_two_proxies_concurrently) ... Executing <Task pending name='Task-13038' coro=<ProxyWireTests.asyncSetUp() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/tests/test_proxy_wire.py:22> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:712> cb=[_run_until_complete_cb() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:181] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:100> took 0.120 seconds
+ok
 test_40_profiles_restart_at_5_without_completed_network (test_persistent_scanner.DurableTests.test_40_profiles_restart_at_5_without_completed_network) ... ok
 test_bootstrap_dedupe_and_cached_dataset (test_persistent_scanner.DurableTests.test_bootstrap_dedupe_and_cached_dataset) ... ok
 test_claim_is_atomic_and_no_duplicate_jobs (test_persistent_scanner.DurableTests.test_claim_is_atomic_and_no_duplicate_jobs) ... ok
@@ -251,7 +264,8 @@ test_in_progress_recovery_and_corrupt_export (test_persistent_scanner.DurableTes
 test_new_session_reuses_previous_exports (test_persistent_scanner.DurableTests.test_new_session_reuses_previous_exports) ... ok
 test_page_transaction_failure_rolls_back_members_and_cursor (test_persistent_scanner.DurableTests.test_page_transaction_failure_rolls_back_members_and_cursor) ... ok
 test_partial_pages_resume_opaque_cursor (test_persistent_scanner.DurableTests.test_partial_pages_resume_opaque_cursor) ... ok
-test_python311_syntax (test_persistent_scanner.DurableTests.test_python311_syntax) ... ok
+test_python311_syntax (test_persistent_scanner.DurableTests.test_python311_syntax) ... Executing <Task finished name='Task-13176' coro=<DurableTests.test_python311_syntax() done, defined at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/tests/test_persistent_scanner.py:107> result=None created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:100> took 0.131 seconds
+ok
 test_resume_proxy_to_direct_without_reset (test_persistent_scanner.DurableTests.test_resume_proxy_to_direct_without_reset) ... ok
 test_run_scan_uses_persistent_claims (test_persistent_scanner.DurableTests.test_run_scan_uses_persistent_claims) ... ok
 test_forcekill_after_result_before_checkpoint (test_persistent_scanner.ProcessTests.test_forcekill_after_result_before_checkpoint) ... ok
@@ -265,7 +279,7 @@ test_forcekill_bootstrap_restarts_at_saved_next_cursor (test_persistent_scanner.
 [BOOTSTRAP] Following usable: 0; advertised=0; complete_exact.
 [BOOTSTRAP COMPLETE]
 [BOOTSTRAP] Starting main scan with 2 public, deduplicated profiles...
-[DISCOVERED] Saved the public-only starting dataset: /tmp/tmp18gyl3zk/starting_dataset.json
+[DISCOVERED] Saved the public-only starting dataset: /tmp/tmpb8gl2odx/starting_dataset.json
 ok
 test_forcekill_four_workers_three_completed_one_active (test_persistent_scanner.ProcessTests.test_forcekill_four_workers_three_completed_one_active) ... ok
 test_sigterm_main_flushes_claim_and_exits (test_persistent_scanner.ProcessTests.test_sigterm_main_flushes_claim_and_exits) ... ok
@@ -323,8 +337,10 @@ test_different_users_images_and_unusual_names (test_avatar_update.AvatarTests.te
 test_download_limits_and_bad_encoding (test_avatar_update.AvatarTests.test_download_limits_and_bad_encoding) ... [PROXY] No usable proxies remain; using direct connection.
 [PROXY] No usable proxies remain; using direct connection.
 [PROXY] No usable proxies remain; using direct connection.
+Executing <Task finished name='Task-15812' coro=<AvatarTests.test_download_limits_and_bad_encoding() done, defined at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/tests/test_avatar_update.py:133> result=None created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:100> took 0.109 seconds
 ok
-test_embedded_image_validation_and_legacy_record (test_avatar_update.AvatarTests.test_embedded_image_validation_and_legacy_record) ... ok
+test_embedded_image_validation_and_legacy_record (test_avatar_update.AvatarTests.test_embedded_image_validation_and_legacy_record) ... Executing <Task pending name='Task-15827' coro=<AvatarTests.test_embedded_image_validation_and_legacy_record() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/tests/test_avatar_update.py:245> wait_for=<Future pending cb=[shield.<locals>._outer_done_callback() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:922, Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:448> cb=[_run_until_complete_cb() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:181] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:100> took 0.126 seconds
+ok
 test_failed_source_not_redownloaded_until_later_run (test_avatar_update.AvatarTests.test_failed_source_not_redownloaded_until_later_run) ... ok
 test_http_failure_timeout_malformed_and_unavailable_network (test_avatar_update.AvatarTests.test_http_failure_timeout_malformed_and_unavailable_network) ... [PROXY] No usable proxies remain; using direct connection.
 [PROXY] No usable proxies remain; using direct connection.
@@ -347,11 +363,11 @@ test_report_valid_missing_old_and_escaped_avatar_data (test_avatar_update.Avatar
 test_valid_avatar_is_small_valid_relative_jpeg (test_avatar_update.AvatarTests.test_valid_avatar_is_small_valid_relative_jpeg) ... ok
 test_404_does_not_disable_transient_retries (test_avatar_update.ReviewFixTests.test_404_does_not_disable_transient_retries) ... [PROXY] proxy-001 connected; 1/1 confirmed so far.
 [404 RETRY 1/1] @roblox profile lookup - retrying
-[RETRY 1/3] temporary_server_failure; waiting 4.6s.
+[RETRY 1/3] temporary_server_failure; waiting 4.4s.
 [404 RETRY] Request recovered successfully.
 [PROXY] proxy-001 connected; 1/1 confirmed so far.
 [404 RETRY 1/1] @roblox profile lookup - retrying
-[RETRY 1/3] response_timeout; waiting 4.2s.
+[RETRY 1/3] response_timeout; waiting 4.3s.
 [404 RETRY] Request recovered successfully.
 ok
 test_configurable_worker_and_legacy_config (test_avatar_update.ReviewFixTests.test_configurable_worker_and_legacy_config) ... [PROXY] No usable proxies remain; using direct connection.
@@ -363,7 +379,7 @@ test_duplicate_early_return_recovers_committed_target_idempotently (test_avatar_
 ok
 test_normal_retry_budget_still_bounded_after_404 (test_avatar_update.ReviewFixTests.test_normal_retry_budget_still_bounded_after_404) ... [PROXY] No usable proxies remain; using direct connection.
 [404 RETRY 1/1] @a profile lookup - retrying
-[RETRY 1/1] temporary_server_failure; waiting 5.0s.
+[RETRY 1/1] temporary_server_failure; waiting 4.2s.
 ok
 test_old_terminal_duplicate_repaired_at_startup (test_avatar_update.ReviewFixTests.test_old_terminal_duplicate_repaired_at_startup) ... [TARGET FOUND] @wanted follows @alias; written immediately to sucess_find.json
 ok
@@ -374,6 +390,6 @@ test_main_caches_public_private_and_skipped_avatars (test_avatar_update.AvatarIn
 test_resume_backfills_old_records_and_reuses_saved_cache (test_avatar_update.AvatarIntegrationTests.test_resume_backfills_old_records_and_reuses_saved_cache) ... ok
 
 ----------------------------------------------------------------------
-Ran 217 tests in 29.195s
+Ran 219 tests in 55.781s
 
 OK

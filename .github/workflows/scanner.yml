@@ -1,0 +1,33 @@
+name: Scanner regressions
+on:
+  push:
+    paths: ['*.py', 'requirements*.txt', 'report*', 'vendor/**', 'tests/**', '.github/workflows/scanner.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  scanner:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.11', '3.12']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -r requirements-test.txt
+      - name: Offline regressions and real loopback TLS/proxy checks
+        shell: bash
+        run: |
+          set -o pipefail
+          python run_tests.py 2>&1 | tee scanner-tests.log
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with:
+          name: scanner-${{ matrix.os }}-${{ matrix.python }}
+          path: scanner-tests.log
+          retention-days: 30

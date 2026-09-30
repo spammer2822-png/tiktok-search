@@ -68,6 +68,6 @@ async def validate_pool(api, pool, config, root, *, client_factory=None):
     valid = sum(r['status']=='valid' for r in results)
     document = {'validated_at_utc':api.utc_iso(),'total':len(results),'valid':valid,
                 'invalid':len(results)-valid,'active_pool_size':valid,'proxies':results}
-    api.atomic_write_json(root/'proxy_validation.json',document)
+    await api.disk_call(api.atomic_write_json, root/'proxy_validation.json', document)
     api.console(f"[PROXY CHECK] Total: {len(results)} | Valid: {valid} | Invalid: {len(results)-valid} | Active pool: {valid}")
     return valid

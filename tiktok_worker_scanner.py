@@ -1,4 +1,4 @@
-r"""TikTok relationship scanner: async Worker API + authenticated Webshare proxies.
+r"""TikTok relationship scanner: async Worker/Direct/Hybrid + Webshare proxies.
 
 Python 3.11+ setup (Windows CMD):
     py -3.11 -m pip install -r requirements.txt
@@ -63,14 +63,16 @@ Changing limits, workers or delays affects future work only. Target/source are
 fixed for an existing search; changing either requires a new search.
 
 Global pacing is between request starts; 0-0 means no intentional spacing.
-In-flight requests use a separate local connection budget (default 64), with
-gradual latency/error adaptation. The configured worker count is a desired
-maximum, not an RPS setting. A Worker HTTP 429 stops the whole session
-immediately with no retry; Worker access denial stops new traffic. Proxy rotation is
+In-flight requests use a connection budget derived from workers unless explicitly
+configured, with measured latency/error adaptation. Workers specify concurrency,
+not RPS. In hybrid mode a Worker HTTP 429 disables Worker for this execution and
+migrates compatible work to Direct. Direct gets one central cooldown and gradual
+recovery opportunity; another 429 stops safely. Worker-only mode retains its
+immediate global 429 stop. Access denial stops the affected backend. Proxy rotation is
 only for genuine connection failures, never to bypass access/rate controls.
 Proxy credentials remain in the external file, never in scan_config or logs.
-No direct TikTok website/API requests or account changes are performed.
-Worker-supplied avatar CDN URLs may be downloaded into this run's local cache.
+Direct mode uses signed TikTok API requests with isolated optional session cookies.
+API-supplied avatar CDN URLs may be downloaded into this run's local cache.
 
 HTTP(S) targets normally use an http:// Webshare proxy with CONNECT. Optional
 https:// entries require a proxy that itself supports TLS; a TLS target does
@@ -90,7 +92,7 @@ Natural endpoint exhaustion is usable even if advertised counts disagree.
 Explicitly hidden lists stay unavailable, with unknown relationship directions.
 Such profiles are terminal when the other lists finish. Username bootstrap may
 use available completed lists alongside explicit restrictions. HTTP 404 retries
-the exact request once; 429/access-denial handling remains global.
+the exact request once; backend-specific 429/access-denial admission is enforced.
 Progress counts all terminal outcomes and separately reports private skips.
 """
 
@@ -1786,7 +1788,7 @@ class WorkerApiClient:
                             retry=attempt > 0, cancelled=cancelled)
                     if attempt_started:
                         self.metrics.end('worker', operation, time.monotonic()-started, success=success,
-                            records=(1 if operation == 'profile' else len(checked.get('users', []))) if success else 0,
+                            records=(1 if operation == 'profile' else sum(member_identity(row) is not None for row in checked.get('users', []))) if success else 0,
                             kind=failure.kind if failure else None, code=failure.code if failure else status,
                             proxy=route.label if route else None, size=len(response.content) if response is not None else 0)
                     if route is not None:
@@ -2079,7 +2081,8 @@ def parse_list_page(payload: Any, list_name: str) -> "BatchResponse":
     return BatchResponse(records=records, has_more=has_more, min_cursor=cursor)
 
 
-def normalize_member(entry: Any) -> tuple[str, dict[str, Any]] | None:
+def member_identity(entry: Any) -> tuple[str, str, str] | None:
+    """Validate identity without building another normalized record for metrics."""
     if not isinstance(entry, dict):
         return None
     username = entry.get("uniqueId")
@@ -2089,8 +2092,15 @@ def normalize_member(entry: Any) -> tuple[str, dict[str, Any]] | None:
     uid = uid if re.fullmatch(r"[0-9]+", uid) and int(uid) > 0 else ""
     if not uid and not username:
         return None
-    # List responses do not expose secUid in the observed schema.
     key = f"id:{uid}" if uid else f"username:{username.casefold()}"
+    return key, uid, username
+
+
+def normalize_member(entry: Any) -> tuple[str, dict[str, Any]] | None:
+    identity = member_identity(entry)
+    if identity is None:
+        return None
+    key, uid, username = identity
     normalized = {
         "id": uid, "username": username,
         "display_name": entry.get("nickname") if isinstance(entry.get("nickname"), str) else "",
@@ -2530,7 +2540,7 @@ def inspect_reusable_export(
         return None
     if not isinstance(document, dict):
         return None
-    if document.get("schema_version") != 4 or document.get("source") != "fintok_worker_api":
+    if document.get("schema_version") != 4 or document.get("source") not in {"fintok_worker_api", "tiktok_hybrid_api"}:
         return None
     profile = document.get("profile")
     if not isinstance(profile, dict):
