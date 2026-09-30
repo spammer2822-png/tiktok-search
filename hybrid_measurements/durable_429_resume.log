@@ -1,0 +1,6 @@
+test_full_scan_stop_and_resume_keeps_pages_jobs_and_matches (test_rate_limit_control.RateLimitTests.test_full_scan_stop_and_resume_keeps_pages_jobs_and_matches) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.492s
+
+OK

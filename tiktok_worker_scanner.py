@@ -3078,6 +3078,13 @@ async def session_runtime(state, root, workers):
         stats.disk_lane = lane
         console(f"[IO] Profile writers: {lane.io_limit}/{lane.io_ceiling} ({'automatic' if lane.io_auto else 'configured'}); shared state writes stay ordered.")
         disk_token, stats_token = _DISK_LANE.set(lane), _STATS.set(stats)
+        async def rate_limit_checkpoint():
+            if isinstance(state, DurableScanState):
+                state.base['backend_rate_limits'] = stats.rate_limits.snapshot()
+                await disk_call(state.snapshot)
+            snapshot = stats.snapshot(await disk_call(statistics_summary, state))
+            await disk_call(stats.write, snapshot, atomic_write_json)
+        stats.rate_limit_checkpoint = rate_limit_checkpoint
         reporter = None
         try:
             first = stats.snapshot(await disk_call(statistics_summary, state))
@@ -3116,6 +3123,8 @@ async def session_runtime(state, root, workers):
                                else 'stopped_incomplete')
                 if isinstance(state, DurableScanState):
                     state.base['scan_status'] = stats.status
+                    if getattr(stats, 'rate_limits', None):
+                        state.base['backend_rate_limits'] = stats.rate_limits.snapshot()
                     await disk_call(state.snapshot, scan_complete=state.metadata.get('scan_complete', False), fatal_error=stats.stop_reason)
                 final = stats.snapshot(summary)
                 await disk_call(stats.write, final, atomic_write_json, history=True)

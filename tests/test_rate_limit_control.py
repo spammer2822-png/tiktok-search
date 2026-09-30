@@ -8,13 +8,14 @@ from unittest.mock import patch
 import httpx
 import tiktok_worker_scanner as s
 import hybrid_backend as h
-from test_hybrid_backend import HybridTests, direct_profile, direct_page, worker_profile, worker_page, user
+import test_hybrid_backend as fixtures
+from test_hybrid_backend import direct_profile, direct_page, worker_profile, worker_page, user
 
 
 class RateLimitTests(unittest.IsolatedAsyncioTestCase):
-    asyncSetUp = HybridTests.asyncSetUp
-    asyncTearDown = HybridTests.asyncTearDown
-    make = HybridTests.make
+    asyncSetUp = fixtures.HybridTests.asyncSetUp
+    asyncTearDown = fixtures.HybridTests.asyncTearDown
+    make = fixtures.HybridTests.make
 
     def worker_first(self, client):
         return patch.object(client, 'choose', side_effect=lambda exclude=None:
@@ -130,7 +131,8 @@ class RateLimitTests(unittest.IsolatedAsyncioTestCase):
             nonlocal direct_calls
             if req.url.host == 'www.tiktok.com': direct_calls += 1
             return httpx.Response(429, headers={'Retry-After': '0.01'})
-        async with self.make(handle) as client, self.worker_first(client):
+        async with self.make(handle) as client:
+            client.choose = lambda exclude=None: 'direct' if exclude == 'worker' or client.rate_limits.worker_disabled else 'worker'
             results = await asyncio.wait_for(asyncio.gather(*(client.lookup_profile(f'person{i}') for i in range(150)), return_exceptions=True), 20)
             self.assertEqual(direct_calls, 2)
             self.assertTrue(all(isinstance(r, BaseException) for r in results))
@@ -144,8 +146,9 @@ class RateLimitTests(unittest.IsolatedAsyncioTestCase):
         stats = ScanStatistics(self.root, 100)
         self.gate.stats = stats
         async def handle(req):
-            return httpx.Response(429) if req.url.host.endswith('workers.dev') else httpx.Response(200, json=direct_profile())
-        async with self.make(handle) as client, self.worker_first(client):
+            return httpx.Response(429) if req.url.host.endswith('workers.dev') else httpx.Response(200, json=direct_profile(int(req.url.params['uniqueId'][6:])))
+        async with self.make(handle) as client:
+            client.choose = lambda exclude=None: 'direct' if exclude == 'worker' or client.rate_limits.worker_disabled else 'worker'
             await client.lookup_profile('person1')
             self.assertTrue(client.rate_limits.worker_disabled)
         self.gate = s.AsyncRequestGate(0, 0, asyncio.Event(), ceiling=100, initial=100, adaptive=False)
@@ -172,3 +175,65 @@ class RateLimitTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(self.gate.network_tasks)
         self.assertFalse(any(t.get_name() == 'direct-rate-limit-timer' for t in asyncio.all_tasks()))
 
+    async def test_full_scan_stop_and_resume_keeps_pages_jobs_and_matches(self):
+        cfg = {**s.default_scan_config(), **self.settings, 'workers': 8,
+               'target_username': 'person2', 'direct_429_cooldown': .01}
+        state = s.DurableScanState(self.root, {'input_imported': True}, self.root, cfg)
+        state.add_jobs([s.ProfileJob(f'person{i}', f'https://www.tiktok.com/@person{i}', ('profiles',))
+                        for i in range(10, 14)])
+        success = s.SuccessRecorder(self.root/s.SUCCESS_FILE_NAME, target_user='person2',
+            input_path=self.root/'input.json', started_at_utc=s.utc_iso())
+        resumed, controllers = False, []
+        async def handle(req):
+            if req.url.host.endswith('workers.dev'):
+                return httpx.Response(429)
+            if req.url.path == '/api/user/detail/':
+                payload = direct_profile(int(req.url.params['uniqueId'][6:]))
+                payload['userInfo']['user']['avatarThumb'] = ''
+                return httpx.Response(200, json=payload)
+            if req.url.params['minCursor'] == '0':
+                return httpx.Response(200, json=direct_page([1, 2], 'direct+/one=', True))
+            self.assertEqual(req.url.params['minCursor'], 'direct+/one=')
+            return httpx.Response(200, json=direct_page([2, 3])) if resumed else httpx.Response(429)
+        def factory(gate, pool, **kwargs):
+            client = h.HybridClient(gate, pool, **kwargs, client_factory=lambda route, options:
+                httpx.AsyncClient(transport=httpx.MockTransport(handle), **options))
+            client.choose = lambda exclude=None: 'direct' if exclude == 'worker' or client.rate_limits.worker_disabled else 'worker'
+            controllers.append(client.rate_limits)
+            return client
+        args = dict(output_directory=self.root, worker_count=8, pacing=(0, 0),
+                    success_recorder=success, state_recorder=state, use_resume=True)
+        try:
+            with patch.object(h, 'create_client', factory), patch.object(s, 'console'):
+                _, _, fatal = await asyncio.wait_for(s.run_scan([], **args), 20)
+                self.assertIsNotNone(fatal)
+                summary = state.summary()
+                self.assertEqual(summary['remaining_profiles'], 4)
+                self.assertEqual(summary['failed_profiles'], 0)
+                saved = []
+                for path in (self.root/'pages').glob('*.sqlite3'):
+                    with s.UserStore(path) as store:
+                        checkpoint = store.checkpoint('followers')
+                        if checkpoint:
+                            self.assertEqual(store.count('followers'), 2)
+                            self.assertEqual(checkpoint['next_cursor'], 'direct+/one=')
+                            saved.append(path)
+                self.assertTrue(saved)
+                stats = json.loads((self.root/'scan_stats.json').read_text())
+                self.assertEqual(stats['scan_status'], 'stopped_rate_limited')
+                self.assertTrue(stats['findtik_disabled_after_429'])
+                resumed = True
+                state.recover(success)
+                _, _, fatal = await asyncio.wait_for(s.run_scan([], **args), 20)
+                self.assertIsNone(fatal)
+                self.assertEqual(state.summary()['completed_overall'], 4)
+                self.assertEqual(state.summary()['remaining_profiles'], 0)
+                for i in range(10, 14):
+                    with s.UserStore(self.root/'pages'/f'person{i}.sqlite3') as store:
+                        for direction in ('followers', 'following'):
+                            self.assertEqual(store.count(direction), 3)
+                            self.assertTrue(store.checkpoint(direction)['result']['complete'])
+                    self.assertEqual(set(success.found_lists_for(f'person{i}')), {'followers', 'following'})
+                self.assertIsNot(controllers[0], controllers[1])
+        finally:
+            state.close()

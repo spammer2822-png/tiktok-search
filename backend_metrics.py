@@ -114,6 +114,8 @@ class BackendMetrics:
             output.setdefault(key, 0)
         if getattr(self, 'pool_provider', None):
             output['backend_connection_pools'] = self.pool_provider()
+        if getattr(self, 'rate_limit_provider', None):
+            output.update(self.rate_limit_provider())
         output['backend_stages'] = dict(self.stages)
         output['backend_proxy_metrics'] = {name: dict(values) for name, values in self.proxy.items()}
         output['backend_metric_scope'] = '60s rolling rates; latency sample bounded to latest 4096 attempts; response_body_bytes excludes TLS/wire overhead'

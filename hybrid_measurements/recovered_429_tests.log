@@ -1,0 +1,56 @@
+test_150_queued_worker_requests_migrate_without_leakage (test_rate_limit_control.RateLimitTests.test_150_queued_worker_requests_migrate_without_leakage) ... [PROXY] No usable proxies remain; using direct connection.
+[429] Worker disabled for this execution. Remaining compatible work moves to Direct.
+ok
+test_2500_active_worker_requests_cancel_and_migrate (test_rate_limit_control.RateLimitTests.test_2500_active_worker_requests_cancel_and_migrate) ... Executing <Task pending name='Task-463' coro=<RateLimitTests.test_2500_active_worker_requests_cancel_and_migrate() running at /workspace/scratch/44b13c627f46/recovery_20260930/work/TikTokScanner/tests/test_rate_limit_control.py:62> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:712> cb=[_run_until_complete_cb() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:181] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:100> took 0.237 seconds
+[PROXY] No usable proxies remain; using direct connection.
+Executing <Task pending name='coalesced-profile' coro=<HybridClient.lookup_profile.<locals>.lookup() running at /workspace/scratch/44b13c627f46/recovery_20260930/work/TikTokScanner/hybrid_backend.py:446> wait_for=<Future pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:448> cb=[shield.<locals>._inner_done_callback() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:905] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> took 0.115 seconds
+Executing <Task pending name='worker-api-request' coro=<ApiBackend.request_json.<locals>.send() running at /workspace/scratch/44b13c627f46/recovery_20260930/work/TikTokScanner/hybrid_backend.py:243> wait_for=<Future pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:448> cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> took 0.156 seconds
+Executing <Task pending name='worker-api-request' coro=<ApiBackend.request_json.<locals>.send() running at /workspace/scratch/44b13c627f46/recovery_20260930/work/TikTokScanner/hybrid_backend.py:243> wait_for=<Future pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:448> cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> took 0.204 seconds
+Executing <Task pending name='worker-api-request' coro=<ApiBackend.request_json.<locals>.send() running at /workspace/scratch/44b13c627f46/recovery_20260930/work/TikTokScanner/hybrid_backend.py:243> wait_for=<Future pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:448> cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> took 0.300 seconds
+[429] Worker disabled for this execution. Remaining compatible work moves to Direct.
+ok
+test_bootstrap_client_boundary_retains_disable_but_new_execution_resets (test_rate_limit_control.RateLimitTests.test_bootstrap_client_boundary_retains_disable_but_new_execution_resets) ... [PROXY] No usable proxies remain; using direct connection.
+[429] Worker disabled for this execution. Remaining compatible work moves to Direct.
+[PROXY] No usable proxies remain; using direct connection.
+Executing <Task pending name='coalesced-profile' coro=<HybridClient.lookup_profile.<locals>.lookup() running at /workspace/scratch/44b13c627f46/recovery_20260930/work/TikTokScanner/hybrid_backend.py:446> wait_for=<Future pending cb=[shield.<locals>._outer_done_callback() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:922, Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:448> cb=[shield.<locals>._inner_done_callback() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:905] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> took 0.141 seconds
+ok
+test_cancel_during_cooldown_leaves_no_timers_or_permits (test_rate_limit_control.RateLimitTests.test_cancel_during_cooldown_leaves_no_timers_or_permits) ... [PROXY] No usable proxies remain; using direct connection.
+[ASYNC] Active request limit adjusted to 1 (ceiling 100).
+[429] Direct paused for 60.00s. One recovery probe will follow.
+ok
+test_direct_cooldown_single_timer_probe_and_gradual_recovery (test_rate_limit_control.RateLimitTests.test_direct_cooldown_single_timer_probe_and_gradual_recovery) ... [PROXY] No usable proxies remain; using direct connection.
+[ASYNC] Active request limit adjusted to 1 (ceiling 100).
+[429] Direct paused for 0.12s. One recovery probe will follow.
+[429] Direct recovery succeeded; increasing concurrency with valid responses.
+[ASYNC] Active request limit adjusted to 2 (ceiling 100).
+[ASYNC] Active request limit adjusted to 4 (ceiling 100).
+[ASYNC] Active request limit adjusted to 8 (ceiling 100).
+[ASYNC] Active request limit adjusted to 16 (ceiling 100).
+[ASYNC] Active request limit adjusted to 32 (ceiling 100).
+[ASYNC] Active request limit adjusted to 64 (ceiling 100).
+[ASYNC] Active request limit adjusted to 100 (ceiling 100).
+ok
+test_repeated_direct_429_stops_without_releasing_queue (test_rate_limit_control.RateLimitTests.test_repeated_direct_429_stops_without_releasing_queue) ... [PROXY] No usable proxies remain; using direct connection.
+[429] Worker disabled for this execution. Remaining compatible work moves to Direct.
+[ASYNC] Active request limit adjusted to 1 (ceiling 100).
+[429] Direct paused for 0.01s. One recovery probe will follow.
+
+HTTP 429 RATE LIMIT DETECTED
+All new API requests have been stopped.
+Saving progress, pending profiles, failed profiles, retry state and statistics.
+The scan can be resumed later.
+ok
+test_worker_429_in_both_cursor_directions_preserves_dedup_and_target (test_rate_limit_control.RateLimitTests.test_worker_429_in_both_cursor_directions_preserves_dedup_and_target) ... [PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWERS] Page 1: received 2, +2 unique, total 2, has_more=True
+[429] Worker disabled for this execution. Remaining compatible work moves to Direct.
+[@person1] [FOLLOWERS] Page 2: received 2, +1 unique, total 3, has_more=False
+[PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWING] Page 1: received 2, +2 unique, total 2, has_more=True
+[429] Worker disabled for this execution. Remaining compatible work moves to Direct.
+[@person1] [FOLLOWING] Page 2: received 2, +1 unique, total 3, has_more=False
+ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 10.323s
+
+OK

@@ -10,6 +10,7 @@ from dataclasses import asdict
 import tiktok_worker_scanner as s
 from backend_metrics import BackendMetrics
 from connection_metrics import RequestTrace, pool_snapshot
+from rate_limit_control import BackendPaused, RateLimitController
 from direct_protocol import ORIGIN, Session, ProtocolError, load_session, normalize_profile, normalize_page
 
 
@@ -69,6 +70,8 @@ class BackendGate:
 
     def check(self):
         self.parent.check()
+        if hasattr(self, 'controller'):
+            self.controller.check(self.name)
         if self.disabled:
             raise s.WorkerApiError(f'{self.name} backend is unavailable.', kind='backend_unavailable')
         if self.blocked_reason:
@@ -98,6 +101,8 @@ class BackendGate:
         self.parent.stop_rate_limited(reason)
 
     def observe(self, latency, pool):
+        if hasattr(self, 'controller') and self.controller.direct_state != 'HEALTHY':
+            return
         if self.name != 'direct' or time.monotonic()-self.last_adjustment < 1:
             return
         recent = self.metrics.recent[self.name]
@@ -163,13 +168,23 @@ class ApiBackend(s.WorkerApiClient):
 
     async def response_headers(self, response):
         if response.status_code == 429:
-            self.gate.stop_rate_limited(f'HTTP 429 received from {self.name} API')
-            raise s.WorkerApiError(f'{self.name} HTTP 429.', kind='rate_limited', code=429)
+            control = self.gate.controller
+            control.received_429(self.name,
+                s.retry_after_seconds(response.headers.get('Retry-After')),
+                response.request.extensions.get('rate_limit_generation', control.generation))
+            if self.gate.parent.rate_limit_exhausted:
+                raise s.WorkerApiError(self.gate.parent.rate_limit_reason, kind='rate_limited', code=429)
+            self.gate.parent.check()
+            if self.name == 'direct':
+                raise BackendPaused(code=429)
+            raise s.WorkerApiError('Worker HTTP 429; disabled for this execution.', kind='backend_unavailable', code=429)
 
     async def request_json(self, operation, params, *, context=None):
         attempts = self.settings.get(self.name+'_retry_attempts', self.settings.get('retry_attempts', 4))
         route, select_route, extra_404 = None, True, False
-        for attempt in range(attempts+1):
+        attempt = 0
+        while attempt <= attempts:
+            await self.gate.controller.wait_ready(self.name)
             self.request_retries.set(attempt)
             response = task = failure = None
             success = cancelled = started = False
@@ -178,9 +193,13 @@ class ApiBackend(s.WorkerApiClient):
                 with self.metrics.stage('proxy_selection'):
                     route = self.pool.choose()
                 select_route = False
-            client = await self.borrow_client(route)
+            try:
+                client = await self.borrow_client(route)
+            except BackendPaused:
+                continue
             if route: route.in_use += 1
             begin = time.monotonic()
+            generation = self.gate.controller.generation
             key = route.label if route else 'direct'
             acquired = proxy_acquired = False
             proxy_slot = None
@@ -198,7 +217,7 @@ class ApiBackend(s.WorkerApiClient):
                     proxy_acquired = True
                     self.metrics.add(self.name, proxy_capacity_wait_seconds=time.monotonic()-waiting)
                 async def send():
-                    nonlocal begin, started
+                    nonlocal begin, started, generation
                     if self.name == 'direct':
                         key = route.label if route else 'direct'
                         # Native signing is CPU work; keeping it off-loop bounds
@@ -216,11 +235,14 @@ class ApiBackend(s.WorkerApiClient):
                         options = {'params': params, 'content': None if method == 'GET' else b''}
                     await self.gate.pace()
                     self.gate.check()
+                    generation = self.gate.controller.generation
                     begin, started = time.monotonic(), True
                     self.metrics.begin(self.name)
                     if self.gate.stats: self.gate.stats.request_started(retry=attempt > 0)
                     async with asyncio.timeout(self.settings.get('timeouts', {}).get('total', 55.)):
-                        return await client.request(method, url, extensions={'trace': RequestTrace(self.metrics, self.name)}, **options)
+                        return await client.request(method, url, extensions={
+                            'trace': RequestTrace(self.metrics, self.name),
+                            'rate_limit_generation': generation}, **options)
                 async with self.gate.slot():
                     task = asyncio.create_task(send(), name=self.name+'-api-request')
                     self.gate.network_tasks.add(task); self.gate.parent.network_tasks.add(task)
@@ -243,7 +265,12 @@ class ApiBackend(s.WorkerApiClient):
                             expected_count=params.get('_expected_count'), cursor=params['minCursor'], keep_raw=s.KEEP_RAW_MEMBER_DATA)
                         if operation == 'profile' and s.KEEP_RAW_MEMBER_DATA:
                             payload['data']['raw_direct'] = original_payload
-                    checked = s.check_worker_error(payload, operation)
+                    try:
+                        checked = s.check_worker_error(payload, operation)
+                    except s.WorkerApiError as exc:
+                        if exc.kind == 'rate_limited':
+                            raise s.WorkerApiError(str(exc), kind='upstream_rate_limited') from None
+                        raise
                     if operation == 'profile':
                         try: s.parse_profile_response(checked, params['username'])
                         except s.PublicProfileRequired: pass  # A confirmed private profile is a valid observation.
@@ -252,10 +279,15 @@ class ApiBackend(s.WorkerApiClient):
                         page = s.parse_list_page(checked, operation)
                         records = len(page.records)
                 success = True
+                self.gate.controller.succeeded(self.name, generation)
                 return checked
             except asyncio.CancelledError:
                 cancelled = True
-                raise
+                if task and getattr(task, 'backend_interrupted', None) and not asyncio.current_task().cancelling():
+                    failure = BackendPaused() if self.name == 'direct' else s.WorkerApiError(
+                        'Worker request cancelled after HTTP 429.', kind='backend_unavailable')
+                else:
+                    raise
             except ProtocolError as exc:
                 failure = s.WorkerApiError(str(exc), kind=exc.kind, retryable=exc.retryable)
             except self.httpx.ProxyError as exc:
@@ -290,6 +322,8 @@ class ApiBackend(s.WorkerApiClient):
                 self.release_client(route)
             failure.backend_failure = self.name+'_'+failure.kind
             failure.retry_count = attempt
+            if failure.kind == 'backend_paused':
+                continue
             if failure.kind == 'access_denied':
                 # A restriction must never trigger a different backend or proxy.
                 self.gate.blocked_reason = str(failure)
@@ -305,7 +339,11 @@ class ApiBackend(s.WorkerApiClient):
             delay = max(retry_after or 0., min(60., 2.**(attempt+1))+random.random())
             if failure.kind == 'proxy_concurrency_limited':
                 self.gate.parent.penalize(delay)
-            await self.retry_wait(delay)
+            try:
+                await self.retry_wait(delay)
+            except BackendPaused:
+                pass
+            attempt += 1
         raise failure
 
     async def lookup_profile(self, username):
@@ -352,6 +390,10 @@ class HybridClient:
         self.bootstrap_mode = False
         self.redactor = self.assets.redactor
         self.metrics.pool_provider = lambda: {name: pool_snapshot(backend.clients.values()) for name, backend in self.backends.items()}
+        self.rate_limits = getattr(gate.stats, 'rate_limits', None) or RateLimitController(self.metrics, self.settings)
+        if gate.stats:
+            gate.stats.rate_limits = self.rate_limits
+        self.rate_limits.attach(gate, self.backends)
 
     @property
     def avatar_backfill_task(self): return self.assets.avatar_backfill_task
@@ -370,6 +412,7 @@ class HybridClient:
         await asyncio.gather(*self.inflight_profiles.values(), return_exceptions=True)
         await self.assets.__aexit__(*args)
         for backend in self.backends.values(): await backend.__aexit__(*args)
+        await self.rate_limits.detach()
 
     def choose(self, exclude=None):
         with self.metrics.stage('backend_routing'):
@@ -377,6 +420,8 @@ class HybridClient:
                          if name != exclude and not backend.gate.disabled and not backend.gate.blocked_reason]
             if not available:
                 raise s.WorkerApiError('No available backend remains.', kind='backend_unavailable')
+            if self.rate_limits.direct_state == 'COOLDOWN' and 'worker' in available:
+                available = [name for name in available if name != 'direct']
             if len(available) == 1: return available[0]
             self.route_sequence += 1
             # One in twenty assignments explores the less-used path, preventing
@@ -401,9 +446,14 @@ class HybridClient:
                 return await self.backends[first].lookup_profile(username)
             except s.WorkerApiError as exc:
                 if not self.can_failover(exc) or self.mode != 'hybrid': raise
-                other = self.choose(exclude=first)
+                try:
+                    other = self.choose(exclude=first)
+                except s.WorkerApiError:
+                    raise exc
                 self.metrics.events['backend_failovers'] += 1
-                if not self.settings.get('race_failed_requests', False):
+                if first == 'worker' and self.rate_limits.worker_disabled:
+                    self.metrics.events['findtik_jobs_moved_to_direct'] += 1
+                if not self.settings.get('race_failed_requests', False) or self.backends[first].gate.disabled:
                     return await self.backends[other].lookup_profile(username)
                 tasks = {asyncio.create_task(self.backends[n].lookup_profile(username)) for n in (first, other)}
                 try:
@@ -459,13 +509,19 @@ class HybridClient:
             return await self.backends[owner].fetch_page(profile, list_name, cursor, result.batches+1), cursor, False
         except s.WorkerApiError as exc:
             result.backend_failure = getattr(exc, 'backend_failure', owner+'_'+exc.kind)
-            if self.mode != 'hybrid' or not self.can_failover(exc) or result.cursor_chain_restarts:
+            disabled_worker = owner == 'worker' and self.rate_limits.worker_disabled
+            if self.mode != 'hybrid' or not self.can_failover(exc) or (result.cursor_chain_restarts and not disabled_worker):
                 raise
-            other = self.choose(exclude=owner)
+            try:
+                other = self.choose(exclude=owner)
+            except s.WorkerApiError:
+                raise exc
             # No cross-backend cursor compatibility has been verified. Commit the
             # ownership change and zero cursor BEFORE making the replacement call.
             await s.disk_call(store.restart_chain, result, other)
             self.metrics.events.update(backend_failovers=1, backend_switches=1, cursor_chain_restarts=1)
+            if disabled_worker:
+                self.metrics.events['findtik_jobs_moved_to_direct'] += 1
             batch = await self.backends[other].fetch_page(profile, list_name, '0', result.batches+1)
             return batch, '0', True
 

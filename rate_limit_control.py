@@ -39,6 +39,9 @@ class RateLimitController:
     def attach(self, parent, backends):
         self.parent = parent
         self.gates = {name: backend.gate for name, backend in backends.items()}
+        if self.recovery_used and self.direct_state == 'HEALTHY' and 'direct' in self.gates:
+            if self.recovery_limit < self.gates['direct'].ceiling:
+                self.direct_state = 'RECOVERING'
         for name, gate in self.gates.items():
             gate.controller = self
             if name == 'worker':
@@ -91,6 +94,12 @@ class RateLimitController:
             if name == 'worker':
                 self.metrics.events['findtik_requests_cancelled_after_429'] += 1
         gate.wake_capacity()
+        retry_queue = getattr(gate, 'retry_queue', None)
+        if retry_queue:
+            for _, _, future in retry_queue.heap:
+                if not future.done():
+                    future.set_result(None)
+            retry_queue.changed.set()
 
     def save_state(self):
         stats = self.parent.stats
@@ -178,4 +187,3 @@ class RateLimitController:
         if self.checkpoints:
             await asyncio.gather(*self.checkpoints, return_exceptions=True)
         self.gates = {}
-
