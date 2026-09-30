@@ -1,0 +1,1704 @@
+........................................................................ [  2%]
+........................................................................ [  5%]
+.................................F...................................... [  8%]
+........................................................................ [ 11%]
+........................................................................ [ 14%]
+........................................................................ [ 17%]
+........................................................................ [ 19%]
+..................................................................EE.... [ 22%]
+........................................................................ [ 25%]
+........................................................................ [ 28%]
+.....................................................................FFF [ 31%]
+........................................................................ [ 34%]
+........................................................................ [ 37%]
+........................................................................ [ 39%]
+........................................................................ [ 42%]
+.........................................................F.............. [ 45%]
+........................................................................ [ 48%]
+.............FFFF....................................................... [ 51%]
+........................................................................ [ 54%]
+........................................................................ [ 56%]
+........................................................................ [ 59%]
+........................................................................ [ 62%]
+........................................................................ [ 65%]
+........................................................................ [ 68%]
+........................................................................ [ 71%]
+........................................................................ [ 74%]
+........................................................................ [ 76%]
+........................................................................ [ 79%]
+........................................................................ [ 82%]
+.......................F.FF............................................. [ 85%]
+............................................................FFFFFFFFFFF. [ 88%]
+........................................................................ [ 91%]
+........................................................................ [ 93%]
+........................................................................ [ 96%]
+........................................................................ [ 99%]
+.........                                                                [100%]
+==================================== ERRORS ====================================
+____ ERROR at setup of TestReadOnlyRule.test_every_allowlisted_route_exists ____
+
+    @pytest.fixture(scope="module")
+    def spec() -> dict:
+        from dtk.api.app import create_app
+    
+>       return create_app().openapi()
+               ^^^^^^^^^^^^
+
+tests/unit/test_demo.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/dtk/api/app.py:141: in create_app
+    settings = settings or BootstrapSettings()
+                           ^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/pydantic_settings/main.py:262: in __init__
+    super().__init__(**__pydantic_self__.__class__._settings_build_values(sources, init_kwargs))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'dtk.core.config.BootstrapSettings'>, v = ''
+
+    @field_validator("secret_key")
+    @classmethod
+    def _require_secret(cls, v: str) -> str:
+        if not v or len(v) < MIN_SECRET_LEN:
+>           raise SecretKeyMissing(
+                f"DTK_SECRET_KEY must be set and at least {MIN_SECRET_LEN} characters. "
+                "Generate one with: openssl rand -base64 48"
+            )
+E           dtk.core.crypto.SecretKeyMissing: DTK_SECRET_KEY must be set and at least 32 characters. Generate one with: openssl rand -base64 48
+
+src/dtk/core/config.py:69: SecretKeyMissing
+_ ERROR at setup of TestReadOnlyRule.test_no_write_endpoint_is_open_to_demo_by_accident _
+
+    @pytest.fixture(scope="module")
+    def spec() -> dict:
+        from dtk.api.app import create_app
+    
+>       return create_app().openapi()
+               ^^^^^^^^^^^^
+
+tests/unit/test_demo.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/dtk/api/app.py:141: in create_app
+    settings = settings or BootstrapSettings()
+                           ^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/pydantic_settings/main.py:262: in __init__
+    super().__init__(**__pydantic_self__.__class__._settings_build_values(sources, init_kwargs))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'dtk.core.config.BootstrapSettings'>, v = ''
+
+    @field_validator("secret_key")
+    @classmethod
+    def _require_secret(cls, v: str) -> str:
+        if not v or len(v) < MIN_SECRET_LEN:
+>           raise SecretKeyMissing(
+                f"DTK_SECRET_KEY must be set and at least {MIN_SECRET_LEN} characters. "
+                "Generate one with: openssl rand -base64 48"
+            )
+E           dtk.core.crypto.SecretKeyMissing: DTK_SECRET_KEY must be set and at least 32 characters. Generate one with: openssl rand -base64 48
+
+src/dtk/core/config.py:69: SecretKeyMissing
+=================================== FAILURES ===================================
+________ TestSigningStack.test_browser_rpc_is_behind_the_native_signers ________
+
+self = <tests.unit.test_cli.TestSigningStack object at 0x7f8ee30a7860>
+
+    def test_browser_rpc_is_behind_the_native_signers(self) -> None:
+        """Configured browser-rpc must actually reach the registry as a fallback."""
+        from dtk.ops.pipeline import signing_stack
+    
+        async def check() -> Any:
+            async with signing_stack("http://browser-rpc:8000") as (_transport, signers):
+                return signers._rpc
+    
+>       assert type(asyncio.run(check())).__name__ == "RpcSigner"
+                    ^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_cli.py:640: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+tests/unit/test_cli.py:637: in check
+    async with signing_stack("http://browser-rpc:8000") as (_transport, signers):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/contextlib.py:210: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/dtk/ops/pipeline.py:305: in signing_stack
+    httpx.AsyncClient(timeout=SIGNING_TIMEOUT_SECONDS, follow_redirects=True)
+.venv/lib/python3.12/site-packages/httpx/_client.py:1415: in __init__
+    else self._init_proxy_transport(
+.venv/lib/python3.12/site-packages/httpx/_client.py:1464: in _init_proxy_transport
+    return AsyncHTTPTransport(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <httpx.AsyncHTTPTransport object at 0x7f8ee1546900>, verify = True
+cert = None, trust_env = True, http1 = True, http2 = False
+limits = Limits(max_connections=100, max_keepalive_connections=20, keepalive_expiry=5.0)
+proxy = Proxy('socks5h://127.0.0.1:40225'), uds = None, local_address = None
+retries = 0, socket_options = None
+
+    def __init__(
+        self,
+        verify: ssl.SSLContext | str | bool = True,
+        cert: CertTypes | None = None,
+        trust_env: bool = True,
+        http1: bool = True,
+        http2: bool = False,
+        limits: Limits = DEFAULT_LIMITS,
+        proxy: ProxyTypes | None = None,
+        uds: str | None = None,
+        local_address: str | None = None,
+        retries: int = 0,
+        socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
+    ) -> None:
+        import httpcore
+    
+        proxy = Proxy(url=proxy) if isinstance(proxy, (str, URL)) else proxy
+        ssl_context = create_ssl_context(verify=verify, cert=cert, trust_env=trust_env)
+    
+        if proxy is None:
+            self._pool = httpcore.AsyncConnectionPool(
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                uds=uds,
+                local_address=local_address,
+                retries=retries,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("http", "https"):
+            self._pool = httpcore.AsyncHTTPProxy(
+                proxy_url=httpcore.URL(
+                    scheme=proxy.url.raw_scheme,
+                    host=proxy.url.raw_host,
+                    port=proxy.url.port,
+                    target=proxy.url.raw_path,
+                ),
+                proxy_auth=proxy.raw_auth,
+                proxy_headers=proxy.headers.raw,
+                proxy_ssl_context=proxy.ssl_context,
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("socks5", "socks5h"):
+            try:
+                import socksio  # noqa
+            except ImportError:  # pragma: no cover
+>               raise ImportError(
+                    "Using SOCKS proxy, but the 'socksio' package is not installed. "
+                    "Make sure to install httpx using `pip install httpx[socks]`."
+                ) from None
+E               ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+
+.venv/lib/python3.12/site-packages/httpx/_transports/default.py:335: ImportError
+________ test_every_i18n_keyed_operation_is_explained_in_every_language ________
+
+    def test_every_i18n_keyed_operation_is_explained_in_every_language() -> None:
+        from dtk.i18n.catalog import has
+    
+        missing = [
+            f"{where} -> openapi.op.{key}.{field} ({language})"
+>           for where, key, _ in _documented_operations()
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+            for language in (lang.value for lang in Language)
+            for field in ("summary", "description")
+            if not has(f"openapi.op.{key}.{field}", language)
+        ]
+
+tests/unit/test_i18n.py:736: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_i18n.py:723: in _documented_operations
+    schema = create_app().openapi()
+             ^^^^^^^^^^^^
+src/dtk/api/app.py:141: in create_app
+    settings = settings or BootstrapSettings()
+                           ^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/pydantic_settings/main.py:262: in __init__
+    super().__init__(**__pydantic_self__.__class__._settings_build_values(sources, init_kwargs))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'dtk.core.config.BootstrapSettings'>, v = ''
+
+    @field_validator("secret_key")
+    @classmethod
+    def _require_secret(cls, v: str) -> str:
+        if not v or len(v) < MIN_SECRET_LEN:
+>           raise SecretKeyMissing(
+                f"DTK_SECRET_KEY must be set and at least {MIN_SECRET_LEN} characters. "
+                "Generate one with: openssl rand -base64 48"
+            )
+E           dtk.core.crypto.SecretKeyMissing: DTK_SECRET_KEY must be set and at least 32 characters. Generate one with: openssl rand -base64 48
+
+src/dtk/core/config.py:69: SecretKeyMissing
+__________ test_every_documented_operation_has_an_english_description __________
+
+    def test_every_documented_operation_has_an_english_description() -> None:
+        """Which, for English, means the route function needs a docstring."""
+        bare = [
+            where
+>           for where, _key, op in _documented_operations()
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^
+            if not (op.get("description") or "").strip()
+        ]
+
+tests/unit/test_i18n.py:752: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_i18n.py:723: in _documented_operations
+    schema = create_app().openapi()
+             ^^^^^^^^^^^^
+src/dtk/api/app.py:141: in create_app
+    settings = settings or BootstrapSettings()
+                           ^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/pydantic_settings/main.py:262: in __init__
+    super().__init__(**__pydantic_self__.__class__._settings_build_values(sources, init_kwargs))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'dtk.core.config.BootstrapSettings'>, v = ''
+
+    @field_validator("secret_key")
+    @classmethod
+    def _require_secret(cls, v: str) -> str:
+        if not v or len(v) < MIN_SECRET_LEN:
+>           raise SecretKeyMissing(
+                f"DTK_SECRET_KEY must be set and at least {MIN_SECRET_LEN} characters. "
+                "Generate one with: openssl rand -base64 48"
+            )
+E           dtk.core.crypto.SecretKeyMissing: DTK_SECRET_KEY must be set and at least 32 characters. Generate one with: openssl rand -base64 48
+
+src/dtk/core/config.py:69: SecretKeyMissing
+_______ test_documented_operations_describe_every_parameter_they_accept ________
+
+    def test_documented_operations_describe_every_parameter_they_accept() -> None:
+        """A parameter with no description is a name and a type, which is a guess.
+    
+        `lang` is exempt: it is appended to every operation by the localizer itself
+        and carries its own catalogue text.
+        """
+        bare = [
+            f"{where} -> {parameter.get('name')}"
+>           for where, _key, operation in _documented_operations()
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^
+            for parameter in operation.get("parameters", [])
+            if parameter.get("name") != "lang" and not (parameter.get("description") or "").strip()
+        ]
+
+tests/unit/test_i18n.py:770: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_i18n.py:723: in _documented_operations
+    schema = create_app().openapi()
+             ^^^^^^^^^^^^
+src/dtk/api/app.py:141: in create_app
+    settings = settings or BootstrapSettings()
+                           ^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/pydantic_settings/main.py:262: in __init__
+    super().__init__(**__pydantic_self__.__class__._settings_build_values(sources, init_kwargs))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'dtk.core.config.BootstrapSettings'>, v = ''
+
+    @field_validator("secret_key")
+    @classmethod
+    def _require_secret(cls, v: str) -> str:
+        if not v or len(v) < MIN_SECRET_LEN:
+>           raise SecretKeyMissing(
+                f"DTK_SECRET_KEY must be set and at least {MIN_SECRET_LEN} characters. "
+                "Generate one with: openssl rand -base64 48"
+            )
+E           dtk.core.crypto.SecretKeyMissing: DTK_SECRET_KEY must be set and at least 32 characters. Generate one with: openssl rand -base64 48
+
+src/dtk/core/config.py:69: SecretKeyMissing
+___________ test_aclose_does_not_orphan_a_client_created_afterwards ____________
+
+    async def test_aclose_does_not_orphan_a_client_created_afterwards() -> None:
+        """After aclose the notifier owns whatever client it creates next."""
+        borrowed = httpx.AsyncClient(transport=httpx.MockTransport(lambda _r: httpx.Response(200)))
+        notifier = notify.Notifier(
+            [],
+            redis=FakeRedis(),
+            clock=Clock(),
+            client=borrowed,  # type: ignore[arg-type]
+        )
+    
+        await notifier.aclose()
+        assert borrowed.is_closed is False
+    
+>       created = await notifier._http()
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_ops_notify.py:407: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/dtk/ops/notify.py:401: in _http
+    self._client = httpx.AsyncClient(timeout=SEND_TIMEOUT_SECONDS, follow_redirects=False)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/httpx/_client.py:1415: in __init__
+    else self._init_proxy_transport(
+.venv/lib/python3.12/site-packages/httpx/_client.py:1464: in _init_proxy_transport
+    return AsyncHTTPTransport(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <httpx.AsyncHTTPTransport object at 0x7f8ee1b66000>, verify = True
+cert = None, trust_env = True, http1 = True, http2 = False
+limits = Limits(max_connections=100, max_keepalive_connections=20, keepalive_expiry=5.0)
+proxy = Proxy('socks5h://127.0.0.1:40225'), uds = None, local_address = None
+retries = 0, socket_options = None
+
+    def __init__(
+        self,
+        verify: ssl.SSLContext | str | bool = True,
+        cert: CertTypes | None = None,
+        trust_env: bool = True,
+        http1: bool = True,
+        http2: bool = False,
+        limits: Limits = DEFAULT_LIMITS,
+        proxy: ProxyTypes | None = None,
+        uds: str | None = None,
+        local_address: str | None = None,
+        retries: int = 0,
+        socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
+    ) -> None:
+        import httpcore
+    
+        proxy = Proxy(url=proxy) if isinstance(proxy, (str, URL)) else proxy
+        ssl_context = create_ssl_context(verify=verify, cert=cert, trust_env=trust_env)
+    
+        if proxy is None:
+            self._pool = httpcore.AsyncConnectionPool(
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                uds=uds,
+                local_address=local_address,
+                retries=retries,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("http", "https"):
+            self._pool = httpcore.AsyncHTTPProxy(
+                proxy_url=httpcore.URL(
+                    scheme=proxy.url.raw_scheme,
+                    host=proxy.url.raw_host,
+                    port=proxy.url.port,
+                    target=proxy.url.raw_path,
+                ),
+                proxy_auth=proxy.raw_auth,
+                proxy_headers=proxy.headers.raw,
+                proxy_ssl_context=proxy.ssl_context,
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("socks5", "socks5h"):
+            try:
+                import socksio  # noqa
+            except ImportError:  # pragma: no cover
+>               raise ImportError(
+                    "Using SOCKS proxy, but the 'socksio' package is not installed. "
+                    "Make sure to install httpx using `pip install httpx[socks]`."
+                ) from None
+E               ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+
+.venv/lib/python3.12/site-packages/httpx/_transports/default.py:335: ImportError
+________________ test_the_switch_list_covers_the_documented_api ________________
+
+    def test_the_switch_list_covers_the_documented_api() -> None:
+>       rows = _access_rows()
+               ^^^^^^^^^^^^^^
+
+tests/unit/test_public_endpoints.py:135: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_public_endpoints.py:131: in _access_rows
+    return _rows(_Req(create_app()), frozenset())
+                      ^^^^^^^^^^^^
+src/dtk/api/app.py:141: in create_app
+    settings = settings or BootstrapSettings()
+                           ^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/pydantic_settings/main.py:262: in __init__
+    super().__init__(**__pydantic_self__.__class__._settings_build_values(sources, init_kwargs))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'dtk.core.config.BootstrapSettings'>, v = ''
+
+    @field_validator("secret_key")
+    @classmethod
+    def _require_secret(cls, v: str) -> str:
+        if not v or len(v) < MIN_SECRET_LEN:
+>           raise SecretKeyMissing(
+                f"DTK_SECRET_KEY must be set and at least {MIN_SECRET_LEN} characters. "
+                "Generate one with: openssl rand -base64 48"
+            )
+E           dtk.core.crypto.SecretKeyMissing: DTK_SECRET_KEY must be set and at least 32 characters. Generate one with: openssl rand -base64 48
+
+src/dtk/core/config.py:69: SecretKeyMissing
+______________ test_every_path_in_the_switch_list_is_a_full_path _______________
+
+    def test_every_path_in_the_switch_list_is_a_full_path() -> None:
+        """The prefix is what makes a path recognisably an admin one."""
+>       assert any(row["path"].startswith("/api/v1/admin/") for row in _access_rows())
+                                                                       ^^^^^^^^^^^^^^
+
+tests/unit/test_public_endpoints.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_public_endpoints.py:131: in _access_rows
+    return _rows(_Req(create_app()), frozenset())
+                      ^^^^^^^^^^^^
+src/dtk/api/app.py:141: in create_app
+    settings = settings or BootstrapSettings()
+                           ^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/pydantic_settings/main.py:262: in __init__
+    super().__init__(**__pydantic_self__.__class__._settings_build_values(sources, init_kwargs))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'dtk.core.config.BootstrapSettings'>, v = ''
+
+    @field_validator("secret_key")
+    @classmethod
+    def _require_secret(cls, v: str) -> str:
+        if not v or len(v) < MIN_SECRET_LEN:
+>           raise SecretKeyMissing(
+                f"DTK_SECRET_KEY must be set and at least {MIN_SECRET_LEN} characters. "
+                "Generate one with: openssl rand -base64 48"
+            )
+E           dtk.core.crypto.SecretKeyMissing: DTK_SECRET_KEY must be set and at least 32 characters. Generate one with: openssl rand -base64 48
+
+src/dtk/core/config.py:69: SecretKeyMissing
+___________ test_no_admin_auth_or_setup_row_is_offered_as_switchable ___________
+
+    def test_no_admin_auth_or_setup_row_is_offered_as_switchable() -> None:
+        offered = [
+            row["path"]
+>           for row in _access_rows()
+                       ^^^^^^^^^^^^^^
+            if not row["protected"] and pe.is_protected(row["path"])
+        ]
+
+tests/unit/test_public_endpoints.py:148: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_public_endpoints.py:131: in _access_rows
+    return _rows(_Req(create_app()), frozenset())
+                      ^^^^^^^^^^^^
+src/dtk/api/app.py:141: in create_app
+    settings = settings or BootstrapSettings()
+                           ^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/pydantic_settings/main.py:262: in __init__
+    super().__init__(**__pydantic_self__.__class__._settings_build_values(sources, init_kwargs))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'dtk.core.config.BootstrapSettings'>, v = ''
+
+    @field_validator("secret_key")
+    @classmethod
+    def _require_secret(cls, v: str) -> str:
+        if not v or len(v) < MIN_SECRET_LEN:
+>           raise SecretKeyMissing(
+                f"DTK_SECRET_KEY must be set and at least {MIN_SECRET_LEN} characters. "
+                "Generate one with: openssl rand -base64 48"
+            )
+E           dtk.core.crypto.SecretKeyMissing: DTK_SECRET_KEY must be set and at least 32 characters. Generate one with: openssl rand -base64 48
+
+src/dtk/core/config.py:69: SecretKeyMissing
+______ test_the_protected_flag_agrees_with_the_rule_the_request_path_uses ______
+
+    def test_the_protected_flag_agrees_with_the_rule_the_request_path_uses() -> None:
+        """One source of truth, checked from both sides."""
+>       for row in _access_rows():
+                   ^^^^^^^^^^^^^^
+
+tests/unit/test_public_endpoints.py:156: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_public_endpoints.py:131: in _access_rows
+    return _rows(_Req(create_app()), frozenset())
+                      ^^^^^^^^^^^^
+src/dtk/api/app.py:141: in create_app
+    settings = settings or BootstrapSettings()
+                           ^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/pydantic_settings/main.py:262: in __init__
+    super().__init__(**__pydantic_self__.__class__._settings_build_values(sources, init_kwargs))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'dtk.core.config.BootstrapSettings'>, v = ''
+
+    @field_validator("secret_key")
+    @classmethod
+    def _require_secret(cls, v: str) -> str:
+        if not v or len(v) < MIN_SECRET_LEN:
+>           raise SecretKeyMissing(
+                f"DTK_SECRET_KEY must be set and at least {MIN_SECRET_LEN} characters. "
+                "Generate one with: openssl rand -base64 48"
+            )
+E           dtk.core.crypto.SecretKeyMissing: DTK_SECRET_KEY must be set and at least 32 characters. Generate one with: openssl rand -base64 48
+
+src/dtk/core/config.py:69: SecretKeyMissing
+__________________ TestDelivery.test_a_2xx_is_delivered_once ___________________
+
+self = <tests.unit.test_webhooks.TestDelivery object at 0x7f8ee22e5bb0>
+
+    async def test_a_2xx_is_delivered_once(self):
+        seen: dict[str, str] = {}
+    
+        def handler(request: httpx.Request) -> httpx.Response:
+            seen.update(request.headers)
+            return httpx.Response(200)
+    
+        result = await webhooks.deliver(
+            "https://example.com/hook",
+            {"event": "task.completed"},
+            secret="s",
+            client=client_with(handler),
+        )
+>       assert result.delivered is True
+E       AssertionError: assert False is True
+E        +  where False = Delivery(delivered=False, attempts=0, status=None, detail='callback_url does not resolve: [Errno -3] Temporary failure in name resolution').delivered
+
+tests/unit/test_webhooks.py:99: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-09-27 21:47:00 [warning  ] webhook.refused                reason='callback_url does not resolve: [Errno -3] Temporary failure in name resolution'
+____________________ TestDelivery.test_a_4xx_is_not_retried ____________________
+
+self = <tests.unit.test_webhooks.TestDelivery object at 0x7f8ee22e67b0>
+
+    async def test_a_4xx_is_not_retried(self):
+        """The receiver understood and refused; repeating a 404 just repeats
+        the same rejection."""
+        calls = {"n": 0}
+    
+        def handler(request: httpx.Request) -> httpx.Response:
+            calls["n"] += 1
+            return httpx.Response(404)
+    
+        result = await webhooks.deliver(
+            "https://example.com/hook", {"event": "x"}, client=client_with(handler)
+        )
+        assert result.delivered is False
+>       assert calls["n"] == 1
+E       assert 0 == 1
+
+tests/unit/test_webhooks.py:129: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-09-27 21:47:00 [warning  ] webhook.refused                reason='callback_url does not resolve: [Errno -3] Temporary failure in name resolution'
+________________ TestDelivery.test_a_dead_endpoint_never_raises ________________
+
+self = <tests.unit.test_webhooks.TestDelivery object at 0x7f8ee2393c50>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8ee0ecc080>
+
+    async def test_a_dead_endpoint_never_raises(self, monkeypatch):
+        """The contract, not an implementation detail: the caller already has
+        its data, and a webhook that is down must not fail a good task."""
+        monkeypatch.setattr(webhooks, "RETRY_DELAYS", (0.0, 0.0))
+    
+        def handler(request: httpx.Request) -> httpx.Response:
+            raise httpx.ConnectError("connection refused")
+    
+        result = await webhooks.deliver(
+            "https://example.com/hook", {"event": "x"}, client=client_with(handler)
+        )
+        assert result.delivered is False
+>       assert result.attempts == webhooks.MAX_ATTEMPTS
+E       AssertionError: assert 0 == 3
+E        +  where 0 = Delivery(delivered=False, attempts=0, status=None, detail='callback_url does not resolve: [Errno -3] Temporary failure in name resolution').attempts
+E        +  and   3 = webhooks.MAX_ATTEMPTS
+
+tests/unit/test_webhooks.py:143: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-09-27 21:47:00 [warning  ] webhook.refused                reason='callback_url does not resolve: [Errno -3] Temporary failure in name resolution'
+___________ test_the_workers_own_collaborators_are_what_gets_probed ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8ee0c4b140>
+
+    async def test_the_workers_own_collaborators_are_what_gets_probed(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        seen = capture_context(monkeypatch)
+    
+>       await run_job()
+
+tests/unit/test_worker_ops_diagnose.py:116: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_worker_ops_diagnose.py:85: in run_job
+    return await diagnose_op.run(deps or fake_deps(), cast(Any, SESSION), params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/dtk/worker/ops/diagnose.py:87: in run
+    async with httpx.AsyncClient(timeout=STEP_TIMEOUT_SECONDS, follow_redirects=True) as http:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/httpx/_client.py:1415: in __init__
+    else self._init_proxy_transport(
+.venv/lib/python3.12/site-packages/httpx/_client.py:1464: in _init_proxy_transport
+    return AsyncHTTPTransport(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <httpx.AsyncHTTPTransport object at 0x7f8ee0c88f50>, verify = True
+cert = None, trust_env = True, http1 = True, http2 = False
+limits = Limits(max_connections=100, max_keepalive_connections=20, keepalive_expiry=5.0)
+proxy = Proxy('socks5h://127.0.0.1:40225'), uds = None, local_address = None
+retries = 0, socket_options = None
+
+    def __init__(
+        self,
+        verify: ssl.SSLContext | str | bool = True,
+        cert: CertTypes | None = None,
+        trust_env: bool = True,
+        http1: bool = True,
+        http2: bool = False,
+        limits: Limits = DEFAULT_LIMITS,
+        proxy: ProxyTypes | None = None,
+        uds: str | None = None,
+        local_address: str | None = None,
+        retries: int = 0,
+        socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
+    ) -> None:
+        import httpcore
+    
+        proxy = Proxy(url=proxy) if isinstance(proxy, (str, URL)) else proxy
+        ssl_context = create_ssl_context(verify=verify, cert=cert, trust_env=trust_env)
+    
+        if proxy is None:
+            self._pool = httpcore.AsyncConnectionPool(
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                uds=uds,
+                local_address=local_address,
+                retries=retries,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("http", "https"):
+            self._pool = httpcore.AsyncHTTPProxy(
+                proxy_url=httpcore.URL(
+                    scheme=proxy.url.raw_scheme,
+                    host=proxy.url.raw_host,
+                    port=proxy.url.port,
+                    target=proxy.url.raw_path,
+                ),
+                proxy_auth=proxy.raw_auth,
+                proxy_headers=proxy.headers.raw,
+                proxy_ssl_context=proxy.ssl_context,
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("socks5", "socks5h"):
+            try:
+                import socksio  # noqa
+            except ImportError:  # pragma: no cover
+>               raise ImportError(
+                    "Using SOCKS proxy, but the 'socksio' package is not installed. "
+                    "Make sure to install httpx using `pip install httpx[socks]`."
+                ) from None
+E               ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+
+.venv/lib/python3.12/site-packages/httpx/_transports/default.py:335: ImportError
+__________ test_the_low_water_mark_comes_from_the_live_configuration ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8ee0c49bb0>
+
+    async def test_the_low_water_mark_comes_from_the_live_configuration(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        seen = capture_context(monkeypatch)
+    
+        # Not the default: the pool step must compare against what this instance is
+        # configured for, or "below minimum" is advice about somebody else's pool.
+>       await run_job(fake_deps(config=Config({"pool.min_size": 7})))
+
+tests/unit/test_worker_ops_diagnose.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_worker_ops_diagnose.py:85: in run_job
+    return await diagnose_op.run(deps or fake_deps(), cast(Any, SESSION), params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/dtk/worker/ops/diagnose.py:87: in run
+    async with httpx.AsyncClient(timeout=STEP_TIMEOUT_SECONDS, follow_redirects=True) as http:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/httpx/_client.py:1415: in __init__
+    else self._init_proxy_transport(
+.venv/lib/python3.12/site-packages/httpx/_client.py:1464: in _init_proxy_transport
+    return AsyncHTTPTransport(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <httpx.AsyncHTTPTransport object at 0x7f8ee1d23200>, verify = True
+cert = None, trust_env = True, http1 = True, http2 = False
+limits = Limits(max_connections=100, max_keepalive_connections=20, keepalive_expiry=5.0)
+proxy = Proxy('socks5h://127.0.0.1:40225'), uds = None, local_address = None
+retries = 0, socket_options = None
+
+    def __init__(
+        self,
+        verify: ssl.SSLContext | str | bool = True,
+        cert: CertTypes | None = None,
+        trust_env: bool = True,
+        http1: bool = True,
+        http2: bool = False,
+        limits: Limits = DEFAULT_LIMITS,
+        proxy: ProxyTypes | None = None,
+        uds: str | None = None,
+        local_address: str | None = None,
+        retries: int = 0,
+        socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
+    ) -> None:
+        import httpcore
+    
+        proxy = Proxy(url=proxy) if isinstance(proxy, (str, URL)) else proxy
+        ssl_context = create_ssl_context(verify=verify, cert=cert, trust_env=trust_env)
+    
+        if proxy is None:
+            self._pool = httpcore.AsyncConnectionPool(
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                uds=uds,
+                local_address=local_address,
+                retries=retries,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("http", "https"):
+            self._pool = httpcore.AsyncHTTPProxy(
+                proxy_url=httpcore.URL(
+                    scheme=proxy.url.raw_scheme,
+                    host=proxy.url.raw_host,
+                    port=proxy.url.port,
+                    target=proxy.url.raw_path,
+                ),
+                proxy_auth=proxy.raw_auth,
+                proxy_headers=proxy.headers.raw,
+                proxy_ssl_context=proxy.ssl_context,
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("socks5", "socks5h"):
+            try:
+                import socksio  # noqa
+            except ImportError:  # pragma: no cover
+>               raise ImportError(
+                    "Using SOCKS proxy, but the 'socksio' package is not installed. "
+                    "Make sure to install httpx using `pip install httpx[socks]`."
+                ) from None
+E               ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+
+.venv/lib/python3.12/site-packages/httpx/_transports/default.py:335: ImportError
+_________ test_a_process_without_an_engine_reports_rather_than_crashes _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8ee0c49cd0>
+
+    async def test_a_process_without_an_engine_reports_rather_than_crashes(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """No engine and no Redis here, which is exactly the case worth surviving."""
+        seen = capture_context(monkeypatch)
+    
+>       await run_job()
+
+tests/unit/test_worker_ops_diagnose.py:143: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_worker_ops_diagnose.py:85: in run_job
+    return await diagnose_op.run(deps or fake_deps(), cast(Any, SESSION), params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/dtk/worker/ops/diagnose.py:87: in run
+    async with httpx.AsyncClient(timeout=STEP_TIMEOUT_SECONDS, follow_redirects=True) as http:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/httpx/_client.py:1415: in __init__
+    else self._init_proxy_transport(
+.venv/lib/python3.12/site-packages/httpx/_client.py:1464: in _init_proxy_transport
+    return AsyncHTTPTransport(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <httpx.AsyncHTTPTransport object at 0x7f8ee0c88200>, verify = True
+cert = None, trust_env = True, http1 = True, http2 = False
+limits = Limits(max_connections=100, max_keepalive_connections=20, keepalive_expiry=5.0)
+proxy = Proxy('socks5h://127.0.0.1:40225'), uds = None, local_address = None
+retries = 0, socket_options = None
+
+    def __init__(
+        self,
+        verify: ssl.SSLContext | str | bool = True,
+        cert: CertTypes | None = None,
+        trust_env: bool = True,
+        http1: bool = True,
+        http2: bool = False,
+        limits: Limits = DEFAULT_LIMITS,
+        proxy: ProxyTypes | None = None,
+        uds: str | None = None,
+        local_address: str | None = None,
+        retries: int = 0,
+        socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
+    ) -> None:
+        import httpcore
+    
+        proxy = Proxy(url=proxy) if isinstance(proxy, (str, URL)) else proxy
+        ssl_context = create_ssl_context(verify=verify, cert=cert, trust_env=trust_env)
+    
+        if proxy is None:
+            self._pool = httpcore.AsyncConnectionPool(
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                uds=uds,
+                local_address=local_address,
+                retries=retries,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("http", "https"):
+            self._pool = httpcore.AsyncHTTPProxy(
+                proxy_url=httpcore.URL(
+                    scheme=proxy.url.raw_scheme,
+                    host=proxy.url.raw_host,
+                    port=proxy.url.port,
+                    target=proxy.url.raw_path,
+                ),
+                proxy_auth=proxy.raw_auth,
+                proxy_headers=proxy.headers.raw,
+                proxy_ssl_context=proxy.ssl_context,
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("socks5", "socks5h"):
+            try:
+                import socksio  # noqa
+            except ImportError:  # pragma: no cover
+>               raise ImportError(
+                    "Using SOCKS proxy, but the 'socksio' package is not installed. "
+                    "Make sure to install httpx using `pip install httpx[socks]`."
+                ) from None
+E               ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+
+.venv/lib/python3.12/site-packages/httpx/_transports/default.py:335: ImportError
+__________ test_unconfigured_browser_rpc_is_absent_rather_than_broken __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8ee0c8aab0>
+
+    async def test_unconfigured_browser_rpc_is_absent_rather_than_broken(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        seen = capture_context(monkeypatch)
+    
+>       await run_job(fake_deps(rpc=FakeRpc(configured=False)))
+
+tests/unit/test_worker_ops_diagnose.py:154: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_worker_ops_diagnose.py:85: in run_job
+    return await diagnose_op.run(deps or fake_deps(), cast(Any, SESSION), params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/dtk/worker/ops/diagnose.py:87: in run
+    async with httpx.AsyncClient(timeout=STEP_TIMEOUT_SECONDS, follow_redirects=True) as http:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/httpx/_client.py:1415: in __init__
+    else self._init_proxy_transport(
+.venv/lib/python3.12/site-packages/httpx/_client.py:1464: in _init_proxy_transport
+    return AsyncHTTPTransport(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <httpx.AsyncHTTPTransport object at 0x7f8ee0c88470>, verify = True
+cert = None, trust_env = True, http1 = True, http2 = False
+limits = Limits(max_connections=100, max_keepalive_connections=20, keepalive_expiry=5.0)
+proxy = Proxy('socks5h://127.0.0.1:40225'), uds = None, local_address = None
+retries = 0, socket_options = None
+
+    def __init__(
+        self,
+        verify: ssl.SSLContext | str | bool = True,
+        cert: CertTypes | None = None,
+        trust_env: bool = True,
+        http1: bool = True,
+        http2: bool = False,
+        limits: Limits = DEFAULT_LIMITS,
+        proxy: ProxyTypes | None = None,
+        uds: str | None = None,
+        local_address: str | None = None,
+        retries: int = 0,
+        socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
+    ) -> None:
+        import httpcore
+    
+        proxy = Proxy(url=proxy) if isinstance(proxy, (str, URL)) else proxy
+        ssl_context = create_ssl_context(verify=verify, cert=cert, trust_env=trust_env)
+    
+        if proxy is None:
+            self._pool = httpcore.AsyncConnectionPool(
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                uds=uds,
+                local_address=local_address,
+                retries=retries,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("http", "https"):
+            self._pool = httpcore.AsyncHTTPProxy(
+                proxy_url=httpcore.URL(
+                    scheme=proxy.url.raw_scheme,
+                    host=proxy.url.raw_host,
+                    port=proxy.url.port,
+                    target=proxy.url.raw_path,
+                ),
+                proxy_auth=proxy.raw_auth,
+                proxy_headers=proxy.headers.raw,
+                proxy_ssl_context=proxy.ssl_context,
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("socks5", "socks5h"):
+            try:
+                import socksio  # noqa
+            except ImportError:  # pragma: no cover
+>               raise ImportError(
+                    "Using SOCKS proxy, but the 'socksio' package is not installed. "
+                    "Make sure to install httpx using `pip install httpx[socks]`."
+                ) from None
+E               ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+
+.venv/lib/python3.12/site-packages/httpx/_transports/default.py:335: ImportError
+_________ test_the_smoke_step_runs_on_the_stack_the_worker_already_has _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8ee0c89820>
+
+    async def test_the_smoke_step_runs_on_the_stack_the_worker_already_has(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        calls: list[dict[str, Any]] = []
+    
+        async def fake_smoke(url: str, **kwargs: Any) -> dict[str, Any]:
+            calls.append({"url": url, **kwargs})
+            return {"endpoint": "douyin.content_detail", "outcome": "ok"}
+    
+        monkeypatch.setattr(pipeline, "smoke", fake_smoke)
+        seen = capture_context(monkeypatch)
+    
+>       await run_job(include_smoke_test=True)
+
+tests/unit/test_worker_ops_diagnose.py:181: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_worker_ops_diagnose.py:85: in run_job
+    return await diagnose_op.run(deps or fake_deps(), cast(Any, SESSION), params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/dtk/worker/ops/diagnose.py:87: in run
+    async with httpx.AsyncClient(timeout=STEP_TIMEOUT_SECONDS, follow_redirects=True) as http:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/httpx/_client.py:1415: in __init__
+    else self._init_proxy_transport(
+.venv/lib/python3.12/site-packages/httpx/_client.py:1464: in _init_proxy_transport
+    return AsyncHTTPTransport(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <httpx.AsyncHTTPTransport object at 0x7f8ee0c8b4d0>, verify = True
+cert = None, trust_env = True, http1 = True, http2 = False
+limits = Limits(max_connections=100, max_keepalive_connections=20, keepalive_expiry=5.0)
+proxy = Proxy('socks5h://127.0.0.1:40225'), uds = None, local_address = None
+retries = 0, socket_options = None
+
+    def __init__(
+        self,
+        verify: ssl.SSLContext | str | bool = True,
+        cert: CertTypes | None = None,
+        trust_env: bool = True,
+        http1: bool = True,
+        http2: bool = False,
+        limits: Limits = DEFAULT_LIMITS,
+        proxy: ProxyTypes | None = None,
+        uds: str | None = None,
+        local_address: str | None = None,
+        retries: int = 0,
+        socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
+    ) -> None:
+        import httpcore
+    
+        proxy = Proxy(url=proxy) if isinstance(proxy, (str, URL)) else proxy
+        ssl_context = create_ssl_context(verify=verify, cert=cert, trust_env=trust_env)
+    
+        if proxy is None:
+            self._pool = httpcore.AsyncConnectionPool(
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                uds=uds,
+                local_address=local_address,
+                retries=retries,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("http", "https"):
+            self._pool = httpcore.AsyncHTTPProxy(
+                proxy_url=httpcore.URL(
+                    scheme=proxy.url.raw_scheme,
+                    host=proxy.url.raw_host,
+                    port=proxy.url.port,
+                    target=proxy.url.raw_path,
+                ),
+                proxy_auth=proxy.raw_auth,
+                proxy_headers=proxy.headers.raw,
+                proxy_ssl_context=proxy.ssl_context,
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("socks5", "socks5h"):
+            try:
+                import socksio  # noqa
+            except ImportError:  # pragma: no cover
+>               raise ImportError(
+                    "Using SOCKS proxy, but the 'socksio' package is not installed. "
+                    "Make sure to install httpx using `pip install httpx[socks]`."
+                ) from None
+E               ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+
+.venv/lib/python3.12/site-packages/httpx/_transports/default.py:335: ImportError
+________________ test_declining_the_smoke_test_makes_no_request ________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8ee0cc9640>
+
+    async def test_declining_the_smoke_test_makes_no_request(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        async def refuse(*_args: Any, **_kwargs: Any) -> dict[str, Any]:
+            raise AssertionError("the smoke step ran after being declined")
+    
+        monkeypatch.setattr(pipeline, "smoke", refuse)
+        only_step(monkeypatch, ops_diagnose.check_smoke)
+    
+>       result = await run_job(include_smoke_test=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_worker_ops_diagnose.py:203: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_worker_ops_diagnose.py:85: in run_job
+    return await diagnose_op.run(deps or fake_deps(), cast(Any, SESSION), params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/dtk/worker/ops/diagnose.py:87: in run
+    async with httpx.AsyncClient(timeout=STEP_TIMEOUT_SECONDS, follow_redirects=True) as http:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/httpx/_client.py:1415: in __init__
+    else self._init_proxy_transport(
+.venv/lib/python3.12/site-packages/httpx/_client.py:1464: in _init_proxy_transport
+    return AsyncHTTPTransport(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <httpx.AsyncHTTPTransport object at 0x7f8ee0cc8da0>, verify = True
+cert = None, trust_env = True, http1 = True, http2 = False
+limits = Limits(max_connections=100, max_keepalive_connections=20, keepalive_expiry=5.0)
+proxy = Proxy('socks5h://127.0.0.1:40225'), uds = None, local_address = None
+retries = 0, socket_options = None
+
+    def __init__(
+        self,
+        verify: ssl.SSLContext | str | bool = True,
+        cert: CertTypes | None = None,
+        trust_env: bool = True,
+        http1: bool = True,
+        http2: bool = False,
+        limits: Limits = DEFAULT_LIMITS,
+        proxy: ProxyTypes | None = None,
+        uds: str | None = None,
+        local_address: str | None = None,
+        retries: int = 0,
+        socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
+    ) -> None:
+        import httpcore
+    
+        proxy = Proxy(url=proxy) if isinstance(proxy, (str, URL)) else proxy
+        ssl_context = create_ssl_context(verify=verify, cert=cert, trust_env=trust_env)
+    
+        if proxy is None:
+            self._pool = httpcore.AsyncConnectionPool(
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                uds=uds,
+                local_address=local_address,
+                retries=retries,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("http", "https"):
+            self._pool = httpcore.AsyncHTTPProxy(
+                proxy_url=httpcore.URL(
+                    scheme=proxy.url.raw_scheme,
+                    host=proxy.url.raw_host,
+                    port=proxy.url.port,
+                    target=proxy.url.raw_path,
+                ),
+                proxy_auth=proxy.raw_auth,
+                proxy_headers=proxy.headers.raw,
+                proxy_ssl_context=proxy.ssl_context,
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("socks5", "socks5h"):
+            try:
+                import socksio  # noqa
+            except ImportError:  # pragma: no cover
+>               raise ImportError(
+                    "Using SOCKS proxy, but the 'socksio' package is not installed. "
+                    "Make sure to install httpx using `pip install httpx[socks]`."
+                ) from None
+E               ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+
+.venv/lib/python3.12/site-packages/httpx/_transports/default.py:335: ImportError
+_______________ test_a_successful_smoke_test_reaches_the_report ________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8ee0c8a7e0>
+
+    async def test_a_successful_smoke_test_reaches_the_report(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        async def fake_smoke(_url: str, **_kwargs: Any) -> dict[str, Any]:
+            return {"endpoint": "douyin.content_detail", "outcome": "ok"}
+    
+        monkeypatch.setattr(pipeline, "smoke", fake_smoke)
+        only_step(monkeypatch, ops_diagnose.check_smoke)
+    
+>       result = await run_job(include_smoke_test=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_worker_ops_diagnose.py:220: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_worker_ops_diagnose.py:85: in run_job
+    return await diagnose_op.run(deps or fake_deps(), cast(Any, SESSION), params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/dtk/worker/ops/diagnose.py:87: in run
+    async with httpx.AsyncClient(timeout=STEP_TIMEOUT_SECONDS, follow_redirects=True) as http:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/httpx/_client.py:1415: in __init__
+    else self._init_proxy_transport(
+.venv/lib/python3.12/site-packages/httpx/_client.py:1464: in _init_proxy_transport
+    return AsyncHTTPTransport(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <httpx.AsyncHTTPTransport object at 0x7f8ee0c88d10>, verify = True
+cert = None, trust_env = True, http1 = True, http2 = False
+limits = Limits(max_connections=100, max_keepalive_connections=20, keepalive_expiry=5.0)
+proxy = Proxy('socks5h://127.0.0.1:40225'), uds = None, local_address = None
+retries = 0, socket_options = None
+
+    def __init__(
+        self,
+        verify: ssl.SSLContext | str | bool = True,
+        cert: CertTypes | None = None,
+        trust_env: bool = True,
+        http1: bool = True,
+        http2: bool = False,
+        limits: Limits = DEFAULT_LIMITS,
+        proxy: ProxyTypes | None = None,
+        uds: str | None = None,
+        local_address: str | None = None,
+        retries: int = 0,
+        socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
+    ) -> None:
+        import httpcore
+    
+        proxy = Proxy(url=proxy) if isinstance(proxy, (str, URL)) else proxy
+        ssl_context = create_ssl_context(verify=verify, cert=cert, trust_env=trust_env)
+    
+        if proxy is None:
+            self._pool = httpcore.AsyncConnectionPool(
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                uds=uds,
+                local_address=local_address,
+                retries=retries,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("http", "https"):
+            self._pool = httpcore.AsyncHTTPProxy(
+                proxy_url=httpcore.URL(
+                    scheme=proxy.url.raw_scheme,
+                    host=proxy.url.raw_host,
+                    port=proxy.url.port,
+                    target=proxy.url.raw_path,
+                ),
+                proxy_auth=proxy.raw_auth,
+                proxy_headers=proxy.headers.raw,
+                proxy_ssl_context=proxy.ssl_context,
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("socks5", "socks5h"):
+            try:
+                import socksio  # noqa
+            except ImportError:  # pragma: no cover
+>               raise ImportError(
+                    "Using SOCKS proxy, but the 'socksio' package is not installed. "
+                    "Make sure to install httpx using `pip install httpx[socks]`."
+                ) from None
+E               ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+
+.venv/lib/python3.12/site-packages/httpx/_transports/default.py:335: ImportError
+__________ test_a_failed_smoke_test_cannot_carry_what_it_was_holding ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8ee0c4b230>
+
+    async def test_a_failed_smoke_test_cannot_carry_what_it_was_holding(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """The result is stored in the database and rendered in a browser."""
+    
+        async def fail(*_args: Any, **_kwargs: Any) -> dict[str, Any]:
+            raise Internal(LEAKY_FAILURE)
+    
+        monkeypatch.setattr(pipeline, "smoke", fail)
+        only_step(monkeypatch, ops_diagnose.check_smoke)
+    
+>       result = await run_job(include_smoke_test=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_worker_ops_diagnose.py:239: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_worker_ops_diagnose.py:85: in run_job
+    return await diagnose_op.run(deps or fake_deps(), cast(Any, SESSION), params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/dtk/worker/ops/diagnose.py:87: in run
+    async with httpx.AsyncClient(timeout=STEP_TIMEOUT_SECONDS, follow_redirects=True) as http:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/httpx/_client.py:1415: in __init__
+    else self._init_proxy_transport(
+.venv/lib/python3.12/site-packages/httpx/_client.py:1464: in _init_proxy_transport
+    return AsyncHTTPTransport(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <httpx.AsyncHTTPTransport object at 0x7f8ee0c89e80>, verify = True
+cert = None, trust_env = True, http1 = True, http2 = False
+limits = Limits(max_connections=100, max_keepalive_connections=20, keepalive_expiry=5.0)
+proxy = Proxy('socks5h://127.0.0.1:40225'), uds = None, local_address = None
+retries = 0, socket_options = None
+
+    def __init__(
+        self,
+        verify: ssl.SSLContext | str | bool = True,
+        cert: CertTypes | None = None,
+        trust_env: bool = True,
+        http1: bool = True,
+        http2: bool = False,
+        limits: Limits = DEFAULT_LIMITS,
+        proxy: ProxyTypes | None = None,
+        uds: str | None = None,
+        local_address: str | None = None,
+        retries: int = 0,
+        socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
+    ) -> None:
+        import httpcore
+    
+        proxy = Proxy(url=proxy) if isinstance(proxy, (str, URL)) else proxy
+        ssl_context = create_ssl_context(verify=verify, cert=cert, trust_env=trust_env)
+    
+        if proxy is None:
+            self._pool = httpcore.AsyncConnectionPool(
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                uds=uds,
+                local_address=local_address,
+                retries=retries,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("http", "https"):
+            self._pool = httpcore.AsyncHTTPProxy(
+                proxy_url=httpcore.URL(
+                    scheme=proxy.url.raw_scheme,
+                    host=proxy.url.raw_host,
+                    port=proxy.url.port,
+                    target=proxy.url.raw_path,
+                ),
+                proxy_auth=proxy.raw_auth,
+                proxy_headers=proxy.headers.raw,
+                proxy_ssl_context=proxy.ssl_context,
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("socks5", "socks5h"):
+            try:
+                import socksio  # noqa
+            except ImportError:  # pragma: no cover
+>               raise ImportError(
+                    "Using SOCKS proxy, but the 'socksio' package is not installed. "
+                    "Make sure to install httpx using `pip install httpx[socks]`."
+                ) from None
+E               ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+
+.venv/lib/python3.12/site-packages/httpx/_transports/default.py:335: ImportError
+_____________ test_result_matches_the_diagnostic_report_interface ______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8ee0ccaae0>
+
+    async def test_result_matches_the_diagnostic_report_interface(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        only_step(monkeypatch, ops_diagnose.check_components)
+    
+>       result = await run_job(include_smoke_test=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_worker_ops_diagnose.py:261: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_worker_ops_diagnose.py:85: in run_job
+    return await diagnose_op.run(deps or fake_deps(), cast(Any, SESSION), params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/dtk/worker/ops/diagnose.py:87: in run
+    async with httpx.AsyncClient(timeout=STEP_TIMEOUT_SECONDS, follow_redirects=True) as http:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/httpx/_client.py:1415: in __init__
+    else self._init_proxy_transport(
+.venv/lib/python3.12/site-packages/httpx/_client.py:1464: in _init_proxy_transport
+    return AsyncHTTPTransport(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <httpx.AsyncHTTPTransport object at 0x7f8ee0cca5a0>, verify = True
+cert = None, trust_env = True, http1 = True, http2 = False
+limits = Limits(max_connections=100, max_keepalive_connections=20, keepalive_expiry=5.0)
+proxy = Proxy('socks5h://127.0.0.1:40225'), uds = None, local_address = None
+retries = 0, socket_options = None
+
+    def __init__(
+        self,
+        verify: ssl.SSLContext | str | bool = True,
+        cert: CertTypes | None = None,
+        trust_env: bool = True,
+        http1: bool = True,
+        http2: bool = False,
+        limits: Limits = DEFAULT_LIMITS,
+        proxy: ProxyTypes | None = None,
+        uds: str | None = None,
+        local_address: str | None = None,
+        retries: int = 0,
+        socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
+    ) -> None:
+        import httpcore
+    
+        proxy = Proxy(url=proxy) if isinstance(proxy, (str, URL)) else proxy
+        ssl_context = create_ssl_context(verify=verify, cert=cert, trust_env=trust_env)
+    
+        if proxy is None:
+            self._pool = httpcore.AsyncConnectionPool(
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                uds=uds,
+                local_address=local_address,
+                retries=retries,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("http", "https"):
+            self._pool = httpcore.AsyncHTTPProxy(
+                proxy_url=httpcore.URL(
+                    scheme=proxy.url.raw_scheme,
+                    host=proxy.url.raw_host,
+                    port=proxy.url.port,
+                    target=proxy.url.raw_path,
+                ),
+                proxy_auth=proxy.raw_auth,
+                proxy_headers=proxy.headers.raw,
+                proxy_ssl_context=proxy.ssl_context,
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("socks5", "socks5h"):
+            try:
+                import socksio  # noqa
+            except ImportError:  # pragma: no cover
+>               raise ImportError(
+                    "Using SOCKS proxy, but the 'socksio' package is not installed. "
+                    "Make sure to install httpx using `pip install httpx[socks]`."
+                ) from None
+E               ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+
+.venv/lib/python3.12/site-packages/httpx/_transports/default.py:335: ImportError
+_________________ test_result_carries_the_meta_the_worker_logs _________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8ee0ccb440>
+
+    async def test_result_carries_the_meta_the_worker_logs(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        only_step(monkeypatch, ops_diagnose.check_components)
+    
+>       result = await run_job(include_smoke_test=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_worker_ops_diagnose.py:294: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_worker_ops_diagnose.py:85: in run_job
+    return await diagnose_op.run(deps or fake_deps(), cast(Any, SESSION), params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/dtk/worker/ops/diagnose.py:87: in run
+    async with httpx.AsyncClient(timeout=STEP_TIMEOUT_SECONDS, follow_redirects=True) as http:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/httpx/_client.py:1415: in __init__
+    else self._init_proxy_transport(
+.venv/lib/python3.12/site-packages/httpx/_client.py:1464: in _init_proxy_transport
+    return AsyncHTTPTransport(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <httpx.AsyncHTTPTransport object at 0x7f8ee0c90710>, verify = True
+cert = None, trust_env = True, http1 = True, http2 = False
+limits = Limits(max_connections=100, max_keepalive_connections=20, keepalive_expiry=5.0)
+proxy = Proxy('socks5h://127.0.0.1:40225'), uds = None, local_address = None
+retries = 0, socket_options = None
+
+    def __init__(
+        self,
+        verify: ssl.SSLContext | str | bool = True,
+        cert: CertTypes | None = None,
+        trust_env: bool = True,
+        http1: bool = True,
+        http2: bool = False,
+        limits: Limits = DEFAULT_LIMITS,
+        proxy: ProxyTypes | None = None,
+        uds: str | None = None,
+        local_address: str | None = None,
+        retries: int = 0,
+        socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
+    ) -> None:
+        import httpcore
+    
+        proxy = Proxy(url=proxy) if isinstance(proxy, (str, URL)) else proxy
+        ssl_context = create_ssl_context(verify=verify, cert=cert, trust_env=trust_env)
+    
+        if proxy is None:
+            self._pool = httpcore.AsyncConnectionPool(
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                uds=uds,
+                local_address=local_address,
+                retries=retries,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("http", "https"):
+            self._pool = httpcore.AsyncHTTPProxy(
+                proxy_url=httpcore.URL(
+                    scheme=proxy.url.raw_scheme,
+                    host=proxy.url.raw_host,
+                    port=proxy.url.port,
+                    target=proxy.url.raw_path,
+                ),
+                proxy_auth=proxy.raw_auth,
+                proxy_headers=proxy.headers.raw,
+                proxy_ssl_context=proxy.ssl_context,
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("socks5", "socks5h"):
+            try:
+                import socksio  # noqa
+            except ImportError:  # pragma: no cover
+>               raise ImportError(
+                    "Using SOCKS proxy, but the 'socksio' package is not installed. "
+                    "Make sure to install httpx using `pip install httpx[socks]`."
+                ) from None
+E               ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+
+.venv/lib/python3.12/site-packages/httpx/_transports/default.py:335: ImportError
+_________ test_the_stored_report_can_still_be_read_in_another_language _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8ee0cca420>
+
+    async def test_the_stored_report_can_still_be_read_in_another_language(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """The whole point of running it: the codes outlive the English rendering."""
+        only_step(monkeypatch, ops_diagnose.check_components)
+    
+>       result = await run_job(include_smoke_test=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_worker_ops_diagnose.py:310: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_worker_ops_diagnose.py:85: in run_job
+    return await diagnose_op.run(deps or fake_deps(), cast(Any, SESSION), params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/dtk/worker/ops/diagnose.py:87: in run
+    async with httpx.AsyncClient(timeout=STEP_TIMEOUT_SECONDS, follow_redirects=True) as http:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/httpx/_client.py:1415: in __init__
+    else self._init_proxy_transport(
+.venv/lib/python3.12/site-packages/httpx/_client.py:1464: in _init_proxy_transport
+    return AsyncHTTPTransport(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <httpx.AsyncHTTPTransport object at 0x7f8ee0c4aae0>, verify = True
+cert = None, trust_env = True, http1 = True, http2 = False
+limits = Limits(max_connections=100, max_keepalive_connections=20, keepalive_expiry=5.0)
+proxy = Proxy('socks5h://127.0.0.1:40225'), uds = None, local_address = None
+retries = 0, socket_options = None
+
+    def __init__(
+        self,
+        verify: ssl.SSLContext | str | bool = True,
+        cert: CertTypes | None = None,
+        trust_env: bool = True,
+        http1: bool = True,
+        http2: bool = False,
+        limits: Limits = DEFAULT_LIMITS,
+        proxy: ProxyTypes | None = None,
+        uds: str | None = None,
+        local_address: str | None = None,
+        retries: int = 0,
+        socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
+    ) -> None:
+        import httpcore
+    
+        proxy = Proxy(url=proxy) if isinstance(proxy, (str, URL)) else proxy
+        ssl_context = create_ssl_context(verify=verify, cert=cert, trust_env=trust_env)
+    
+        if proxy is None:
+            self._pool = httpcore.AsyncConnectionPool(
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                uds=uds,
+                local_address=local_address,
+                retries=retries,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("http", "https"):
+            self._pool = httpcore.AsyncHTTPProxy(
+                proxy_url=httpcore.URL(
+                    scheme=proxy.url.raw_scheme,
+                    host=proxy.url.raw_host,
+                    port=proxy.url.port,
+                    target=proxy.url.raw_path,
+                ),
+                proxy_auth=proxy.raw_auth,
+                proxy_headers=proxy.headers.raw,
+                proxy_ssl_context=proxy.ssl_context,
+                ssl_context=ssl_context,
+                max_connections=limits.max_connections,
+                max_keepalive_connections=limits.max_keepalive_connections,
+                keepalive_expiry=limits.keepalive_expiry,
+                http1=http1,
+                http2=http2,
+                socket_options=socket_options,
+            )
+        elif proxy.url.scheme in ("socks5", "socks5h"):
+            try:
+                import socksio  # noqa
+            except ImportError:  # pragma: no cover
+>               raise ImportError(
+                    "Using SOCKS proxy, but the 'socksio' package is not installed. "
+                    "Make sure to install httpx using `pip install httpx[socks]`."
+                ) from None
+E               ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+
+.venv/lib/python3.12/site-packages/httpx/_transports/default.py:335: ImportError
+=========================== short test summary info ============================
+FAILED tests/unit/test_cli.py::TestSigningStack::test_browser_rpc_is_behind_the_native_signers
+FAILED tests/unit/test_i18n.py::test_every_i18n_keyed_operation_is_explained_in_every_language
+FAILED tests/unit/test_i18n.py::test_every_documented_operation_has_an_english_description
+FAILED tests/unit/test_i18n.py::test_documented_operations_describe_every_parameter_they_accept
+FAILED tests/unit/test_ops_notify.py::test_aclose_does_not_orphan_a_client_created_afterwards
+FAILED tests/unit/test_public_endpoints.py::test_the_switch_list_covers_the_documented_api
+FAILED tests/unit/test_public_endpoints.py::test_every_path_in_the_switch_list_is_a_full_path
+FAILED tests/unit/test_public_endpoints.py::test_no_admin_auth_or_setup_row_is_offered_as_switchable
+FAILED tests/unit/test_public_endpoints.py::test_the_protected_flag_agrees_with_the_rule_the_request_path_uses
+FAILED tests/unit/test_webhooks.py::TestDelivery::test_a_2xx_is_delivered_once
+FAILED tests/unit/test_webhooks.py::TestDelivery::test_a_4xx_is_not_retried
+FAILED tests/unit/test_webhooks.py::TestDelivery::test_a_dead_endpoint_never_raises
+FAILED tests/unit/test_worker_ops_diagnose.py::test_the_workers_own_collaborators_are_what_gets_probed
+FAILED tests/unit/test_worker_ops_diagnose.py::test_the_low_water_mark_comes_from_the_live_configuration
+FAILED tests/unit/test_worker_ops_diagnose.py::test_a_process_without_an_engine_reports_rather_than_crashes
+FAILED tests/unit/test_worker_ops_diagnose.py::test_unconfigured_browser_rpc_is_absent_rather_than_broken
+FAILED tests/unit/test_worker_ops_diagnose.py::test_the_smoke_step_runs_on_the_stack_the_worker_already_has
+FAILED tests/unit/test_worker_ops_diagnose.py::test_declining_the_smoke_test_makes_no_request
+FAILED tests/unit/test_worker_ops_diagnose.py::test_a_successful_smoke_test_reaches_the_report
+FAILED tests/unit/test_worker_ops_diagnose.py::test_a_failed_smoke_test_cannot_carry_what_it_was_holding
+FAILED tests/unit/test_worker_ops_diagnose.py::test_result_matches_the_diagnostic_report_interface
+FAILED tests/unit/test_worker_ops_diagnose.py::test_result_carries_the_meta_the_worker_logs
+FAILED tests/unit/test_worker_ops_diagnose.py::test_the_stored_report_can_still_be_read_in_another_language
+ERROR tests/unit/test_demo.py::TestReadOnlyRule::test_every_allowlisted_route_exists
+ERROR tests/unit/test_demo.py::TestReadOnlyRule::test_no_write_endpoint_is_open_to_demo_by_accident
+23 failed, 2504 passed, 2 errors in 21.42s

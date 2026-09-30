@@ -1,0 +1,45 @@
+[PROXY] No usable proxies remain; using direct connection.
+[PROXY] No usable proxies remain; using direct connection.
+[PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWERS] Page 1: received 2, +2 unique, total 2, has_more=True
+[PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWERS] Page 1: received 2, +2 unique, total 2, has_more=True
+[@person1] [FOLLOWERS] Page 2: received 2, +1 unique, total 3, has_more=False
+[PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWING] Page 1: received 2, +2 unique, total 2, has_more=True
+[@person1] [FOLLOWING] Page 2: received 2, +1 unique, total 3, has_more=False
+[PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWERS] Page 1: received 2, +2 unique, total 2, has_more=True
+[@person1] [FOLLOWERS] Page 2: received 3, +2 unique, total 4, has_more=False
+[PROXY] No usable proxies remain; using direct connection.
+[PROXY] No usable proxies remain; using direct connection.
+Executing <Task pending name='Task-205' coro=<ProxyWireTests.asyncSetUp() running at /workspace/scratch/44b13c627f46/scanner_hybrid_rebuild_20260928/TikTokScanner/tests/test_proxy_wire.py:22> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()] created at /workspace/scratch/44b13c627f46/scanner_optimization.dowy5b/python311/cpython-3.11.16-linux-x86_64-gnu/lib/python3.11/asyncio/tasks.py:709> cb=[_run_until_complete_cb() at /workspace/scratch/44b13c627f46/scanner_optimization.dowy5b/python311/cpython-3.11.16-linux-x86_64-gnu/lib/python3.11/asyncio/base_events.py:181] created at /workspace/scratch/44b13c627f46/scanner_optimization.dowy5b/python311/cpython-3.11.16-linux-x86_64-gnu/lib/python3.11/asyncio/runners.py:100> took 0.217 seconds
+Executing <Task pending name='Task-219' coro=<ProxyWireTests.asyncSetUp() running at /workspace/scratch/44b13c627f46/scanner_hybrid_rebuild_20260928/TikTokScanner/tests/test_proxy_wire.py:22> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()] created at /workspace/scratch/44b13c627f46/scanner_optimization.dowy5b/python311/cpython-3.11.16-linux-x86_64-gnu/lib/python3.11/asyncio/tasks.py:709> cb=[_run_until_complete_cb() at /workspace/scratch/44b13c627f46/scanner_optimization.dowy5b/python311/cpython-3.11.16-linux-x86_64-gnu/lib/python3.11/asyncio/base_events.py:181] created at /workspace/scratch/44b13c627f46/scanner_optimization.dowy5b/python311/cpython-3.11.16-linux-x86_64-gnu/lib/python3.11/asyncio/runners.py:100> took 0.234 seconds
+Executing <Task pending name='Task-234' coro=<ProxyWireTests.asyncSetUp() running at /workspace/scratch/44b13c627f46/scanner_hybrid_rebuild_20260928/TikTokScanner/tests/test_proxy_wire.py:22> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()] created at /workspace/scratch/44b13c627f46/scanner_optimization.dowy5b/python311/cpython-3.11.16-linux-x86_64-gnu/lib/python3.11/asyncio/tasks.py:709> cb=[_run_until_complete_cb() at /workspace/scratch/44b13c627f46/scanner_optimization.dowy5b/python311/cpython-3.11.16-linux-x86_64-gnu/lib/python3.11/asyncio/base_events.py:181] created at /workspace/scratch/44b13c627f46/scanner_optimization.dowy5b/python311/cpython-3.11.16-linux-x86_64-gnu/lib/python3.11/asyncio/runners.py:100> took 0.171 seconds
+[PROXY] No usable proxies remain; using direct connection.
+[PROXY] No usable proxies remain; using direct connection.
+[PROXY] No usable proxies remain; using direct connection.
+[PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWERS] Page 1: received 2, +2 unique, total 2, has_more=True
+[PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWERS] Page 1: received 2, +2 unique, total 2, has_more=True
+[@person1] [FOLLOWERS] Page 2: received 2, +1 unique, total 3, has_more=False
+[PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWING] Page 1: received 2, +2 unique, total 2, has_more=True
+[@person1] [FOLLOWING] Page 2: received 2, +1 unique, total 3, has_more=False
+[PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWERS] Page 1: received 2, +2 unique, total 2, has_more=True
+[@person1] [FOLLOWERS] Page 2: received 3, +2 unique, total 4, has_more=False
+[PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWERS] Page 1: received 3, +2 unique, total 2, has_more=False
+[PROXY] No usable proxies remain; using direct connection.
+Executing <Task pending name='Task-378' coro=<HybridTests.test_profile_coalescing_and_separate_caches() running at /workspace/scratch/44b13c627f46/scanner_hybrid_rebuild_20260928/TikTokScanner/tests/test_hybrid_backend.py:133> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()] created at /workspace/scratch/44b13c627f46/scanner_optimization.dowy5b/python311/cpython-3.11.16-linux-x86_64-gnu/lib/python3.11/asyncio/tasks.py:709> cb=[_run_until_complete_cb() at /workspace/scratch/44b13c627f46/scanner_optimization.dowy5b/python311/cpython-3.11.16-linux-x86_64-gnu/lib/python3.11/asyncio/base_events.py:181] created at /workspace/scratch/44b13c627f46/scanner_optimization.dowy5b/python311/cpython-3.11.16-linux-x86_64-gnu/lib/python3.11/asyncio/runners.py:100> took 0.196 seconds
+[PROXY] No usable proxies remain; using direct connection.
+[PROXY] proxy-001 connected; 1/1 confirmed so far.
+[PROXY] No usable proxies remain; using direct connection.
+Executing <Task pending name='Task-530' coro=<ProxyWireTests.asyncSetUp() running at /workspace/scratch/44b13c627f46/scanner_hybrid_rebuild_20260928/TikTokScanner/tests/test_proxy_wire.py:22> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()] created at /workspace/scratch/44b13c627f46/scanner_optimization.dowy5b/python311/cpython-3.11.16-linux-x86_64-gnu/lib/python3.11/asyncio/tasks.py:709> cb=[_run_until_complete_cb() at /workspace/scratch/44b13c627f46/scanner_optimization.dowy5b/python311/cpython-3.11.16-linux-x86_64-gnu/lib/python3.11/asyncio/base_events.py:181] created at /workspace/scratch/44b13c627f46/scanner_optimization.dowy5b/python311/cpython-3.11.16-linux-x86_64-gnu/lib/python3.11/asyncio/runners.py:100> took 0.354 seconds
+Executing <Task pending name='Task-545' coro=<ProxyWireTests.asyncSetUp() running at /workspace/scratch/44b13c627f46/scanner_hybrid_rebuild_20260928/TikTokScanner/tests/test_proxy_wire.py:22> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()] created at /workspace/scratch/44b13c627f46/scanner_optimization.dowy5b/python311/cpython-3.11.16-linux-x86_64-gnu/lib/python3.11/asyncio/tasks.py:709> cb=[_run_until_complete_cb() at /workspace/scratch/44b13c627f46/scanner_optimization.dowy5b/python311/cpython-3.11.16-linux-x86_64-gnu/lib/python3.11/asyncio/base_events.py:181] created at /workspace/scratch/44b13c627f46/scanner_optimization.dowy5b/python311/cpython-3.11.16-linux-x86_64-gnu/lib/python3.11/asyncio/runners.py:100> took 0.413 seconds
+----------------------------------------------------------------------
+Ran 26 tests in 4.577s
+
+OK

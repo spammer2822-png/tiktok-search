@@ -1,0 +1,234 @@
+{
+  "baseline_contract": {
+    "total": 3,
+    "passed": 0,
+    "failures": 0,
+    "setup_errors": 0,
+    "skipped": 3,
+    "failure_categories": {}
+  },
+  "baseline_integration": {
+    "total": 528,
+    "passed": 31,
+    "failures": 0,
+    "setup_errors": 17,
+    "skipped": 480,
+    "failure_categories": {
+      "setup_services": [
+        {
+          "test": "tests.integration.test_end_to_end.TestLiveness.test_healthz_does_not_touch_the_database",
+          "message": "failed on setup with \"redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).\""
+        },
+        {
+          "test": "tests.integration.test_end_to_end.TestLiveness.test_readyz_reports_dependencies",
+          "message": "failed on setup with \"redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).\""
+        },
+        {
+          "test": "tests.integration.test_end_to_end.TestBootstrap.test_the_full_first_run_sequence",
+          "message": "failed on setup with \"redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).\""
+        },
+        {
+          "test": "tests.integration.test_end_to_end.TestBootstrap.test_login_establishes_a_session",
+          "message": "failed on setup with \"redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).\""
+        },
+        {
+          "test": "tests.integration.test_end_to_end.TestContract.test_authentication_is_checked_before_input_validation",
+          "message": "failed on setup with \"redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).\""
+        },
+        {
+          "test": "tests.integration.test_end_to_end.TestContract.test_failure_envelope_shape",
+          "message": "failed on setup with \"redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).\""
+        },
+        {
+          "test": "tests.integration.test_end_to_end.TestContract.test_ssrf_shapes_are_rejected[http://127.0.0.1:8000/api/v1/admin/users]",
+          "message": "failed on setup with \"redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).\""
+        },
+        {
+          "test": "tests.integration.test_end_to_end.TestContract.test_ssrf_shapes_are_rejected[http://169.254.169.254/latest/meta-data/]",
+          "message": "failed on setup with \"redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).\""
+        },
+        {
+          "test": "tests.integration.test_end_to_end.TestContract.test_ssrf_shapes_are_rejected[http://[::1]:8000/x]",
+          "message": "failed on setup with \"redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).\""
+        },
+        {
+          "test": "tests.integration.test_end_to_end.TestContract.test_ssrf_shapes_are_rejected[https://douyin.com.evil.example/video/1]",
+          "message": "failed on setup with \"redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).\""
+        },
+        {
+          "test": "tests.integration.test_end_to_end.TestContract.test_ssrf_shapes_are_rejected[http://10.0.0.1/internal]",
+          "message": "failed on setup with \"redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).\""
+        },
+        {
+          "test": "tests.integration.test_end_to_end.TestContract.test_messages_are_localized_but_codes_are_not",
+          "message": "failed on setup with \"redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).\""
+        },
+        {
+          "test": "tests.integration.test_end_to_end.TestContract.test_accept_language_header_is_honoured",
+          "message": "failed on setup with \"redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).\""
+        },
+        {
+          "test": "tests.integration.test_end_to_end.TestContract.test_unknown_language_falls_back_to_english",
+          "message": "failed on setup with \"redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).\""
+        },
+        {
+          "test": "tests.integration.test_end_to_end.TestDocumentation.test_openapi_is_served_in_both_languages",
+          "message": "failed on setup with \"redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).\""
+        },
+        {
+          "test": "tests.integration.test_end_to_end.TestDocumentation.test_every_designed_endpoint_is_exposed",
+          "message": "failed on setup with \"redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).\""
+        },
+        {
+          "test": "tests.integration.test_end_to_end.TestDocumentation.test_swagger_and_redoc_render",
+          "message": "failed on setup with \"redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).\""
+        }
+      ]
+    }
+  },
+  "baseline_unit_replay": {
+    "total": 2529,
+    "passed": 2504,
+    "failures": 23,
+    "setup_errors": 2,
+    "skipped": 0,
+    "failure_categories": {
+      "setup_inherited_socks_proxy": [
+        {
+          "test": "tests.unit.test_cli.TestSigningStack.test_browser_rpc_is_behind_the_native_signers",
+          "message": "ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`."
+        },
+        {
+          "test": "tests.unit.test_ops_notify.test_aclose_does_not_orphan_a_client_created_afterwards",
+          "message": "ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`."
+        },
+        {
+          "test": "tests.unit.test_worker_ops_diagnose.test_the_workers_own_collaborators_are_what_gets_probed",
+          "message": "ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`."
+        },
+        {
+          "test": "tests.unit.test_worker_ops_diagnose.test_the_low_water_mark_comes_from_the_live_configuration",
+          "message": "ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`."
+        },
+        {
+          "test": "tests.unit.test_worker_ops_diagnose.test_a_process_without_an_engine_reports_rather_than_crashes",
+          "message": "ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`."
+        },
+        {
+          "test": "tests.unit.test_worker_ops_diagnose.test_unconfigured_browser_rpc_is_absent_rather_than_broken",
+          "message": "ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`."
+        },
+        {
+          "test": "tests.unit.test_worker_ops_diagnose.test_the_smoke_step_runs_on_the_stack_the_worker_already_has",
+          "message": "ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`."
+        },
+        {
+          "test": "tests.unit.test_worker_ops_diagnose.test_declining_the_smoke_test_makes_no_request",
+          "message": "ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`."
+        },
+        {
+          "test": "tests.unit.test_worker_ops_diagnose.test_a_successful_smoke_test_reaches_the_report",
+          "message": "ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`."
+        },
+        {
+          "test": "tests.unit.test_worker_ops_diagnose.test_a_failed_smoke_test_cannot_carry_what_it_was_holding",
+          "message": "ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`."
+        },
+        {
+          "test": "tests.unit.test_worker_ops_diagnose.test_result_matches_the_diagnostic_report_interface",
+          "message": "ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`."
+        },
+        {
+          "test": "tests.unit.test_worker_ops_diagnose.test_result_carries_the_meta_the_worker_logs",
+          "message": "ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`."
+        },
+        {
+          "test": "tests.unit.test_worker_ops_diagnose.test_the_stored_report_can_still_be_read_in_another_language",
+          "message": "ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`."
+        }
+      ],
+      "setup_secret_key": [
+        {
+          "test": "tests.unit.test_demo.TestReadOnlyRule.test_every_allowlisted_route_exists",
+          "message": "failed on setup with \"dtk.core.crypto.SecretKeyMissing: DTK_SECRET_KEY must be set and at least 32 characters. Generate one with: openssl rand -base64 48\""
+        },
+        {
+          "test": "tests.unit.test_demo.TestReadOnlyRule.test_no_write_endpoint_is_open_to_demo_by_accident",
+          "message": "failed on setup with \"dtk.core.crypto.SecretKeyMissing: DTK_SECRET_KEY must be set and at least 32 characters. Generate one with: openssl rand -base64 48\""
+        },
+        {
+          "test": "tests.unit.test_i18n.test_every_i18n_keyed_operation_is_explained_in_every_language",
+          "message": "dtk.core.crypto.SecretKeyMissing: DTK_SECRET_KEY must be set and at least 32 characters. Generate one with: openssl rand -base64 48"
+        },
+        {
+          "test": "tests.unit.test_i18n.test_every_documented_operation_has_an_english_description",
+          "message": "dtk.core.crypto.SecretKeyMissing: DTK_SECRET_KEY must be set and at least 32 characters. Generate one with: openssl rand -base64 48"
+        },
+        {
+          "test": "tests.unit.test_i18n.test_documented_operations_describe_every_parameter_they_accept",
+          "message": "dtk.core.crypto.SecretKeyMissing: DTK_SECRET_KEY must be set and at least 32 characters. Generate one with: openssl rand -base64 48"
+        },
+        {
+          "test": "tests.unit.test_public_endpoints.test_the_switch_list_covers_the_documented_api",
+          "message": "dtk.core.crypto.SecretKeyMissing: DTK_SECRET_KEY must be set and at least 32 characters. Generate one with: openssl rand -base64 48"
+        },
+        {
+          "test": "tests.unit.test_public_endpoints.test_every_path_in_the_switch_list_is_a_full_path",
+          "message": "dtk.core.crypto.SecretKeyMissing: DTK_SECRET_KEY must be set and at least 32 characters. Generate one with: openssl rand -base64 48"
+        },
+        {
+          "test": "tests.unit.test_public_endpoints.test_no_admin_auth_or_setup_row_is_offered_as_switchable",
+          "message": "dtk.core.crypto.SecretKeyMissing: DTK_SECRET_KEY must be set and at least 32 characters. Generate one with: openssl rand -base64 48"
+        },
+        {
+          "test": "tests.unit.test_public_endpoints.test_the_protected_flag_agrees_with_the_rule_the_request_path_uses",
+          "message": "dtk.core.crypto.SecretKeyMissing: DTK_SECRET_KEY must be set and at least 32 characters. Generate one with: openssl rand -base64 48"
+        }
+      ],
+      "network_dns": [
+        {
+          "test": "tests.unit.test_webhooks.TestDelivery.test_a_2xx_is_delivered_once",
+          "message": "AssertionError: assert False is True\n +  where False = Delivery(delivered=False, attempts=0, status=None, detail='callback_url does not resolve: [Errno -3] Temporary failure in name resolution').delivered"
+        },
+        {
+          "test": "tests.unit.test_webhooks.TestDelivery.test_a_4xx_is_not_retried",
+          "message": "assert 0 == 1"
+        },
+        {
+          "test": "tests.unit.test_webhooks.TestDelivery.test_a_dead_endpoint_never_raises",
+          "message": "AssertionError: assert 0 == 3\n +  where 0 = Delivery(delivered=False, attempts=0, status=None, detail='callback_url does not resolve: [Errno -3] Temporary failure in name resolution').attempts\n +  and   3 = webhooks.MAX_ATTEMPTS"
+        }
+      ]
+    }
+  },
+  "baseline_unit_replay_configured": {
+    "total": 2529,
+    "passed": 2526,
+    "failures": 3,
+    "setup_errors": 0,
+    "skipped": 0,
+    "failure_categories": {
+      "network_dns": [
+        {
+          "test": "tests.unit.test_webhooks.TestDelivery.test_a_2xx_is_delivered_once",
+          "message": "AssertionError: assert False is True\n +  where False = Delivery(delivered=False, attempts=0, status=None, detail='callback_url does not resolve: [Errno -3] Temporary failure in name resolution').delivered"
+        },
+        {
+          "test": "tests.unit.test_webhooks.TestDelivery.test_a_4xx_is_not_retried",
+          "message": "assert 0 == 1"
+        },
+        {
+          "test": "tests.unit.test_webhooks.TestDelivery.test_a_dead_endpoint_never_raises",
+          "message": "AssertionError: assert 0 == 3\n +  where 0 = Delivery(delivered=False, attempts=0, status=None, detail='callback_url does not resolve: [Errno -3] Temporary failure in name resolution').attempts\n +  and   3 = webhooks.MAX_ATTEMPTS"
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "commit": "737bf3dfe9de1dbff57990c0ec4c9e02c75c3d0f",
+    "source_archive_sha256": "5c61258bbfba946e1c218b5d72f7a470a92b7e7068bccdb9bbbc3fd1de779c4b",
+    "source_modified": false,
+    "live_verified": false,
+    "hybrid_source_available": false
+  }
+}

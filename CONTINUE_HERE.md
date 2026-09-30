@@ -1,0 +1,11 @@
+# Development checkpoint — 29 September 2026, continuation
+
+Work in progress, not a release. The original and first hybrid sources are in development_sources. Both specifications remain authoritative. Live verification and Docker/service baseline remain blocked as recorded under hybrid_baseline.
+
+Restored 201 tests PASS on Python 3.12.14 (hybrid_measurements/restored_201_tests.log). Additional current edits: UserStore schema creation grouped into a durable transaction; identical checkpoint SQL writes skipped; exports carry truthful backend provenance; switching a Direct checkpoint to Worker-only safely restarts with deduplication. These new edits await the scheduled pre-429 regression run. New rate_limit_control.py and test_rate_limit_control.py are drafted but NOT integrated or tested yet.
+
+Current benchmark harness uses 0/1/4/10 users in EACH direction and 10k fixture in BOTH directions. New matched measurements are under hybrid_measurements/matched. A sequential original/first/candidate comparison is in progress. The initial first Worker short samples overlapped the 201-test restoration run and are being replaced before comparison. Only completed JSON files count as evidence. Do not archive hybrid_bench_* intermediate directories (large and regenerable).
+
+Continue: inspect pre429_local_gate.json and comparison outcomes; finish pre-429 fixes/review. Then integrate rate_limit_control.py into hybrid_backend: controller shared via session statistics, response hooks, cancellation translation, central wait/recovery, metrics provider and snapshot callback. Add test_rate_limit_control to run_tests.py and durable stop/resume tests; verify 2500 active and 150 queued scenarios. Final matched three-version matrix, Python 3.11/3.12 suites, offline avatars/large reports, updated README/checklist, final ZIP remain.
+
+Temporary runtime: ../../venv/bin/python (3.12), ../../venv311/bin/python (3.11) from project. If lost, recreate from requirements-test.txt. Benchmark: python tests/benchmark_matrix.py --source ../first_hybrid --label first_matched --output hybrid_measurements/matched; equivalent original uses --original. Scripts skip completed result files. Reconstruct siblings using development_sources ZIPs. Do not infer completion from old HYBRID_WORK_STATUS.md; it is historical and must be replaced before release.

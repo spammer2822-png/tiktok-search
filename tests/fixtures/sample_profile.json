@@ -1,0 +1,23 @@
+{
+  "status": "ok",
+  "data": {
+    "profile": "https://example.invalid/avatar.jpg",
+    "username": "roblox",
+    "fullname": "Example Profile",
+    "userid": "1000000000000000001",
+    "verified": "Yes✅",
+    "private": "Public Account",
+    "followers": "3.25M",
+    "following": "12",
+    "likes": "12K",
+    "video": "4",
+    "secUid": "synthetic-sec-uid",
+    "region": "Unknown",
+    "created_time": "2020-01-01",
+    "last_change_name": "Unknown",
+    "language": "English",
+    "open_favorite": "No",
+    "see_following": "Yes",
+    "heart_count": "0"
+  }
+}

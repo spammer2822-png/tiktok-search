@@ -4,7 +4,8 @@ __pycache__/
 venv*/
 .env
 .DS_Store
-# Local runs contain private sessions/proxies and are never development source.
 webshare_proxy.txt
 direct_session.json
 TiktokSearch_Logs/
+hybrid_bench_*/
+report_fixture_*/

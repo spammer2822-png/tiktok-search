@@ -1,0 +1,19 @@
+{
+  "load_ms": 115,
+  "fallback": true,
+  "accounts": 1000,
+  "engine": "cooperative",
+  "initial_max_ui_lag_ms": 23,
+  "sort_ms": 41,
+  "descending_sort_ms": 59,
+  "page_ms": 38,
+  "search_ms": 191,
+  "filter_ms": 13,
+  "dom_nodes": 798,
+  "interaction_max_ui_lag_ms": 293,
+  "interaction_long_tasks": [
+    61
+  ],
+  "network_requests": 0,
+  "errors": []
+}

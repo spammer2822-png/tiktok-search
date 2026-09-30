@@ -1,0 +1,9 @@
+{
+  "version": "previous",
+  "seconds": 4.452832488000013,
+  "cpu_seconds": 4.452667315,
+  "accounts": 180000,
+  "peak_rss_mib": 242.05078125,
+  "discovery_json_bytes": 35708893,
+  "queue_json_bytes": 16560003
+}

@@ -1,0 +1,10 @@
+{
+  "version": "previous",
+  "repeat": false,
+  "shutdown_seconds": 1.4701419259999966,
+  "exit_code": 130,
+  "report_count": 1,
+  "pending": 1000,
+  "stderr_type": "none",
+  "resume_seconds": 0.03384840199998962
+}

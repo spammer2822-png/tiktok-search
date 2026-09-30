@@ -1,0 +1,15 @@
+{
+  "users": [
+    {
+      "uniqueId": "example_member",
+      "nickname": "Example Member",
+      "avatarThumb": "https://example.invalid/avatar.jpg",
+      "user_id": "2000000000000000001",
+      "signature": "Synthetic fixture",
+      "privateAccount": false,
+      "verified": "No❌"
+    }
+  ],
+  "hasMore": true,
+  "minCursor": "opaque-fixture-followers"
+}

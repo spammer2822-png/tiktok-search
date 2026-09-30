@@ -1,0 +1,2731 @@
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 13%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 27%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 40%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 54%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 68%]
+ssssssssssssssssssssssssssssss...............................sssssEEEEEE [ 81%]
+EEEEEEEEEEEsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 95%]
+ssssssssssssssssssssssss                                                 [100%]
+==================================== ERRORS ====================================
+___ ERROR at setup of TestLiveness.test_healthz_does_not_touch_the_database ____
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+>               await self._connect()
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:850: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:1487: in _connect
+    reader, writer = await asyncio.open_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/streams.py:48: in open_connection
+    transport, _ = await loop.create_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1132: in create_connection
+    raise exceptions[0]
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:651: in sock_connect
+    return await fut
+           ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=False debug=False>
+fut = None, sock = <socket.socket [closed] fd=-1, family=2, type=1, proto=6>
+address = ('127.0.0.1', 56379)
+
+    def _sock_connect_cb(self, fut, sock, address):
+        if fut.done():
+            return
+    
+        try:
+            err = sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+            if err != 0:
+                # Jump to any except clause below.
+>               raise OSError(err, f'Connect call failed {address}')
+E               ConnectionRefusedError: [Errno 111] Connect call failed ('127.0.0.1', 56379)
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:691: ConnectionRefusedError
+
+During handling of the above exception, another exception occurred:
+
+    @pytest_asyncio.fixture(scope="module", loop_scope="module")
+    async def app():
+        """The real application, wired to the test services.
+    
+        Module scoped on purpose. Dropping the schema and re-running the migrations
+        for each of these tests meant seventeen resets fighting over an exclusive
+        lock with connections the previous test had not finished releasing, which
+        made the suite flaky for reasons that had nothing to do with the code. One
+        reset, one application, and the tests below read in order as a single
+        session: bootstrap first, then everything that needs an administrator.
+        """
+    
+        from dtk.api.app import create_app
+        from dtk.core.redis import close_redis, init_redis
+        from dtk.db.migrate import upgrade
+    
+        redis_url = os.environ.get("DTK_TEST_REDIS_URL", "redis://127.0.0.1:56379/0")
+        scratch = init_redis(redis_url)
+>       await scratch.flushdb()
+
+tests/integration/test_end_to_end.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/client.py:929: in execute_command
+    conn = self.connection or await pool.get_connection()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/utils.py:249: in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:3103: in get_connection
+    await self.ensure_connection(connection)
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:2865: in ensure_connection
+    await connection.connect()
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:819: in connect
+    await self.retry.call_with_retry(
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:81: in call_with_retry
+    raise error
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:69: in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+                await self._connect()
+        except asyncio.CancelledError:
+            raise  # in 3.7 and earlier, this is an Exception, not BaseException
+        except (socket.timeout, asyncio.TimeoutError):
+            e = TimeoutError("Timeout connecting to server")
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+            raise e
+        except OSError as e:
+            e = ConnectionError(self._error_message(e))
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+>           raise e
+E           redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:876: ConnectionError
+_______ ERROR at setup of TestLiveness.test_readyz_reports_dependencies ________
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+>               await self._connect()
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:850: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:1487: in _connect
+    reader, writer = await asyncio.open_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/streams.py:48: in open_connection
+    transport, _ = await loop.create_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1132: in create_connection
+    raise exceptions[0]
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:651: in sock_connect
+    return await fut
+           ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=False debug=False>
+fut = None, sock = <socket.socket [closed] fd=-1, family=2, type=1, proto=6>
+address = ('127.0.0.1', 56379)
+
+    def _sock_connect_cb(self, fut, sock, address):
+        if fut.done():
+            return
+    
+        try:
+            err = sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+            if err != 0:
+                # Jump to any except clause below.
+>               raise OSError(err, f'Connect call failed {address}')
+E               ConnectionRefusedError: [Errno 111] Connect call failed ('127.0.0.1', 56379)
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:691: ConnectionRefusedError
+
+During handling of the above exception, another exception occurred:
+
+    @pytest_asyncio.fixture(scope="module", loop_scope="module")
+    async def app():
+        """The real application, wired to the test services.
+    
+        Module scoped on purpose. Dropping the schema and re-running the migrations
+        for each of these tests meant seventeen resets fighting over an exclusive
+        lock with connections the previous test had not finished releasing, which
+        made the suite flaky for reasons that had nothing to do with the code. One
+        reset, one application, and the tests below read in order as a single
+        session: bootstrap first, then everything that needs an administrator.
+        """
+    
+        from dtk.api.app import create_app
+        from dtk.core.redis import close_redis, init_redis
+        from dtk.db.migrate import upgrade
+    
+        redis_url = os.environ.get("DTK_TEST_REDIS_URL", "redis://127.0.0.1:56379/0")
+        scratch = init_redis(redis_url)
+>       await scratch.flushdb()
+
+tests/integration/test_end_to_end.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/client.py:929: in execute_command
+    conn = self.connection or await pool.get_connection()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/utils.py:249: in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:3103: in get_connection
+    await self.ensure_connection(connection)
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:2865: in ensure_connection
+    await connection.connect()
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:819: in connect
+    await self.retry.call_with_retry(
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:81: in call_with_retry
+    raise error
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:69: in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+                await self._connect()
+        except asyncio.CancelledError:
+            raise  # in 3.7 and earlier, this is an Exception, not BaseException
+        except (socket.timeout, asyncio.TimeoutError):
+            e = TimeoutError("Timeout connecting to server")
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+            raise e
+        except OSError as e:
+            e = ConnectionError(self._error_message(e))
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+>           raise e
+E           redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:876: ConnectionError
+_______ ERROR at setup of TestBootstrap.test_the_full_first_run_sequence _______
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+>               await self._connect()
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:850: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:1487: in _connect
+    reader, writer = await asyncio.open_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/streams.py:48: in open_connection
+    transport, _ = await loop.create_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1132: in create_connection
+    raise exceptions[0]
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:651: in sock_connect
+    return await fut
+           ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=False debug=False>
+fut = None, sock = <socket.socket [closed] fd=-1, family=2, type=1, proto=6>
+address = ('127.0.0.1', 56379)
+
+    def _sock_connect_cb(self, fut, sock, address):
+        if fut.done():
+            return
+    
+        try:
+            err = sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+            if err != 0:
+                # Jump to any except clause below.
+>               raise OSError(err, f'Connect call failed {address}')
+E               ConnectionRefusedError: [Errno 111] Connect call failed ('127.0.0.1', 56379)
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:691: ConnectionRefusedError
+
+During handling of the above exception, another exception occurred:
+
+    @pytest_asyncio.fixture(scope="module", loop_scope="module")
+    async def app():
+        """The real application, wired to the test services.
+    
+        Module scoped on purpose. Dropping the schema and re-running the migrations
+        for each of these tests meant seventeen resets fighting over an exclusive
+        lock with connections the previous test had not finished releasing, which
+        made the suite flaky for reasons that had nothing to do with the code. One
+        reset, one application, and the tests below read in order as a single
+        session: bootstrap first, then everything that needs an administrator.
+        """
+    
+        from dtk.api.app import create_app
+        from dtk.core.redis import close_redis, init_redis
+        from dtk.db.migrate import upgrade
+    
+        redis_url = os.environ.get("DTK_TEST_REDIS_URL", "redis://127.0.0.1:56379/0")
+        scratch = init_redis(redis_url)
+>       await scratch.flushdb()
+
+tests/integration/test_end_to_end.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/client.py:929: in execute_command
+    conn = self.connection or await pool.get_connection()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/utils.py:249: in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:3103: in get_connection
+    await self.ensure_connection(connection)
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:2865: in ensure_connection
+    await connection.connect()
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:819: in connect
+    await self.retry.call_with_retry(
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:81: in call_with_retry
+    raise error
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:69: in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+                await self._connect()
+        except asyncio.CancelledError:
+            raise  # in 3.7 and earlier, this is an Exception, not BaseException
+        except (socket.timeout, asyncio.TimeoutError):
+            e = TimeoutError("Timeout connecting to server")
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+            raise e
+        except OSError as e:
+            e = ConnectionError(self._error_message(e))
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+>           raise e
+E           redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:876: ConnectionError
+_______ ERROR at setup of TestBootstrap.test_login_establishes_a_session _______
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+>               await self._connect()
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:850: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:1487: in _connect
+    reader, writer = await asyncio.open_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/streams.py:48: in open_connection
+    transport, _ = await loop.create_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1132: in create_connection
+    raise exceptions[0]
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:651: in sock_connect
+    return await fut
+           ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=False debug=False>
+fut = None, sock = <socket.socket [closed] fd=-1, family=2, type=1, proto=6>
+address = ('127.0.0.1', 56379)
+
+    def _sock_connect_cb(self, fut, sock, address):
+        if fut.done():
+            return
+    
+        try:
+            err = sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+            if err != 0:
+                # Jump to any except clause below.
+>               raise OSError(err, f'Connect call failed {address}')
+E               ConnectionRefusedError: [Errno 111] Connect call failed ('127.0.0.1', 56379)
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:691: ConnectionRefusedError
+
+During handling of the above exception, another exception occurred:
+
+    @pytest_asyncio.fixture(scope="module", loop_scope="module")
+    async def app():
+        """The real application, wired to the test services.
+    
+        Module scoped on purpose. Dropping the schema and re-running the migrations
+        for each of these tests meant seventeen resets fighting over an exclusive
+        lock with connections the previous test had not finished releasing, which
+        made the suite flaky for reasons that had nothing to do with the code. One
+        reset, one application, and the tests below read in order as a single
+        session: bootstrap first, then everything that needs an administrator.
+        """
+    
+        from dtk.api.app import create_app
+        from dtk.core.redis import close_redis, init_redis
+        from dtk.db.migrate import upgrade
+    
+        redis_url = os.environ.get("DTK_TEST_REDIS_URL", "redis://127.0.0.1:56379/0")
+        scratch = init_redis(redis_url)
+>       await scratch.flushdb()
+
+tests/integration/test_end_to_end.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/client.py:929: in execute_command
+    conn = self.connection or await pool.get_connection()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/utils.py:249: in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:3103: in get_connection
+    await self.ensure_connection(connection)
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:2865: in ensure_connection
+    await connection.connect()
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:819: in connect
+    await self.retry.call_with_retry(
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:81: in call_with_retry
+    raise error
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:69: in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+                await self._connect()
+        except asyncio.CancelledError:
+            raise  # in 3.7 and earlier, this is an Exception, not BaseException
+        except (socket.timeout, asyncio.TimeoutError):
+            e = TimeoutError("Timeout connecting to server")
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+            raise e
+        except OSError as e:
+            e = ConnectionError(self._error_message(e))
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+>           raise e
+E           redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:876: ConnectionError
+_ ERROR at setup of TestContract.test_authentication_is_checked_before_input_validation _
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+>               await self._connect()
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:850: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:1487: in _connect
+    reader, writer = await asyncio.open_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/streams.py:48: in open_connection
+    transport, _ = await loop.create_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1132: in create_connection
+    raise exceptions[0]
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:651: in sock_connect
+    return await fut
+           ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=False debug=False>
+fut = None, sock = <socket.socket [closed] fd=-1, family=2, type=1, proto=6>
+address = ('127.0.0.1', 56379)
+
+    def _sock_connect_cb(self, fut, sock, address):
+        if fut.done():
+            return
+    
+        try:
+            err = sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+            if err != 0:
+                # Jump to any except clause below.
+>               raise OSError(err, f'Connect call failed {address}')
+E               ConnectionRefusedError: [Errno 111] Connect call failed ('127.0.0.1', 56379)
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:691: ConnectionRefusedError
+
+During handling of the above exception, another exception occurred:
+
+    @pytest_asyncio.fixture(scope="module", loop_scope="module")
+    async def app():
+        """The real application, wired to the test services.
+    
+        Module scoped on purpose. Dropping the schema and re-running the migrations
+        for each of these tests meant seventeen resets fighting over an exclusive
+        lock with connections the previous test had not finished releasing, which
+        made the suite flaky for reasons that had nothing to do with the code. One
+        reset, one application, and the tests below read in order as a single
+        session: bootstrap first, then everything that needs an administrator.
+        """
+    
+        from dtk.api.app import create_app
+        from dtk.core.redis import close_redis, init_redis
+        from dtk.db.migrate import upgrade
+    
+        redis_url = os.environ.get("DTK_TEST_REDIS_URL", "redis://127.0.0.1:56379/0")
+        scratch = init_redis(redis_url)
+>       await scratch.flushdb()
+
+tests/integration/test_end_to_end.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/client.py:929: in execute_command
+    conn = self.connection or await pool.get_connection()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/utils.py:249: in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:3103: in get_connection
+    await self.ensure_connection(connection)
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:2865: in ensure_connection
+    await connection.connect()
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:819: in connect
+    await self.retry.call_with_retry(
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:81: in call_with_retry
+    raise error
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:69: in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+                await self._connect()
+        except asyncio.CancelledError:
+            raise  # in 3.7 and earlier, this is an Exception, not BaseException
+        except (socket.timeout, asyncio.TimeoutError):
+            e = TimeoutError("Timeout connecting to server")
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+            raise e
+        except OSError as e:
+            e = ConnectionError(self._error_message(e))
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+>           raise e
+E           redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:876: ConnectionError
+__________ ERROR at setup of TestContract.test_failure_envelope_shape __________
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+>               await self._connect()
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:850: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:1487: in _connect
+    reader, writer = await asyncio.open_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/streams.py:48: in open_connection
+    transport, _ = await loop.create_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1132: in create_connection
+    raise exceptions[0]
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:651: in sock_connect
+    return await fut
+           ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=False debug=False>
+fut = None, sock = <socket.socket [closed] fd=-1, family=2, type=1, proto=6>
+address = ('127.0.0.1', 56379)
+
+    def _sock_connect_cb(self, fut, sock, address):
+        if fut.done():
+            return
+    
+        try:
+            err = sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+            if err != 0:
+                # Jump to any except clause below.
+>               raise OSError(err, f'Connect call failed {address}')
+E               ConnectionRefusedError: [Errno 111] Connect call failed ('127.0.0.1', 56379)
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:691: ConnectionRefusedError
+
+During handling of the above exception, another exception occurred:
+
+    @pytest_asyncio.fixture(scope="module", loop_scope="module")
+    async def app():
+        """The real application, wired to the test services.
+    
+        Module scoped on purpose. Dropping the schema and re-running the migrations
+        for each of these tests meant seventeen resets fighting over an exclusive
+        lock with connections the previous test had not finished releasing, which
+        made the suite flaky for reasons that had nothing to do with the code. One
+        reset, one application, and the tests below read in order as a single
+        session: bootstrap first, then everything that needs an administrator.
+        """
+    
+        from dtk.api.app import create_app
+        from dtk.core.redis import close_redis, init_redis
+        from dtk.db.migrate import upgrade
+    
+        redis_url = os.environ.get("DTK_TEST_REDIS_URL", "redis://127.0.0.1:56379/0")
+        scratch = init_redis(redis_url)
+>       await scratch.flushdb()
+
+tests/integration/test_end_to_end.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/client.py:929: in execute_command
+    conn = self.connection or await pool.get_connection()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/utils.py:249: in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:3103: in get_connection
+    await self.ensure_connection(connection)
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:2865: in ensure_connection
+    await connection.connect()
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:819: in connect
+    await self.retry.call_with_retry(
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:81: in call_with_retry
+    raise error
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:69: in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+                await self._connect()
+        except asyncio.CancelledError:
+            raise  # in 3.7 and earlier, this is an Exception, not BaseException
+        except (socket.timeout, asyncio.TimeoutError):
+            e = TimeoutError("Timeout connecting to server")
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+            raise e
+        except OSError as e:
+            e = ConnectionError(self._error_message(e))
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+>           raise e
+E           redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:876: ConnectionError
+_ ERROR at setup of TestContract.test_ssrf_shapes_are_rejected[http://127.0.0.1:8000/api/v1/admin/users] _
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+>               await self._connect()
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:850: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:1487: in _connect
+    reader, writer = await asyncio.open_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/streams.py:48: in open_connection
+    transport, _ = await loop.create_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1132: in create_connection
+    raise exceptions[0]
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:651: in sock_connect
+    return await fut
+           ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=False debug=False>
+fut = None, sock = <socket.socket [closed] fd=-1, family=2, type=1, proto=6>
+address = ('127.0.0.1', 56379)
+
+    def _sock_connect_cb(self, fut, sock, address):
+        if fut.done():
+            return
+    
+        try:
+            err = sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+            if err != 0:
+                # Jump to any except clause below.
+>               raise OSError(err, f'Connect call failed {address}')
+E               ConnectionRefusedError: [Errno 111] Connect call failed ('127.0.0.1', 56379)
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:691: ConnectionRefusedError
+
+During handling of the above exception, another exception occurred:
+
+    @pytest_asyncio.fixture(scope="module", loop_scope="module")
+    async def app():
+        """The real application, wired to the test services.
+    
+        Module scoped on purpose. Dropping the schema and re-running the migrations
+        for each of these tests meant seventeen resets fighting over an exclusive
+        lock with connections the previous test had not finished releasing, which
+        made the suite flaky for reasons that had nothing to do with the code. One
+        reset, one application, and the tests below read in order as a single
+        session: bootstrap first, then everything that needs an administrator.
+        """
+    
+        from dtk.api.app import create_app
+        from dtk.core.redis import close_redis, init_redis
+        from dtk.db.migrate import upgrade
+    
+        redis_url = os.environ.get("DTK_TEST_REDIS_URL", "redis://127.0.0.1:56379/0")
+        scratch = init_redis(redis_url)
+>       await scratch.flushdb()
+
+tests/integration/test_end_to_end.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/client.py:929: in execute_command
+    conn = self.connection or await pool.get_connection()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/utils.py:249: in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:3103: in get_connection
+    await self.ensure_connection(connection)
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:2865: in ensure_connection
+    await connection.connect()
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:819: in connect
+    await self.retry.call_with_retry(
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:81: in call_with_retry
+    raise error
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:69: in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+                await self._connect()
+        except asyncio.CancelledError:
+            raise  # in 3.7 and earlier, this is an Exception, not BaseException
+        except (socket.timeout, asyncio.TimeoutError):
+            e = TimeoutError("Timeout connecting to server")
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+            raise e
+        except OSError as e:
+            e = ConnectionError(self._error_message(e))
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+>           raise e
+E           redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:876: ConnectionError
+_ ERROR at setup of TestContract.test_ssrf_shapes_are_rejected[http://169.254.169.254/latest/meta-data/] _
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+>               await self._connect()
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:850: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:1487: in _connect
+    reader, writer = await asyncio.open_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/streams.py:48: in open_connection
+    transport, _ = await loop.create_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1132: in create_connection
+    raise exceptions[0]
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:651: in sock_connect
+    return await fut
+           ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=False debug=False>
+fut = None, sock = <socket.socket [closed] fd=-1, family=2, type=1, proto=6>
+address = ('127.0.0.1', 56379)
+
+    def _sock_connect_cb(self, fut, sock, address):
+        if fut.done():
+            return
+    
+        try:
+            err = sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+            if err != 0:
+                # Jump to any except clause below.
+>               raise OSError(err, f'Connect call failed {address}')
+E               ConnectionRefusedError: [Errno 111] Connect call failed ('127.0.0.1', 56379)
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:691: ConnectionRefusedError
+
+During handling of the above exception, another exception occurred:
+
+    @pytest_asyncio.fixture(scope="module", loop_scope="module")
+    async def app():
+        """The real application, wired to the test services.
+    
+        Module scoped on purpose. Dropping the schema and re-running the migrations
+        for each of these tests meant seventeen resets fighting over an exclusive
+        lock with connections the previous test had not finished releasing, which
+        made the suite flaky for reasons that had nothing to do with the code. One
+        reset, one application, and the tests below read in order as a single
+        session: bootstrap first, then everything that needs an administrator.
+        """
+    
+        from dtk.api.app import create_app
+        from dtk.core.redis import close_redis, init_redis
+        from dtk.db.migrate import upgrade
+    
+        redis_url = os.environ.get("DTK_TEST_REDIS_URL", "redis://127.0.0.1:56379/0")
+        scratch = init_redis(redis_url)
+>       await scratch.flushdb()
+
+tests/integration/test_end_to_end.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/client.py:929: in execute_command
+    conn = self.connection or await pool.get_connection()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/utils.py:249: in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:3103: in get_connection
+    await self.ensure_connection(connection)
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:2865: in ensure_connection
+    await connection.connect()
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:819: in connect
+    await self.retry.call_with_retry(
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:81: in call_with_retry
+    raise error
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:69: in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+                await self._connect()
+        except asyncio.CancelledError:
+            raise  # in 3.7 and earlier, this is an Exception, not BaseException
+        except (socket.timeout, asyncio.TimeoutError):
+            e = TimeoutError("Timeout connecting to server")
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+            raise e
+        except OSError as e:
+            e = ConnectionError(self._error_message(e))
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+>           raise e
+E           redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:876: ConnectionError
+_ ERROR at setup of TestContract.test_ssrf_shapes_are_rejected[http://[::1]:8000/x] _
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+>               await self._connect()
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:850: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:1487: in _connect
+    reader, writer = await asyncio.open_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/streams.py:48: in open_connection
+    transport, _ = await loop.create_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1132: in create_connection
+    raise exceptions[0]
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:651: in sock_connect
+    return await fut
+           ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=False debug=False>
+fut = None, sock = <socket.socket [closed] fd=-1, family=2, type=1, proto=6>
+address = ('127.0.0.1', 56379)
+
+    def _sock_connect_cb(self, fut, sock, address):
+        if fut.done():
+            return
+    
+        try:
+            err = sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+            if err != 0:
+                # Jump to any except clause below.
+>               raise OSError(err, f'Connect call failed {address}')
+E               ConnectionRefusedError: [Errno 111] Connect call failed ('127.0.0.1', 56379)
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:691: ConnectionRefusedError
+
+During handling of the above exception, another exception occurred:
+
+    @pytest_asyncio.fixture(scope="module", loop_scope="module")
+    async def app():
+        """The real application, wired to the test services.
+    
+        Module scoped on purpose. Dropping the schema and re-running the migrations
+        for each of these tests meant seventeen resets fighting over an exclusive
+        lock with connections the previous test had not finished releasing, which
+        made the suite flaky for reasons that had nothing to do with the code. One
+        reset, one application, and the tests below read in order as a single
+        session: bootstrap first, then everything that needs an administrator.
+        """
+    
+        from dtk.api.app import create_app
+        from dtk.core.redis import close_redis, init_redis
+        from dtk.db.migrate import upgrade
+    
+        redis_url = os.environ.get("DTK_TEST_REDIS_URL", "redis://127.0.0.1:56379/0")
+        scratch = init_redis(redis_url)
+>       await scratch.flushdb()
+
+tests/integration/test_end_to_end.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/client.py:929: in execute_command
+    conn = self.connection or await pool.get_connection()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/utils.py:249: in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:3103: in get_connection
+    await self.ensure_connection(connection)
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:2865: in ensure_connection
+    await connection.connect()
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:819: in connect
+    await self.retry.call_with_retry(
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:81: in call_with_retry
+    raise error
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:69: in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+                await self._connect()
+        except asyncio.CancelledError:
+            raise  # in 3.7 and earlier, this is an Exception, not BaseException
+        except (socket.timeout, asyncio.TimeoutError):
+            e = TimeoutError("Timeout connecting to server")
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+            raise e
+        except OSError as e:
+            e = ConnectionError(self._error_message(e))
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+>           raise e
+E           redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:876: ConnectionError
+_ ERROR at setup of TestContract.test_ssrf_shapes_are_rejected[https://douyin.com.evil.example/video/1] _
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+>               await self._connect()
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:850: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:1487: in _connect
+    reader, writer = await asyncio.open_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/streams.py:48: in open_connection
+    transport, _ = await loop.create_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1132: in create_connection
+    raise exceptions[0]
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:651: in sock_connect
+    return await fut
+           ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=False debug=False>
+fut = None, sock = <socket.socket [closed] fd=-1, family=2, type=1, proto=6>
+address = ('127.0.0.1', 56379)
+
+    def _sock_connect_cb(self, fut, sock, address):
+        if fut.done():
+            return
+    
+        try:
+            err = sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+            if err != 0:
+                # Jump to any except clause below.
+>               raise OSError(err, f'Connect call failed {address}')
+E               ConnectionRefusedError: [Errno 111] Connect call failed ('127.0.0.1', 56379)
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:691: ConnectionRefusedError
+
+During handling of the above exception, another exception occurred:
+
+    @pytest_asyncio.fixture(scope="module", loop_scope="module")
+    async def app():
+        """The real application, wired to the test services.
+    
+        Module scoped on purpose. Dropping the schema and re-running the migrations
+        for each of these tests meant seventeen resets fighting over an exclusive
+        lock with connections the previous test had not finished releasing, which
+        made the suite flaky for reasons that had nothing to do with the code. One
+        reset, one application, and the tests below read in order as a single
+        session: bootstrap first, then everything that needs an administrator.
+        """
+    
+        from dtk.api.app import create_app
+        from dtk.core.redis import close_redis, init_redis
+        from dtk.db.migrate import upgrade
+    
+        redis_url = os.environ.get("DTK_TEST_REDIS_URL", "redis://127.0.0.1:56379/0")
+        scratch = init_redis(redis_url)
+>       await scratch.flushdb()
+
+tests/integration/test_end_to_end.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/client.py:929: in execute_command
+    conn = self.connection or await pool.get_connection()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/utils.py:249: in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:3103: in get_connection
+    await self.ensure_connection(connection)
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:2865: in ensure_connection
+    await connection.connect()
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:819: in connect
+    await self.retry.call_with_retry(
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:81: in call_with_retry
+    raise error
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:69: in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+                await self._connect()
+        except asyncio.CancelledError:
+            raise  # in 3.7 and earlier, this is an Exception, not BaseException
+        except (socket.timeout, asyncio.TimeoutError):
+            e = TimeoutError("Timeout connecting to server")
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+            raise e
+        except OSError as e:
+            e = ConnectionError(self._error_message(e))
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+>           raise e
+E           redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:876: ConnectionError
+_ ERROR at setup of TestContract.test_ssrf_shapes_are_rejected[http://10.0.0.1/internal] _
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+>               await self._connect()
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:850: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:1487: in _connect
+    reader, writer = await asyncio.open_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/streams.py:48: in open_connection
+    transport, _ = await loop.create_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1132: in create_connection
+    raise exceptions[0]
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:651: in sock_connect
+    return await fut
+           ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=False debug=False>
+fut = None, sock = <socket.socket [closed] fd=-1, family=2, type=1, proto=6>
+address = ('127.0.0.1', 56379)
+
+    def _sock_connect_cb(self, fut, sock, address):
+        if fut.done():
+            return
+    
+        try:
+            err = sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+            if err != 0:
+                # Jump to any except clause below.
+>               raise OSError(err, f'Connect call failed {address}')
+E               ConnectionRefusedError: [Errno 111] Connect call failed ('127.0.0.1', 56379)
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:691: ConnectionRefusedError
+
+During handling of the above exception, another exception occurred:
+
+    @pytest_asyncio.fixture(scope="module", loop_scope="module")
+    async def app():
+        """The real application, wired to the test services.
+    
+        Module scoped on purpose. Dropping the schema and re-running the migrations
+        for each of these tests meant seventeen resets fighting over an exclusive
+        lock with connections the previous test had not finished releasing, which
+        made the suite flaky for reasons that had nothing to do with the code. One
+        reset, one application, and the tests below read in order as a single
+        session: bootstrap first, then everything that needs an administrator.
+        """
+    
+        from dtk.api.app import create_app
+        from dtk.core.redis import close_redis, init_redis
+        from dtk.db.migrate import upgrade
+    
+        redis_url = os.environ.get("DTK_TEST_REDIS_URL", "redis://127.0.0.1:56379/0")
+        scratch = init_redis(redis_url)
+>       await scratch.flushdb()
+
+tests/integration/test_end_to_end.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/client.py:929: in execute_command
+    conn = self.connection or await pool.get_connection()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/utils.py:249: in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:3103: in get_connection
+    await self.ensure_connection(connection)
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:2865: in ensure_connection
+    await connection.connect()
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:819: in connect
+    await self.retry.call_with_retry(
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:81: in call_with_retry
+    raise error
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:69: in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+                await self._connect()
+        except asyncio.CancelledError:
+            raise  # in 3.7 and earlier, this is an Exception, not BaseException
+        except (socket.timeout, asyncio.TimeoutError):
+            e = TimeoutError("Timeout connecting to server")
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+            raise e
+        except OSError as e:
+            e = ConnectionError(self._error_message(e))
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+>           raise e
+E           redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:876: ConnectionError
+_ ERROR at setup of TestContract.test_messages_are_localized_but_codes_are_not _
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+>               await self._connect()
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:850: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:1487: in _connect
+    reader, writer = await asyncio.open_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/streams.py:48: in open_connection
+    transport, _ = await loop.create_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1132: in create_connection
+    raise exceptions[0]
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:651: in sock_connect
+    return await fut
+           ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=False debug=False>
+fut = None, sock = <socket.socket [closed] fd=-1, family=2, type=1, proto=6>
+address = ('127.0.0.1', 56379)
+
+    def _sock_connect_cb(self, fut, sock, address):
+        if fut.done():
+            return
+    
+        try:
+            err = sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+            if err != 0:
+                # Jump to any except clause below.
+>               raise OSError(err, f'Connect call failed {address}')
+E               ConnectionRefusedError: [Errno 111] Connect call failed ('127.0.0.1', 56379)
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:691: ConnectionRefusedError
+
+During handling of the above exception, another exception occurred:
+
+    @pytest_asyncio.fixture(scope="module", loop_scope="module")
+    async def app():
+        """The real application, wired to the test services.
+    
+        Module scoped on purpose. Dropping the schema and re-running the migrations
+        for each of these tests meant seventeen resets fighting over an exclusive
+        lock with connections the previous test had not finished releasing, which
+        made the suite flaky for reasons that had nothing to do with the code. One
+        reset, one application, and the tests below read in order as a single
+        session: bootstrap first, then everything that needs an administrator.
+        """
+    
+        from dtk.api.app import create_app
+        from dtk.core.redis import close_redis, init_redis
+        from dtk.db.migrate import upgrade
+    
+        redis_url = os.environ.get("DTK_TEST_REDIS_URL", "redis://127.0.0.1:56379/0")
+        scratch = init_redis(redis_url)
+>       await scratch.flushdb()
+
+tests/integration/test_end_to_end.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/client.py:929: in execute_command
+    conn = self.connection or await pool.get_connection()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/utils.py:249: in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:3103: in get_connection
+    await self.ensure_connection(connection)
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:2865: in ensure_connection
+    await connection.connect()
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:819: in connect
+    await self.retry.call_with_retry(
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:81: in call_with_retry
+    raise error
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:69: in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+                await self._connect()
+        except asyncio.CancelledError:
+            raise  # in 3.7 and earlier, this is an Exception, not BaseException
+        except (socket.timeout, asyncio.TimeoutError):
+            e = TimeoutError("Timeout connecting to server")
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+            raise e
+        except OSError as e:
+            e = ConnectionError(self._error_message(e))
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+>           raise e
+E           redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:876: ConnectionError
+____ ERROR at setup of TestContract.test_accept_language_header_is_honoured ____
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+>               await self._connect()
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:850: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:1487: in _connect
+    reader, writer = await asyncio.open_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/streams.py:48: in open_connection
+    transport, _ = await loop.create_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1132: in create_connection
+    raise exceptions[0]
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:651: in sock_connect
+    return await fut
+           ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=False debug=False>
+fut = None, sock = <socket.socket [closed] fd=-1, family=2, type=1, proto=6>
+address = ('127.0.0.1', 56379)
+
+    def _sock_connect_cb(self, fut, sock, address):
+        if fut.done():
+            return
+    
+        try:
+            err = sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+            if err != 0:
+                # Jump to any except clause below.
+>               raise OSError(err, f'Connect call failed {address}')
+E               ConnectionRefusedError: [Errno 111] Connect call failed ('127.0.0.1', 56379)
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:691: ConnectionRefusedError
+
+During handling of the above exception, another exception occurred:
+
+    @pytest_asyncio.fixture(scope="module", loop_scope="module")
+    async def app():
+        """The real application, wired to the test services.
+    
+        Module scoped on purpose. Dropping the schema and re-running the migrations
+        for each of these tests meant seventeen resets fighting over an exclusive
+        lock with connections the previous test had not finished releasing, which
+        made the suite flaky for reasons that had nothing to do with the code. One
+        reset, one application, and the tests below read in order as a single
+        session: bootstrap first, then everything that needs an administrator.
+        """
+    
+        from dtk.api.app import create_app
+        from dtk.core.redis import close_redis, init_redis
+        from dtk.db.migrate import upgrade
+    
+        redis_url = os.environ.get("DTK_TEST_REDIS_URL", "redis://127.0.0.1:56379/0")
+        scratch = init_redis(redis_url)
+>       await scratch.flushdb()
+
+tests/integration/test_end_to_end.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/client.py:929: in execute_command
+    conn = self.connection or await pool.get_connection()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/utils.py:249: in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:3103: in get_connection
+    await self.ensure_connection(connection)
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:2865: in ensure_connection
+    await connection.connect()
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:819: in connect
+    await self.retry.call_with_retry(
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:81: in call_with_retry
+    raise error
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:69: in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+                await self._connect()
+        except asyncio.CancelledError:
+            raise  # in 3.7 and earlier, this is an Exception, not BaseException
+        except (socket.timeout, asyncio.TimeoutError):
+            e = TimeoutError("Timeout connecting to server")
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+            raise e
+        except OSError as e:
+            e = ConnectionError(self._error_message(e))
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+>           raise e
+E           redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:876: ConnectionError
+__ ERROR at setup of TestContract.test_unknown_language_falls_back_to_english __
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+>               await self._connect()
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:850: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:1487: in _connect
+    reader, writer = await asyncio.open_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/streams.py:48: in open_connection
+    transport, _ = await loop.create_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1132: in create_connection
+    raise exceptions[0]
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:651: in sock_connect
+    return await fut
+           ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=False debug=False>
+fut = None, sock = <socket.socket [closed] fd=-1, family=2, type=1, proto=6>
+address = ('127.0.0.1', 56379)
+
+    def _sock_connect_cb(self, fut, sock, address):
+        if fut.done():
+            return
+    
+        try:
+            err = sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+            if err != 0:
+                # Jump to any except clause below.
+>               raise OSError(err, f'Connect call failed {address}')
+E               ConnectionRefusedError: [Errno 111] Connect call failed ('127.0.0.1', 56379)
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:691: ConnectionRefusedError
+
+During handling of the above exception, another exception occurred:
+
+    @pytest_asyncio.fixture(scope="module", loop_scope="module")
+    async def app():
+        """The real application, wired to the test services.
+    
+        Module scoped on purpose. Dropping the schema and re-running the migrations
+        for each of these tests meant seventeen resets fighting over an exclusive
+        lock with connections the previous test had not finished releasing, which
+        made the suite flaky for reasons that had nothing to do with the code. One
+        reset, one application, and the tests below read in order as a single
+        session: bootstrap first, then everything that needs an administrator.
+        """
+    
+        from dtk.api.app import create_app
+        from dtk.core.redis import close_redis, init_redis
+        from dtk.db.migrate import upgrade
+    
+        redis_url = os.environ.get("DTK_TEST_REDIS_URL", "redis://127.0.0.1:56379/0")
+        scratch = init_redis(redis_url)
+>       await scratch.flushdb()
+
+tests/integration/test_end_to_end.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/client.py:929: in execute_command
+    conn = self.connection or await pool.get_connection()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/utils.py:249: in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:3103: in get_connection
+    await self.ensure_connection(connection)
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:2865: in ensure_connection
+    await connection.connect()
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:819: in connect
+    await self.retry.call_with_retry(
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:81: in call_with_retry
+    raise error
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:69: in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+                await self._connect()
+        except asyncio.CancelledError:
+            raise  # in 3.7 and earlier, this is an Exception, not BaseException
+        except (socket.timeout, asyncio.TimeoutError):
+            e = TimeoutError("Timeout connecting to server")
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+            raise e
+        except OSError as e:
+            e = ConnectionError(self._error_message(e))
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+>           raise e
+E           redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:876: ConnectionError
+_ ERROR at setup of TestDocumentation.test_openapi_is_served_in_both_languages _
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+>               await self._connect()
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:850: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:1487: in _connect
+    reader, writer = await asyncio.open_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/streams.py:48: in open_connection
+    transport, _ = await loop.create_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1132: in create_connection
+    raise exceptions[0]
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:651: in sock_connect
+    return await fut
+           ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=False debug=False>
+fut = None, sock = <socket.socket [closed] fd=-1, family=2, type=1, proto=6>
+address = ('127.0.0.1', 56379)
+
+    def _sock_connect_cb(self, fut, sock, address):
+        if fut.done():
+            return
+    
+        try:
+            err = sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+            if err != 0:
+                # Jump to any except clause below.
+>               raise OSError(err, f'Connect call failed {address}')
+E               ConnectionRefusedError: [Errno 111] Connect call failed ('127.0.0.1', 56379)
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:691: ConnectionRefusedError
+
+During handling of the above exception, another exception occurred:
+
+    @pytest_asyncio.fixture(scope="module", loop_scope="module")
+    async def app():
+        """The real application, wired to the test services.
+    
+        Module scoped on purpose. Dropping the schema and re-running the migrations
+        for each of these tests meant seventeen resets fighting over an exclusive
+        lock with connections the previous test had not finished releasing, which
+        made the suite flaky for reasons that had nothing to do with the code. One
+        reset, one application, and the tests below read in order as a single
+        session: bootstrap first, then everything that needs an administrator.
+        """
+    
+        from dtk.api.app import create_app
+        from dtk.core.redis import close_redis, init_redis
+        from dtk.db.migrate import upgrade
+    
+        redis_url = os.environ.get("DTK_TEST_REDIS_URL", "redis://127.0.0.1:56379/0")
+        scratch = init_redis(redis_url)
+>       await scratch.flushdb()
+
+tests/integration/test_end_to_end.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/client.py:929: in execute_command
+    conn = self.connection or await pool.get_connection()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/utils.py:249: in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:3103: in get_connection
+    await self.ensure_connection(connection)
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:2865: in ensure_connection
+    await connection.connect()
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:819: in connect
+    await self.retry.call_with_retry(
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:81: in call_with_retry
+    raise error
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:69: in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+                await self._connect()
+        except asyncio.CancelledError:
+            raise  # in 3.7 and earlier, this is an Exception, not BaseException
+        except (socket.timeout, asyncio.TimeoutError):
+            e = TimeoutError("Timeout connecting to server")
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+            raise e
+        except OSError as e:
+            e = ConnectionError(self._error_message(e))
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+>           raise e
+E           redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:876: ConnectionError
+_ ERROR at setup of TestDocumentation.test_every_designed_endpoint_is_exposed __
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+>               await self._connect()
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:850: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:1487: in _connect
+    reader, writer = await asyncio.open_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/streams.py:48: in open_connection
+    transport, _ = await loop.create_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1132: in create_connection
+    raise exceptions[0]
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:651: in sock_connect
+    return await fut
+           ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=False debug=False>
+fut = None, sock = <socket.socket [closed] fd=-1, family=2, type=1, proto=6>
+address = ('127.0.0.1', 56379)
+
+    def _sock_connect_cb(self, fut, sock, address):
+        if fut.done():
+            return
+    
+        try:
+            err = sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+            if err != 0:
+                # Jump to any except clause below.
+>               raise OSError(err, f'Connect call failed {address}')
+E               ConnectionRefusedError: [Errno 111] Connect call failed ('127.0.0.1', 56379)
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:691: ConnectionRefusedError
+
+During handling of the above exception, another exception occurred:
+
+    @pytest_asyncio.fixture(scope="module", loop_scope="module")
+    async def app():
+        """The real application, wired to the test services.
+    
+        Module scoped on purpose. Dropping the schema and re-running the migrations
+        for each of these tests meant seventeen resets fighting over an exclusive
+        lock with connections the previous test had not finished releasing, which
+        made the suite flaky for reasons that had nothing to do with the code. One
+        reset, one application, and the tests below read in order as a single
+        session: bootstrap first, then everything that needs an administrator.
+        """
+    
+        from dtk.api.app import create_app
+        from dtk.core.redis import close_redis, init_redis
+        from dtk.db.migrate import upgrade
+    
+        redis_url = os.environ.get("DTK_TEST_REDIS_URL", "redis://127.0.0.1:56379/0")
+        scratch = init_redis(redis_url)
+>       await scratch.flushdb()
+
+tests/integration/test_end_to_end.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/client.py:929: in execute_command
+    conn = self.connection or await pool.get_connection()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/utils.py:249: in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:3103: in get_connection
+    await self.ensure_connection(connection)
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:2865: in ensure_connection
+    await connection.connect()
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:819: in connect
+    await self.retry.call_with_retry(
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:81: in call_with_retry
+    raise error
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:69: in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+                await self._connect()
+        except asyncio.CancelledError:
+            raise  # in 3.7 and earlier, this is an Exception, not BaseException
+        except (socket.timeout, asyncio.TimeoutError):
+            e = TimeoutError("Timeout connecting to server")
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+            raise e
+        except OSError as e:
+            e = ConnectionError(self._error_message(e))
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+>           raise e
+E           redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:876: ConnectionError
+______ ERROR at setup of TestDocumentation.test_swagger_and_redoc_render _______
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+>               await self._connect()
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:850: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:1487: in _connect
+    reader, writer = await asyncio.open_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/streams.py:48: in open_connection
+    transport, _ = await loop.create_connection(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1132: in create_connection
+    raise exceptions[0]
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:651: in sock_connect
+    return await fut
+           ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_UnixSelectorEventLoop running=False closed=False debug=False>
+fut = None, sock = <socket.socket [closed] fd=-1, family=2, type=1, proto=6>
+address = ('127.0.0.1', 56379)
+
+    def _sock_connect_cb(self, fut, sock, address):
+        if fut.done():
+            return
+    
+        try:
+            err = sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+            if err != 0:
+                # Jump to any except clause below.
+>               raise OSError(err, f'Connect call failed {address}')
+E               ConnectionRefusedError: [Errno 111] Connect call failed ('127.0.0.1', 56379)
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py:691: ConnectionRefusedError
+
+During handling of the above exception, another exception occurred:
+
+    @pytest_asyncio.fixture(scope="module", loop_scope="module")
+    async def app():
+        """The real application, wired to the test services.
+    
+        Module scoped on purpose. Dropping the schema and re-running the migrations
+        for each of these tests meant seventeen resets fighting over an exclusive
+        lock with connections the previous test had not finished releasing, which
+        made the suite flaky for reasons that had nothing to do with the code. One
+        reset, one application, and the tests below read in order as a single
+        session: bootstrap first, then everything that needs an administrator.
+        """
+    
+        from dtk.api.app import create_app
+        from dtk.core.redis import close_redis, init_redis
+        from dtk.db.migrate import upgrade
+    
+        redis_url = os.environ.get("DTK_TEST_REDIS_URL", "redis://127.0.0.1:56379/0")
+        scratch = init_redis(redis_url)
+>       await scratch.flushdb()
+
+tests/integration/test_end_to_end.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/redis/asyncio/client.py:929: in execute_command
+    conn = self.connection or await pool.get_connection()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/utils.py:249: in async_wrapper
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:3103: in get_connection
+    await self.ensure_connection(connection)
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:2865: in ensure_connection
+    await connection.connect()
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:819: in connect
+    await self.retry.call_with_retry(
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:81: in call_with_retry
+    raise error
+.venv/lib/python3.12/site-packages/redis/asyncio/retry.py:69: in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <redis.asyncio.connection.Connection(host=127.0.0.1,port=56379,db=0)>
+check_health = True, retry_socket_connect = False
+
+    async def connect_check_health(
+        self, check_health: bool = True, retry_socket_connect: bool = True
+    ):
+        if self.is_connected:
+            return
+        # Track actual retry attempts for error reporting
+        actual_retry_attempts = 0
+    
+        def failure_callback(error, failure_count):
+            nonlocal actual_retry_attempts
+            actual_retry_attempts = failure_count
+            return self.disconnect(error=error, failure_count=failure_count)
+    
+        try:
+            if retry_socket_connect:
+                await self.retry.call_with_retry(
+                    lambda: self._connect(),
+                    failure_callback,
+                    with_failure_count=True,
+                )
+            else:
+                await self._connect()
+        except asyncio.CancelledError:
+            raise  # in 3.7 and earlier, this is an Exception, not BaseException
+        except (socket.timeout, asyncio.TimeoutError):
+            e = TimeoutError("Timeout connecting to server")
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+            raise e
+        except OSError as e:
+            e = ConnectionError(self._error_message(e))
+            await record_error_count(
+                server_address=getattr(self, "host", None),
+                server_port=getattr(self, "port", None),
+                network_peer_address=getattr(self, "host", None),
+                network_peer_port=getattr(self, "port", None),
+                error_type=e,
+                retry_attempts=actual_retry_attempts,
+                is_internal=False,
+            )
+>           raise e
+E           redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:56379. Connect call failed ('127.0.0.1', 56379).
+
+.venv/lib/python3.12/site-packages/redis/asyncio/connection.py:876: ConnectionError
+=========================== short test summary info ============================
+ERROR tests/integration/test_end_to_end.py::TestLiveness::test_healthz_does_not_touch_the_database
+ERROR tests/integration/test_end_to_end.py::TestLiveness::test_readyz_reports_dependencies
+ERROR tests/integration/test_end_to_end.py::TestBootstrap::test_the_full_first_run_sequence
+ERROR tests/integration/test_end_to_end.py::TestBootstrap::test_login_establishes_a_session
+ERROR tests/integration/test_end_to_end.py::TestContract::test_authentication_is_checked_before_input_validation
+ERROR tests/integration/test_end_to_end.py::TestContract::test_failure_envelope_shape
+ERROR tests/integration/test_end_to_end.py::TestContract::test_ssrf_shapes_are_rejected[http://127.0.0.1:8000/api/v1/admin/users]
+ERROR tests/integration/test_end_to_end.py::TestContract::test_ssrf_shapes_are_rejected[http://169.254.169.254/latest/meta-data/]
+ERROR tests/integration/test_end_to_end.py::TestContract::test_ssrf_shapes_are_rejected[http://[::1]:8000/x]
+ERROR tests/integration/test_end_to_end.py::TestContract::test_ssrf_shapes_are_rejected[https://douyin.com.evil.example/video/1]
+ERROR tests/integration/test_end_to_end.py::TestContract::test_ssrf_shapes_are_rejected[http://10.0.0.1/internal]
+ERROR tests/integration/test_end_to_end.py::TestContract::test_messages_are_localized_but_codes_are_not
+ERROR tests/integration/test_end_to_end.py::TestContract::test_accept_language_header_is_honoured
+ERROR tests/integration/test_end_to_end.py::TestContract::test_unknown_language_falls_back_to_english
+ERROR tests/integration/test_end_to_end.py::TestDocumentation::test_openapi_is_served_in_both_languages
+ERROR tests/integration/test_end_to_end.py::TestDocumentation::test_every_designed_endpoint_is_exposed
+ERROR tests/integration/test_end_to_end.py::TestDocumentation::test_swagger_and_redoc_render
+31 passed, 480 skipped, 17 errors in 13.71s

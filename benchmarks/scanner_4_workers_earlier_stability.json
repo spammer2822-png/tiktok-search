@@ -1,0 +1,17 @@
+{
+  "mode": "scanner",
+  "accounts": 500,
+  "workers": 4,
+  "python": "3.11.16",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "network": "mock only",
+  "scan_seconds": 10.461,
+  "mock_requests": 1500,
+  "accounts_per_second": 47.8,
+  "mock_requests_per_second": 143.39,
+  "peak_tasks": 10,
+  "peak_requests": 4,
+  "event_loop_p95_lag_ms": 1.16,
+  "event_loop_max_lag_ms": 13.78,
+  "peak_rss_mb": 37.88
+}

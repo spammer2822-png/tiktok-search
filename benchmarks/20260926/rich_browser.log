@@ -1,0 +1,28 @@
+Initial table ready in 1012 ms
+First sort complete in 108 ms
+{
+  "load_ms": 1012,
+  "fallback": false,
+  "accounts": 180000,
+  "engine": "worker",
+  "initial_max_ui_lag_ms": 119,
+  "sort_ms": 108,
+  "descending_sort_ms": 57,
+  "username_sort_ms": 455,
+  "page_ms": 104,
+  "search_ms": 208,
+  "filter_ms": 116,
+  "dom_nodes": 799,
+  "interaction_max_ui_lag_ms": 192,
+  "interaction_long_tasks": [
+    58,
+    51,
+    69,
+    123,
+    64,
+    76,
+    57
+  ],
+  "network_requests": 0,
+  "errors": []
+}

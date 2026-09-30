@@ -1,0 +1,114 @@
+........................................................................ [  2%]
+........................................................................ [  5%]
+........................................................................ [  8%]
+........................................................................ [ 11%]
+........................................................................ [ 14%]
+........................................................................ [ 17%]
+........................................................................ [ 19%]
+........................................................................ [ 22%]
+........................................................................ [ 25%]
+........................................................................ [ 28%]
+........................................................................ [ 31%]
+........................................................................ [ 34%]
+........................................................................ [ 37%]
+........................................................................ [ 39%]
+........................................................................ [ 42%]
+........................................................................ [ 45%]
+........................................................................ [ 48%]
+........................................................................ [ 51%]
+........................................................................ [ 54%]
+........................................................................ [ 56%]
+........................................................................ [ 59%]
+........................................................................ [ 62%]
+........................................................................ [ 65%]
+........................................................................ [ 68%]
+........................................................................ [ 71%]
+........................................................................ [ 74%]
+........................................................................ [ 76%]
+........................................................................ [ 79%]
+........................................................................ [ 82%]
+.......................F.FF............................................. [ 85%]
+........................................................................ [ 88%]
+........................................................................ [ 91%]
+........................................................................ [ 93%]
+........................................................................ [ 96%]
+........................................................................ [ 99%]
+.........                                                                [100%]
+=================================== FAILURES ===================================
+__________________ TestDelivery.test_a_2xx_is_delivered_once ___________________
+
+self = <tests.unit.test_webhooks.TestDelivery object at 0x7fda962fd5e0>
+
+    async def test_a_2xx_is_delivered_once(self):
+        seen: dict[str, str] = {}
+    
+        def handler(request: httpx.Request) -> httpx.Response:
+            seen.update(request.headers)
+            return httpx.Response(200)
+    
+        result = await webhooks.deliver(
+            "https://example.com/hook",
+            {"event": "task.completed"},
+            secret="s",
+            client=client_with(handler),
+        )
+>       assert result.delivered is True
+E       AssertionError: assert False is True
+E        +  where False = Delivery(delivered=False, attempts=0, status=None, detail='callback_url does not resolve: [Errno -3] Temporary failure in name resolution').delivered
+
+tests/unit/test_webhooks.py:99: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-09-27 21:48:16 [warning  ] webhook.refused                reason='callback_url does not resolve: [Errno -3] Temporary failure in name resolution'
+____________________ TestDelivery.test_a_4xx_is_not_retried ____________________
+
+self = <tests.unit.test_webhooks.TestDelivery object at 0x7fda9612cfb0>
+
+    async def test_a_4xx_is_not_retried(self):
+        """The receiver understood and refused; repeating a 404 just repeats
+        the same rejection."""
+        calls = {"n": 0}
+    
+        def handler(request: httpx.Request) -> httpx.Response:
+            calls["n"] += 1
+            return httpx.Response(404)
+    
+        result = await webhooks.deliver(
+            "https://example.com/hook", {"event": "x"}, client=client_with(handler)
+        )
+        assert result.delivered is False
+>       assert calls["n"] == 1
+E       assert 0 == 1
+
+tests/unit/test_webhooks.py:129: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-09-27 21:48:16 [warning  ] webhook.refused                reason='callback_url does not resolve: [Errno -3] Temporary failure in name resolution'
+________________ TestDelivery.test_a_dead_endpoint_never_raises ________________
+
+self = <tests.unit.test_webhooks.TestDelivery object at 0x7fda9612c560>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fda91fc1cd0>
+
+    async def test_a_dead_endpoint_never_raises(self, monkeypatch):
+        """The contract, not an implementation detail: the caller already has
+        its data, and a webhook that is down must not fail a good task."""
+        monkeypatch.setattr(webhooks, "RETRY_DELAYS", (0.0, 0.0))
+    
+        def handler(request: httpx.Request) -> httpx.Response:
+            raise httpx.ConnectError("connection refused")
+    
+        result = await webhooks.deliver(
+            "https://example.com/hook", {"event": "x"}, client=client_with(handler)
+        )
+        assert result.delivered is False
+>       assert result.attempts == webhooks.MAX_ATTEMPTS
+E       AssertionError: assert 0 == 3
+E        +  where 0 = Delivery(delivered=False, attempts=0, status=None, detail='callback_url does not resolve: [Errno -3] Temporary failure in name resolution').attempts
+E        +  and   3 = webhooks.MAX_ATTEMPTS
+
+tests/unit/test_webhooks.py:143: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-09-27 21:48:16 [warning  ] webhook.refused                reason='callback_url does not resolve: [Errno -3] Temporary failure in name resolution'
+=========================== short test summary info ============================
+FAILED tests/unit/test_webhooks.py::TestDelivery::test_a_2xx_is_delivered_once
+FAILED tests/unit/test_webhooks.py::TestDelivery::test_a_4xx_is_not_retried
+FAILED tests/unit/test_webhooks.py::TestDelivery::test_a_dead_endpoint_never_raises
+3 failed, 2526 passed in 13.90s

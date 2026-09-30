@@ -1,0 +1,14 @@
+{
+  "mode": "report",
+  "accounts": 180000,
+  "workers": 10000,
+  "python": "3.11.16",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "source": "/workspace/scratch/44b13c627f46/scanner_speed_20260926/optimized/TikTokScanner",
+  "network": "mock only",
+  "fixture_seconds": 5.0,
+  "generation_seconds": 10.197,
+  "html_bytes": 68268777,
+  "peak_rss_mb": 677.6,
+  "report": "/workspace/scratch/44b13c627f46/scanner_speed_20260926/measured/rich_report_final/report_rich_report_final.html"
+}

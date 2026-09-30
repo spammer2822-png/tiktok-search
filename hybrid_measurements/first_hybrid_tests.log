@@ -1,0 +1,19 @@
+[PROXY] No usable proxies remain; using direct connection.
+[PROXY] No usable proxies remain; using direct connection.
+[PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWERS] Page 1: received 2, +2 unique, total 2, has_more=True
+[PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWERS] Page 1: received 2, +2 unique, total 2, has_more=True
+[@person1] [FOLLOWERS] Page 2: received 2, +1 unique, total 3, has_more=False
+[PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWING] Page 1: received 2, +2 unique, total 2, has_more=True
+[@person1] [FOLLOWING] Page 2: received 2, +1 unique, total 3, has_more=False
+[PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWERS] Page 1: received 2, +2 unique, total 2, has_more=True
+[@person1] [FOLLOWERS] Page 2: received 3, +2 unique, total 4, has_more=False
+[PROXY] No usable proxies remain; using direct connection.
+[PROXY] No usable proxies remain; using direct connection.
+----------------------------------------------------------------------
+Ran 15 tests in 0.228s
+
+OK

@@ -1,0 +1,12 @@
+{
+  "version": "previous",
+  "python": "3.11.16",
+  "members": 10000,
+  "export_repetitions": 5,
+  "export_mean_seconds": 0.07414528220001557,
+  "export_min_seconds": 0.07070704000000205,
+  "export_max_seconds": 0.07706627599998228,
+  "export_bytes": 2628842,
+  "statistics_request_pair_seconds": null,
+  "statistics_snapshot_seconds": null
+}

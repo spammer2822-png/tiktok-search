@@ -1,0 +1,153 @@
+Using CPython 3.12.14 interpreter at: /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3
+Creating virtual environment at: .venv
+Resolved 79 packages in 3ms
+   Building dtk @ file:///workspace/scratch/44b13c627f46/scanner_hybrid_rebuild_20260928/upstream
+WARN Retry attempt #0. Sleeping 1.048105994s before the next attempt
+WARN Retry attempt #0. Sleeping 1.77839847s before the next attempt
+WARN Retry attempt #0. Sleeping 1.312906018s before the next attempt
+WARN Retry attempt #0. Sleeping 1.702104926s before the next attempt
+WARN Retry attempt #0. Sleeping 1.969996189s before the next attempt
+WARN Retry attempt #0. Sleeping 1.025425469s before the next attempt
+WARN Retry attempt #0. Sleeping 1.908689082s before the next attempt
+WARN Retry attempt #0. Sleeping 1.292415023s before the next attempt
+WARN Retry attempt #0. Sleeping 1.31426722s before the next attempt
+WARN Retry attempt #0. Sleeping 1.842883782s before the next attempt
+WARN Retry attempt #0. Sleeping 1.278198599s before the next attempt
+WARN Retry attempt #0. Sleeping 1.363807327s before the next attempt
+WARN Retry attempt #0. Sleeping 1.628947354s before the next attempt
+WARN Retry attempt #0. Sleeping 1.678707077s before the next attempt
+WARN Retry attempt #0. Sleeping 1.190705898s before the next attempt
+WARN Retry attempt #0. Sleeping 1.70326917s before the next attempt
+WARN Retry attempt #0. Sleeping 1.045885166s before the next attempt
+WARN Retry attempt #0. Sleeping 1.489995146s before the next attempt
+WARN Retry attempt #0. Sleeping 1.228541681s before the next attempt
+WARN Retry attempt #0. Sleeping 1.624750807s before the next attempt
+WARN Retry attempt #0. Sleeping 1.193991788s before the next attempt
+WARN Retry attempt #0. Sleeping 1.164456992s before the next attempt
+WARN Retry attempt #0. Sleeping 1.842703646s before the next attempt
+WARN Retry attempt #0. Sleeping 1.870782999s before the next attempt
+WARN Retry attempt #0. Sleeping 1.073123586s before the next attempt
+WARN Retry attempt #0. Sleeping 1.516081785s before the next attempt
+WARN Retry attempt #0. Sleeping 1.326240584s before the next attempt
+WARN Retry attempt #0. Sleeping 1.629109797s before the next attempt
+WARN Retry attempt #0. Sleeping 1.94861082s before the next attempt
+WARN Retry attempt #0. Sleeping 1.784700844s before the next attempt
+WARN Retry attempt #0. Sleeping 1.245242619s before the next attempt
+WARN Retry attempt #0. Sleeping 1.211959646s before the next attempt
+WARN Retry attempt #0. Sleeping 1.745864369s before the next attempt
+WARN Retry attempt #0. Sleeping 1.357929724s before the next attempt
+WARN Retry attempt #0. Sleeping 1.564883501s before the next attempt
+WARN Retry attempt #0. Sleeping 1.04749566s before the next attempt
+WARN Retry attempt #0. Sleeping 1.82284803s before the next attempt
+WARN Retry attempt #0. Sleeping 1.177605785s before the next attempt
+WARN Retry attempt #0. Sleeping 1.894092719s before the next attempt
+WARN Retry attempt #0. Sleeping 1.077489809s before the next attempt
+WARN Retry attempt #0. Sleeping 1.447627739s before the next attempt
+WARN Retry attempt #0. Sleeping 1.728791079s before the next attempt
+WARN Retry attempt #0. Sleeping 1.853673964s before the next attempt
+WARN Retry attempt #0. Sleeping 1.312614597s before the next attempt
+WARN Retry attempt #0. Sleeping 1.088547719s before the next attempt
+WARN Retry attempt #0. Sleeping 1.871955226s before the next attempt
+WARN Retry attempt #0. Sleeping 1.469107222s before the next attempt
+WARN Retry attempt #0. Sleeping 1.109495024s before the next attempt
+WARN Retry attempt #0. Sleeping 1.617823532s before the next attempt
+WARN Retry attempt #0. Sleeping 1.136224142s before the next attempt
+Downloading uvloop (4.2MiB)
+Downloading mypy (14.6MiB)
+Downloading ast-serialize (1.2MiB)
+Downloading ruff (9.8MiB)
+Downloading asyncpg (3.4MiB)
+Downloading cryptography (4.5MiB)
+Downloading sqlalchemy (3.2MiB)
+Downloading wreq (4.2MiB)
+Downloading pygments (1.2MiB)
+Downloading pydantic-core (2.0MiB)
+ Downloaded ast-serialize
+ Downloaded pygments
+ Downloaded pydantic-core
+ Downloaded asyncpg
+ Downloaded sqlalchemy
+ Downloaded uvloop
+ Downloaded wreq
+ Downloaded cryptography
+ Downloaded ruff
+ Downloaded mypy
+      Built dtk @ file:///workspace/scratch/44b13c627f46/scanner_hybrid_rebuild_20260928/upstream
+Prepared 76 packages in 29.47s
+Installed 76 packages in 26ms
+ + alembic==1.19.2
+ + annotated-doc==0.0.5
+ + annotated-types==0.8.0
+ + anyio==4.15.1
+ + argon2-cffi==25.1.0
+ + argon2-cffi-bindings==26.1.0
+ + ast-serialize==0.10.0
+ + asyncpg==0.31.0
+ + attrs==26.1.0
+ + certifi==2026.7.22
+ + cffi==2.1.1
+ + click==8.5.0
+ + coverage==7.16.0
+ + cryptography==50.0.1
+ + dtk==5.1.1 (from file:///workspace/scratch/44b13c627f46/scanner_hybrid_rebuild_20260928/upstream)
+ + fastapi==0.141.1
+ + greenlet==3.5.5
+ + h11==0.16.0
+ + hiredis==3.4.1
+ + httpcore==1.0.9
+ + httpcore2==2.12.0
+ + httptools==0.8.0
+ + httpx==0.28.1
+ + httpx2==2.12.0
+ + idna==3.19
+ + iniconfig==2.3.0
+ + jsonschema==4.26.0
+ + jsonschema-specifications==2025.9.1
+ + librt==0.15.0
+ + mako==1.4.1
+ + markdown-it-py==4.2.0
+ + markupsafe==3.0.3
+ + mcp==2.2.0
+ + mcp-types==2.2.0
+ + mdurl==0.1.2
+ + mypy==2.3.1
+ + mypy-extensions==1.1.0
+ + opentelemetry-api==1.44.0
+ + packaging==26.3
+ + pathspec==1.1.1
+ + pluggy==1.6.0
+ + pycparser==3.0
+ + pydantic==2.13.5
+ + pydantic-core==2.46.5
+ + pydantic-settings==2.15.0
+ + pygments==2.21.0
+ + pyjwt==2.13.0
+ + pytest==9.1.1
+ + pytest-asyncio==1.4.0
+ + pytest-cov==7.1.0
+ + python-dotenv==1.2.3
+ + python-multipart==0.0.32
+ + pyyaml==6.0.3
+ + redis==8.1.0
+ + referencing==0.37.0
+ + rich==15.0.0
+ + rpds-py==2026.6.3
+ + ruff==0.16.6
+ + shellingham==1.5.4
+ + sqlalchemy==2.0.52
+ + sse-starlette==3.4.11
+ + starlette==1.6.0
+ + structlog==26.1.0
+ + truststore==0.10.4
+ + typer==0.27.2
+ + types-cffi==2.1.0.20260827
+ + types-pyopenssl==24.1.0.20240722
+ + types-redis==4.6.0.20241004
+ + types-setuptools==84.0.0.20260812
+ + typing-extensions==4.16.0
+ + typing-inspection==0.4.4
+ + uvicorn==0.52.4
+ + uvloop==0.22.1
+ + watchfiles==1.2.0
+ + websockets==17.1
+ + wreq==0.12.1

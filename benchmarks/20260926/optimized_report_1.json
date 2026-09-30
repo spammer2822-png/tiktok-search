@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "mode": "report",
+  "version": "optimized",
+  "python": "3.11.16",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "workers": 2500,
+  "accounts": 180000,
+  "pages_per_direction": 12,
+  "members_per_page": 20,
+  "raw_enabled": true,
+  "latency_model_seconds": 0.02,
+  "proxy_routes": 0,
+  "network": "HTTPX MockTransport; no TCP/TLS/service measurements",
+  "startup_seconds": 0.19162272200003372,
+  "fixture_seconds": 13.277272051000068,
+  "resume_seconds": 0.4801471910000146,
+  "checkpoint_mean_seconds": 0.007976071449991195,
+  "summary_mean_seconds": 0.007543704739999839,
+  "retry_candidates": 3600,
+  "failed_lookup_seconds": 0.0002755990000196107,
+  "html_generation_seconds": 19.653508596999927,
+  "html_bytes": 19323745,
+  "report_path": "/workspace/scratch/44b13c627f46/scanner_speed_20260926/measured/report__dyw9fqu/report_report__dyw9fqu.html",
+  "total_seconds": 34.36266264800008,
+  "cpu_seconds": 34.342512490000004,
+  "cpu_percent_one_core": 99.94136031248077,
+  "peak_rss_mib": 484.83203125,
+  "call_inclusive_seconds": {
+    "atomic_save": 0.024908921999553968,
+    "summary": 0.9163087730011057,
+    "checkpoint": 0.18299551799987057,
+    "recover": 0.48014030599995294
+  },
+  "call_counts": {
+    "atomic_save": 68,
+    "summary": 123,
+    "checkpoint": 22,
+    "recover": 1
+  }
+}

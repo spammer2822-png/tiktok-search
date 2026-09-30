@@ -1,0 +1,33 @@
+/* Fair sparse-report benchmark: same controls, offline Chromium, all versions. */
+const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
+const fs=require('node:fs'), path=require('node:path'), assert=require('node:assert/strict');
+(async()=>{
+ const browser=await chromium.launch({executablePath:process.argv[3],headless:true,args:['--no-sandbox','--disable-gpu','--disable-dev-shm-usage']});
+ const context=await browser.newContext({offline:true,viewport:{width:1600,height:1000}});
+ const page=await context.newPage();page.setDefaultTimeout(180000);const errors=[],remote=[];
+ page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(/^https?:/.test(r.url()))remote.push(r.url())});
+ await page.addInitScript(()=>{window.lags=[];let last=performance.now();setInterval(()=>{const now=performance.now();window.lags.push(Math.max(0,now-last-20));last=now},20)});
+ if(process.argv[5]==='fallback')await page.addInitScript(()=>{window.Worker=class{constructor(){throw Error('test fallback')}}});
+ const ready=()=>page.waitForFunction(()=>document.querySelector('#table-body tr')&&document.querySelector('#table-body').getAttribute('aria-busy')!=='true'&&!/Updating|Indexing/.test(document.querySelector('#result-count').textContent));
+ const measure=async action=>{const t=performance.now();await action();await ready();return performance.now()-t};
+ const result={};let t=performance.now();await page.goto('file://'+path.resolve(process.argv[2]),{waitUntil:'domcontentloaded'});await ready();result.load_ms=performance.now()-t;
+ result.accounts=Number((await page.locator('#result-count').innerText()).match(/[\d,]+/)[0].replaceAll(',',''));assert.equal(result.accounts,180000);
+ result.engine=await page.evaluate(()=>document.body.dataset.reportEngine||'main-thread');
+ result.initial_ui_lag_ms=await page.evaluate(()=>Math.max(0,...window.lags));
+ result.page_ms=await measure(()=>page.locator('#next').click());assert.match(await page.locator('#page-label').innerText(),/Page 2/);
+ result.sort_ms=await measure(()=>page.locator('[data-sort=username]').click());
+ t=performance.now();await page.locator('#search').fill('bench179999');await page.waitForFunction(()=>document.querySelector('#result-count').textContent==='1 result(s)');await ready();result.search_ms=performance.now()-t;
+ await page.locator('#table-body button').first().click();assert.match(await page.locator('#modal-fields').innerText(),/Discovered from/);await page.keyboard.press('Escape');
+ await measure(()=>page.locator('#clear').click());
+ t=performance.now();await page.locator('[data-filter=status]').selectOption('partial');await page.waitForFunction(()=>/3,?600 result/.test(document.querySelector('#result-count').textContent));await ready();result.filter_ms=performance.now()-t;
+ await measure(()=>page.locator('#clear').click());
+ await measure(()=>page.locator('#page-size').selectOption('500'));assert.equal(await page.locator('#table-body tr').count(),500);
+ await measure(()=>page.locator('#page-size').selectOption('20'));assert.equal(await page.locator('#table-body tr').count(),20);
+ result.dom_nodes=await page.locator('*').count();
+ result.js_heap_bytes=await page.evaluate(()=>performance.memory?.usedJSHeapSize||null);
+ const cdp=await context.newCDPSession(page);await cdp.send('Performance.enable');result.cdp=Object.fromEntries((await cdp.send('Performance.getMetrics')).metrics.filter(x=>['JSHeapUsedSize','JSHeapTotalSize','TaskDuration','ScriptDuration'].includes(x.name)).map(x=>[x.name,x.value]));
+ result.external_requests=remote.length;result.errors=errors;assert.deepEqual(remote,[]);assert.deepEqual(errors,[]);
+ if(process.argv[6]==='screenshot')await page.screenshot({path:process.argv[4]+'.png'});
+ await page.setViewportSize({width:390,height:844});await page.locator('#directory').scrollIntoViewIfNeeded();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ fs.writeFileSync(process.argv[4],JSON.stringify(result,null,2));console.log(JSON.stringify(result));await browser.close();
+})().catch(e=>{console.error(e);process.exit(1)});

@@ -1,0 +1,28 @@
+{
+  "load_ms": 3919,
+  "fallback": false,
+  "accounts": 180000,
+  "engine": "original-main-thread",
+  "initial_max_ui_lag_ms": 2440,
+  "sort_ms": 82,
+  "descending_sort_ms": 48,
+  "username_sort_ms": 9319,
+  "page_ms": 51,
+  "search_ms": 196,
+  "filter_ms": 101,
+  "dom_nodes": 797,
+  "interaction_max_ui_lag_ms": 9285,
+  "interaction_long_tasks": [
+    9286,
+    1173,
+    81,
+    1227,
+    168,
+    138,
+    1179,
+    1104,
+    1119
+  ],
+  "network_requests": 0,
+  "errors": []
+}
