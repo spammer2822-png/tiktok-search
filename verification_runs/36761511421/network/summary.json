@@ -101,6 +101,12 @@
       "mode": "hybrid",
       "workers": 5000,
       "returncode": 0
+    },
+    {
+      "variant": "original",
+      "mode": "worker",
+      "workers": 100,
+      "returncode": 0
     }
   ]
 }
