@@ -1,0 +1,2354 @@
+[
+  {
+    "path": "avatar_cache.py",
+    "sha256": "b182486c934815be97bd65967af0b2e1bdc702b9769d9797b6a70c719a916de7",
+    "lines": 305,
+    "definitions": [
+      {
+        "name": "digest",
+        "line": 32,
+        "end_line": 33,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "account_key",
+        "line": 36,
+        "end_line": 38,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "allowed_avatar_url",
+        "line": 41,
+        "end_line": 53,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "thumbnail",
+        "line": 56,
+        "end_line": 79,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "embedded_avatar",
+        "line": 82,
+        "end_line": 93,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "valid_cached_image",
+        "line": 96,
+        "end_line": 107,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "write_image",
+        "line": 110,
+        "end_line": 120,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "AvatarReader",
+        "line": 123,
+        "end_line": 162,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "AvatarCache",
+        "line": 165,
+        "end_line": 305,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "__init__",
+        "line": 125,
+        "end_line": 136,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "close",
+        "line": 138,
+        "end_line": 141,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "reference",
+        "line": 143,
+        "end_line": 162,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 166,
+        "end_line": 176,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "key_lock",
+        "line": 179,
+        "end_line": 186,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "io",
+        "line": 188,
+        "end_line": 198,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "close",
+        "line": 200,
+        "end_line": 204,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "database",
+        "line": 206,
+        "end_line": 220,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "remember",
+        "line": 222,
+        "end_line": 227,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "prepare",
+        "line": 229,
+        "end_line": 237,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "committed",
+        "line": 239,
+        "end_line": 244,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "failed",
+        "line": 246,
+        "end_line": 252,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "ensure",
+        "line": 254,
+        "end_line": 302,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "_store",
+        "line": 304,
+        "end_line": 305,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "backend_metrics.py",
+    "sha256": "611dda7de78e483ef7ca031a7fe2cfb56f0a5db5b60a0c1c7dcf63058a3aed7c",
+    "lines": 142,
+    "definitions": [
+      {
+        "name": "BackendMetrics",
+        "line": 9,
+        "end_line": 142,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "__init__",
+        "line": 10,
+        "end_line": 20,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "add",
+        "line": 22,
+        "end_line": 29,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "prune",
+        "line": 31,
+        "end_line": 37,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "begin",
+        "line": 39,
+        "end_line": 46,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "end",
+        "line": 48,
+        "end_line": 70,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "score",
+        "line": 72,
+        "end_line": 84,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "stage",
+        "line": 87,
+        "end_line": 93,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "snapshot",
+        "line": 95,
+        "end_line": 135,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "lines",
+        "line": 137,
+        "end_line": 142,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "connection_metrics.py",
+    "sha256": "e408a1fe85575d0c188efe79e78b10644603ec1eedafc4fe702b1f4a4aa4dcd2",
+    "lines": 33,
+    "definitions": [
+      {
+        "name": "RequestTrace",
+        "line": 3,
+        "end_line": 19,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "pool_snapshot",
+        "line": 20,
+        "end_line": 33,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 4,
+        "end_line": 6,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__call__",
+        "line": 7,
+        "end_line": 19,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "direct_protocol.py",
+    "sha256": "5467267568d5d83524eb8d786eb0c7e3eb75ee718f95722135b9c39f90bb0b2d",
+    "lines": 166,
+    "definitions": [
+      {
+        "name": "ProtocolError",
+        "line": 22,
+        "end_line": 25,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "load_session",
+        "line": 28,
+        "end_line": 47,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "Session",
+        "line": 50,
+        "end_line": 92,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "verified",
+        "line": 95,
+        "end_line": 96,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "guard",
+        "line": 99,
+        "end_line": 111,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "normalize_profile",
+        "line": 114,
+        "end_line": 134,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "normalize_page",
+        "line": 137,
+        "end_line": 166,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 23,
+        "end_line": 25,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 52,
+        "end_line": 57,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "signed_url",
+        "line": 59,
+        "end_line": 92,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "hybrid_backend.py",
+    "sha256": "21ffe9be5061ece53930a80f5a16e9eca3343a58e24c36175209d0b79f96a4e2",
+    "lines": 583,
+    "definitions": [
+      {
+        "name": "validate",
+        "line": 26,
+        "end_line": 47,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "BackendGate",
+        "line": 50,
+        "end_line": 135,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ApiBackend",
+        "line": 138,
+        "end_line": 387,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "HybridClient",
+        "line": 390,
+        "end_line": 546,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "create_client",
+        "line": 549,
+        "end_line": 568,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "edit_backend_config",
+        "line": 571,
+        "end_line": 583,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 52,
+        "end_line": 68,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "limit",
+        "line": 71,
+        "end_line": 71,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "check",
+        "line": 73,
+        "end_line": 80,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "slot",
+        "line": 83,
+        "end_line": 90,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "pace",
+        "line": 92,
+        "end_line": 96,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "wake_capacity",
+        "line": 98,
+        "end_line": 98,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "wait",
+        "line": 99,
+        "end_line": 99,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "cooldown",
+        "line": 100,
+        "end_line": 100,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "penalize",
+        "line": 101,
+        "end_line": 101,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "stop_rate_limited",
+        "line": 102,
+        "end_line": 103,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "observe",
+        "line": 105,
+        "end_line": 132,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "observe_failure",
+        "line": 134,
+        "end_line": 135,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 140,
+        "end_line": 147,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__aenter__",
+        "line": 149,
+        "end_line": 158,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "get_client",
+        "line": 160,
+        "end_line": 184,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "response_headers",
+        "line": 186,
+        "end_line": 197,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "request_json",
+        "line": 199,
+        "end_line": 364,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "lookup_profile",
+        "line": 366,
+        "end_line": 369,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "save_raw",
+        "line": 371,
+        "end_line": 372,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "fetch_page",
+        "line": 374,
+        "end_line": 387,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 391,
+        "end_line": 416,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "avatar_backfill_task",
+        "line": 419,
+        "end_line": 419,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "start_avatar_backfill",
+        "line": 420,
+        "end_line": 420,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__aenter__",
+        "line": 422,
+        "end_line": 428,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "__aexit__",
+        "line": 430,
+        "end_line": 435,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "choose",
+        "line": 437,
+        "end_line": 452,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "can_failover",
+        "line": 455,
+        "end_line": 459,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "lookup_profile",
+        "line": 461,
+        "end_line": 511,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "prepare_chain",
+        "line": 513,
+        "end_line": 524,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "fetch_chain_page",
+        "line": 526,
+        "end_line": 546,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "factory",
+        "line": 165,
+        "end_line": 182,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "lookup",
+        "line": 463,
+        "end_line": 492,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "prepare_chain",
+        "line": 553,
+        "end_line": 563,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "fetch_chain_page",
+        "line": 564,
+        "end_line": 565,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "send",
+        "line": 236,
+        "end_line": 262,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "main.py",
+    "sha256": "79bed25baa48c60d6c5770d211cd54714eb6068767c9069d4bce3c43065e3014",
+    "lines": 8,
+    "definitions": []
+  },
+  {
+    "path": "proxy_validation.py",
+    "sha256": "1040b176142bbc73bb4479b0fa58c81d2386232e4aad7ef16c7777a6e9a54b34",
+    "lines": 73,
+    "definitions": [
+      {
+        "name": "validate_pool",
+        "line": 13,
+        "end_line": 73,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "check",
+        "line": 22,
+        "end_line": 62,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "worker",
+        "line": 65,
+        "end_line": 66,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "rate_limit_control.py",
+    "sha256": "913beefc8e5bf6bd0fb1f48e2fc8f44ab6b174d4f79e9007866dce4e28ea7024",
+    "lines": 194,
+    "definitions": [
+      {
+        "name": "BackendPaused",
+        "line": 15,
+        "end_line": 18,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "RateLimitController",
+        "line": 21,
+        "end_line": 194,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "__init__",
+        "line": 16,
+        "end_line": 18,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 22,
+        "end_line": 37,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "attach",
+        "line": 39,
+        "end_line": 55,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "snapshot",
+        "line": 57,
+        "end_line": 70,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "check",
+        "line": 72,
+        "end_line": 77,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "wait_ready",
+        "line": 79,
+        "end_line": 89,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "interrupt_network",
+        "line": 91,
+        "end_line": 107,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "save_state",
+        "line": 109,
+        "end_line": 120,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "received_429",
+        "line": 122,
+        "end_line": 155,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "cooldown",
+        "line": 157,
+        "end_line": 169,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "succeeded",
+        "line": 171,
+        "end_line": 186,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "detach",
+        "line": 188,
+        "end_line": 194,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "done",
+        "line": 115,
+        "end_line": 119,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "repair_report.py",
+    "sha256": "cea40201c8b44ee43f2bc340bb8bf06914db729302f85ad49c4f5885f539d348",
+    "lines": 76,
+    "definitions": [
+      {
+        "name": "repair_avatars",
+        "line": 18,
+        "end_line": 31,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "main",
+        "line": 34,
+        "end_line": 72,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "run",
+        "line": 55,
+        "end_line": 61,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "report_generator.py",
+    "sha256": "b6a00ed6ac77d78e90da41f6731d10c0b56de292f276de990716106cc106ec20",
+    "lines": 303,
+    "definitions": [
+      {
+        "name": "read_json",
+        "line": 22,
+        "end_line": 24,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "open_database",
+        "line": 27,
+        "end_line": 32,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "saved_profile",
+        "line": 34,
+        "end_line": 42,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "count_value",
+        "line": 44,
+        "end_line": 50,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "certainty",
+        "line": 52,
+        "end_line": 55,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "local_avatar",
+        "line": 57,
+        "end_line": 58,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "profile_for_report",
+        "line": 61,
+        "end_line": 83,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "iter_avatar_profiles",
+        "line": 86,
+        "end_line": 136,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "build_data",
+        "line": 138,
+        "end_line": 143,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_build_data",
+        "line": 146,
+        "end_line": 215,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "make_row",
+        "line": 217,
+        "end_line": 249,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "generate_report",
+        "line": 251,
+        "end_line": 303,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "encode",
+        "line": 269,
+        "end_line": 270,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "run_tests.py",
+    "sha256": "e66c5cb5216981f31b2847a41a4f0b2dee7d56392f4464ba5be713bc95512a49",
+    "lines": 50,
+    "definitions": []
+  },
+  {
+    "path": "scan_runtime.py",
+    "sha256": "90b6777c04fb5c8c7306a1ce94cdd3d2919ef96182ec72713d0efd4617096ebf",
+    "lines": 244,
+    "definitions": [
+      {
+        "name": "await_durable",
+        "line": 14,
+        "end_line": 27,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "runtime_ceiling",
+        "line": 30,
+        "end_line": 43,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "DiskLane",
+        "line": 46,
+        "end_line": 151,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "RetryQueue",
+        "line": 154,
+        "end_line": 215,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ShutdownGuard",
+        "line": 218,
+        "end_line": 244,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "__init__",
+        "line": 52,
+        "end_line": 65,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__aenter__",
+        "line": 67,
+        "end_line": 69,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "call",
+        "line": 71,
+        "end_line": 75,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "independent",
+        "line": 77,
+        "end_line": 119,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "_run",
+        "line": 121,
+        "end_line": 145,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "__aexit__",
+        "line": 147,
+        "end_line": 151,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 160,
+        "end_line": 167,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "wait",
+        "line": 169,
+        "end_line": 185,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "_run",
+        "line": 187,
+        "end_line": 209,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "close",
+        "line": 211,
+        "end_line": 215,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 220,
+        "end_line": 223,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__enter__",
+        "line": 225,
+        "end_line": 230,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_signal",
+        "line": 232,
+        "end_line": 238,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__exit__",
+        "line": 241,
+        "end_line": 244,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "measured",
+        "line": 95,
+        "end_line": 98,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "measured",
+        "line": 131,
+        "end_line": 134,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "scan_statistics.py",
+    "sha256": "23aa9253f9dc10881732c9acc3d622327aaeab799d5d2de621420bf5cd27dafc",
+    "lines": 256,
+    "definitions": [
+      {
+        "name": "ScanStatistics",
+        "line": 13,
+        "end_line": 256,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "__init__",
+        "line": 14,
+        "end_line": 29,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "iso",
+        "line": 32,
+        "end_line": 33,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "add",
+        "line": 35,
+        "end_line": 41,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "prune",
+        "line": 43,
+        "end_line": 46,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "request_started",
+        "line": 48,
+        "end_line": 51,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "request_finished",
+        "line": 53,
+        "end_line": 69,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "account_finished",
+        "line": 71,
+        "end_line": 83,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "stop",
+        "line": 85,
+        "end_line": 91,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "snapshot",
+        "line": 93,
+        "end_line": 163,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "write",
+        "line": 165,
+        "end_line": 192,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "display",
+        "line": 195,
+        "end_line": 230,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "report_loop",
+        "line": 232,
+        "end_line": 256,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "rate",
+        "line": 100,
+        "end_line": 101,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "metrics",
+        "line": 102,
+        "end_line": 115,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "tiktok_worker_scanner.py",
+    "sha256": "4658092b6aa331b16db267ea10264d7fb42184928f1dde6459631777cf711409",
+    "lines": 4408,
+    "definitions": [
+      {
+        "name": "ExporterError",
+        "line": 170,
+        "end_line": 171,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "MissingDependency",
+        "line": 174,
+        "end_line": 175,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "PublicProfileRequired",
+        "line": 178,
+        "end_line": 179,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ProfileSnapshot",
+        "line": 183,
+        "end_line": 199,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ListExportResult",
+        "line": 203,
+        "end_line": 251,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "BatchResponse",
+        "line": 255,
+        "end_line": 259,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ProfileJob",
+        "line": 263,
+        "end_line": 268,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ProfileProcessResult",
+        "line": 272,
+        "end_line": 284,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "validate_worker_origin",
+        "line": 287,
+        "end_line": 299,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "utc_iso",
+        "line": 302,
+        "end_line": 303,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "console",
+        "line": 310,
+        "end_line": 343,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "fsync_directory",
+        "line": 346,
+        "end_line": 353,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "atomic_write_json",
+        "line": 356,
+        "end_line": 377,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "first_value",
+        "line": 380,
+        "end_line": 384,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "parse_username",
+        "line": 387,
+        "end_line": 411,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "configured_input_path",
+        "line": 414,
+        "end_line": 416,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "configured_output_directory",
+        "line": 419,
+        "end_line": 423,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "load_profile_jobs",
+        "line": 426,
+        "end_line": 530,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "output_file_name",
+        "line": 533,
+        "end_line": 535,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "output_file_path",
+        "line": 538,
+        "end_line": 543,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "compact_target_record",
+        "line": 546,
+        "end_line": 554,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "relationship_from_found_lists",
+        "line": 557,
+        "end_line": 562,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "explicit_restriction",
+        "line": 565,
+        "end_line": 569,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "restricted_terminal",
+        "line": 572,
+        "end_line": 575,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "SuccessRecorder",
+        "line": 579,
+        "end_line": 827,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ScanStateRecorder",
+        "line": 830,
+        "end_line": 928,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "WorkerApiError",
+        "line": 931,
+        "end_line": 939,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "InvalidWorkerResponse",
+        "line": 942,
+        "end_line": 944,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ScanCancelled",
+        "line": 947,
+        "end_line": 949,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "retry_after_seconds",
+        "line": 952,
+        "end_line": 965,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "api_error",
+        "line": 968,
+        "end_line": 983,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "check_worker_error",
+        "line": 986,
+        "end_line": 999,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "ProxyConfig",
+        "line": 1011,
+        "end_line": 1029,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "parse_proxy_line",
+        "line": 1032,
+        "end_line": 1086,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "CredentialRedactor",
+        "line": 1089,
+        "end_line": 1133,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "configured_proxy_path",
+        "line": 1139,
+        "end_line": 1145,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "load_proxy_configs",
+        "line": 1148,
+        "end_line": 1180,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "ProxyState",
+        "line": 1184,
+        "end_line": 1194,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ProxyPool",
+        "line": 1197,
+        "end_line": 1260,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "AsyncRequestGate",
+        "line": 1263,
+        "end_line": 1427,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "disk_call",
+        "line": 1430,
+        "end_line": 1442,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "WorkerApiClient",
+        "line": 1445,
+        "end_line": 1974,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "SecretLogFilter",
+        "line": 1977,
+        "end_line": 1985,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "parse_count",
+        "line": 1988,
+        "end_line": 1994,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "approximate_count",
+        "line": 1997,
+        "end_line": 2003,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "worker_verified",
+        "line": 2006,
+        "end_line": 2007,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "parse_profile_response",
+        "line": 2010,
+        "end_line": 2050,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "parse_has_more",
+        "line": 2053,
+        "end_line": 2060,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "parse_list_page",
+        "line": 2063,
+        "end_line": 2078,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "member_identity",
+        "line": 2081,
+        "end_line": 2093,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "normalize_member",
+        "line": 2096,
+        "end_line": 2118,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "finish_list_result",
+        "line": 2121,
+        "end_line": 2131,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "replay_committed_list",
+        "line": 2135,
+        "end_line": 2152,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "export_one_list",
+        "line": 2155,
+        "end_line": 2252,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "UserStore",
+        "line": 2255,
+        "end_line": 2452,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "write_json_property",
+        "line": 2455,
+        "end_line": 2458,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "write_final_json",
+        "line": 2461,
+        "end_line": 2525,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "inspect_reusable_export",
+        "line": 2528,
+        "end_line": 2611,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "error_profile_result",
+        "line": 2614,
+        "end_line": 2634,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "numeric_uid",
+        "line": 2637,
+        "end_line": 2639,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "size_skip_result",
+        "line": 2642,
+        "end_line": 2666,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "process_profile",
+        "line": 2669,
+        "end_line": 2852,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "open_user_store",
+        "line": 2856,
+        "end_line": 2870,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "SharedScanControl",
+        "line": 2873,
+        "end_line": 2881,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "worker_loop",
+        "line": 2884,
+        "end_line": 2959,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "_run_scan",
+        "line": 2962,
+        "end_line": 3082,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "statistics_summary",
+        "line": 3085,
+        "end_line": 3089,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "session_runtime",
+        "line": 3093,
+        "end_line": 3161,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "run_scan",
+        "line": 3164,
+        "end_line": 3166,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "print_final_summary",
+        "line": 3169,
+        "end_line": 3210,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "ScanLock",
+        "line": 3213,
+        "end_line": 3239,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "source_identity",
+        "line": 3242,
+        "end_line": 3244,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "sanitize_run_name",
+        "line": 3247,
+        "end_line": 3255,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "create_search_directory",
+        "line": 3258,
+        "end_line": 3271,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "RunLog",
+        "line": 3274,
+        "end_line": 3343,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "DurableScanState",
+        "line": 3346,
+        "end_line": 3765,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "write_json_array",
+        "line": 3768,
+        "end_line": 3783,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "ask_choice",
+        "line": 3786,
+        "end_line": 3794,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "default_scan_config",
+        "line": 3800,
+        "end_line": 3817,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "validate_scan_config",
+        "line": 3820,
+        "end_line": 3863,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "save_scan_config",
+        "line": 3866,
+        "end_line": 3869,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "read_scan_config",
+        "line": 3872,
+        "end_line": 3878,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "ask_number",
+        "line": 3881,
+        "end_line": 3898,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "ask_username",
+        "line": 3901,
+        "end_line": 3907,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "ask_bool",
+        "line": 3910,
+        "end_line": 3912,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "choose_mode",
+        "line": 3915,
+        "end_line": 3918,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "edit_scan_config",
+        "line": 3921,
+        "end_line": 3957,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "display_config",
+        "line": 3960,
+        "end_line": 3972,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "prepare_proxy_pool",
+        "line": 3979,
+        "end_line": 4008,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "confirmation_menu",
+        "line": 4011,
+        "end_line": 4043,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "load_json_document",
+        "line": 4046,
+        "end_line": 4049,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "resume_progress",
+        "line": 4052,
+        "end_line": 4075,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "retryable_session",
+        "line": 4078,
+        "end_line": 4080,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "choose_startup",
+        "line": 4083,
+        "end_line": 4173,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "bootstrap_dataset",
+        "line": 4176,
+        "end_line": 4243,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "load_jobs_allow_empty",
+        "line": 4246,
+        "end_line": 4250,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_execute_session",
+        "line": 4253,
+        "end_line": 4300,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "execute_session",
+        "line": 4303,
+        "end_line": 4306,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "main",
+        "line": 4309,
+        "end_line": 4404,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "finish",
+        "line": 232,
+        "end_line": 251,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 582,
+        "end_line": 617,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "reconcile_complete_lists",
+        "line": 619,
+        "end_line": 641,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "record_match",
+        "line": 643,
+        "end_line": 688,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "found_lists_for",
+        "line": 690,
+        "end_line": 694,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_profiles_locked",
+        "line": 696,
+        "end_line": 710,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_build_document_locked",
+        "line": 712,
+        "end_line": 759,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_persist_locked",
+        "line": 761,
+        "end_line": 773,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "finalize",
+        "line": 775,
+        "end_line": 827,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 833,
+        "end_line": 873,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_summary_locked",
+        "line": 875,
+        "end_line": 887,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_persist_locked",
+        "line": 889,
+        "end_line": 907,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "record",
+        "line": 909,
+        "end_line": 914,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "finalize",
+        "line": 916,
+        "end_line": 928,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 934,
+        "end_line": 939,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 943,
+        "end_line": 944,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 948,
+        "end_line": 949,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "endpoint",
+        "line": 1019,
+        "end_line": 1021,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "mode",
+        "line": 1024,
+        "end_line": 1029,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 1092,
+        "end_line": 1101,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "text",
+        "line": 1107,
+        "end_line": 1113,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "clean",
+        "line": 1115,
+        "end_line": 1133,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 1200,
+        "end_line": 1203,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "available",
+        "line": 1205,
+        "end_line": 1207,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "capacity",
+        "line": 1209,
+        "end_line": 1213,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "choose",
+        "line": 1215,
+        "end_line": 1227,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "good_response",
+        "line": 1229,
+        "end_line": 1238,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "failed",
+        "line": 1240,
+        "end_line": 1250,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "summary",
+        "line": 1252,
+        "end_line": 1260,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 1271,
+        "end_line": 1296,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "stop_rate_limited",
+        "line": 1298,
+        "end_line": 1316,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "check",
+        "line": 1318,
+        "end_line": 1324,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "wait",
+        "line": 1326,
+        "end_line": 1332,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "wake_capacity",
+        "line": 1334,
+        "end_line": 1340,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "slot",
+        "line": 1343,
+        "end_line": 1371,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "pace",
+        "line": 1374,
+        "end_line": 1385,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "cooldown",
+        "line": 1387,
+        "end_line": 1388,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "penalize",
+        "line": 1390,
+        "end_line": 1393,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "set_limit",
+        "line": 1395,
+        "end_line": 1401,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "observe",
+        "line": 1403,
+        "end_line": 1418,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "observe_failure",
+        "line": 1420,
+        "end_line": 1427,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 1452,
+        "end_line": 1497,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__aenter__",
+        "line": 1499,
+        "end_line": 1500,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "__aexit__",
+        "line": 1502,
+        "end_line": 1515,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "start_avatar_backfill",
+        "line": 1517,
+        "end_line": 1528,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "cache_saved_avatars",
+        "line": 1530,
+        "end_line": 1560,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "borrow_client",
+        "line": 1562,
+        "end_line": 1587,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "release_client",
+        "line": 1589,
+        "end_line": 1590,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "get_client",
+        "line": 1592,
+        "end_line": 1630,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "before_send",
+        "line": 1632,
+        "end_line": 1633,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "response_headers",
+        "line": 1635,
+        "end_line": 1639,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "retry_wait",
+        "line": 1641,
+        "end_line": 1646,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "proxy_exception",
+        "line": 1648,
+        "end_line": 1670,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "request_json",
+        "line": 1672,
+        "end_line": 1846,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "download_avatar",
+        "line": 1848,
+        "end_line": 1933,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "save_raw",
+        "line": 1935,
+        "end_line": 1939,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "lookup_profile",
+        "line": 1941,
+        "end_line": 1965,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "fetch_page",
+        "line": 1967,
+        "end_line": 1974,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 1978,
+        "end_line": 1980,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "filter",
+        "line": 1982,
+        "end_line": 1985,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 2256,
+        "end_line": 2285,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "restart_chain",
+        "line": 2287,
+        "end_line": 2298,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "commit_page",
+        "line": 2300,
+        "end_line": 2335,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "checkpoint",
+        "line": 2337,
+        "end_line": 2339,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "save_checkpoint",
+        "line": 2341,
+        "end_line": 2349,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "cursor_seen",
+        "line": 2351,
+        "end_line": 2353,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "close",
+        "line": 2355,
+        "end_line": 2356,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__enter__",
+        "line": 2358,
+        "end_line": 2359,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__exit__",
+        "line": 2361,
+        "end_line": 2362,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "count",
+        "line": 2364,
+        "end_line": 2371,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "save_batch",
+        "line": 2373,
+        "end_line": 2430,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "iter_encoded_members",
+        "line": 2432,
+        "end_line": 2437,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "iter_members",
+        "line": 2439,
+        "end_line": 2452,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "target_callback",
+        "line": 2687,
+        "end_line": 2689,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "acquire",
+        "line": 2860,
+        "end_line": 2863,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 2874,
+        "end_line": 2876,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "stop_with_fatal_error",
+        "line": 2878,
+        "end_line": 2881,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 3215,
+        "end_line": 3217,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__enter__",
+        "line": 3219,
+        "end_line": 3235,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__exit__",
+        "line": 3237,
+        "end_line": 3239,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 3276,
+        "end_line": 3283,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "consume",
+        "line": 3285,
+        "end_line": 3294,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__enter__",
+        "line": 3296,
+        "end_line": 3313,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "write",
+        "line": 3315,
+        "end_line": 3328,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__exit__",
+        "line": 3330,
+        "end_line": 3343,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "__init__",
+        "line": 3348,
+        "end_line": 3421,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_control",
+        "line": 3423,
+        "end_line": 3425,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_set_control",
+        "line": 3427,
+        "end_line": 3428,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "current_phase",
+        "line": 3431,
+        "end_line": 3434,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "close",
+        "line": 3436,
+        "end_line": 3437,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "total_profiles",
+        "line": 3440,
+        "end_line": 3441,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "add_jobs",
+        "line": 3443,
+        "end_line": 3446,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_add_job",
+        "line": 3448,
+        "end_line": 3456,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "register_profile",
+        "line": 3458,
+        "end_line": 3465,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "discover",
+        "line": 3467,
+        "end_line": 3497,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "recover",
+        "line": 3499,
+        "end_line": 3599,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "retry_failed",
+        "line": 3601,
+        "end_line": 3624,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "claim",
+        "line": 3626,
+        "end_line": 3634,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "record",
+        "line": 3636,
+        "end_line": 3666,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "phase_summary",
+        "line": 3668,
+        "end_line": 3674,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "advance_phase",
+        "line": 3676,
+        "end_line": 3700,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "summary",
+        "line": 3702,
+        "end_line": 3720,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "all_complete",
+        "line": 3722,
+        "end_line": 3724,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "snapshot",
+        "line": 3726,
+        "end_line": 3737,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "finalize",
+        "line": 3739,
+        "end_line": 3750,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "export_discoveries",
+        "line": 3752,
+        "end_line": 3762,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "export_rows",
+        "line": 3764,
+        "end_line": 3765,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "write_dataset",
+        "line": 4221,
+        "end_line": 4233,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "fill",
+        "line": 1524,
+        "end_line": 1527,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "take",
+        "line": 1538,
+        "end_line": 1538,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "rate_limit_checkpoint",
+        "line": 3106,
+        "end_line": 3111,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "rows",
+        "line": 3753,
+        "end_line": 3761,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "rows",
+        "line": 4222,
+        "end_line": 4231,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "consume",
+        "line": 1541,
+        "end_line": 1550,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "dispatch_profiles",
+        "line": 2998,
+        "end_line": 3023,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "trust_store",
+        "line": 1572,
+        "end_line": 1575,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "reporter_done",
+        "line": 3120,
+        "end_line": 3124,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "start",
+        "line": 4350,
+        "end_line": 4358,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "send_request",
+        "line": 1711,
+        "end_line": 1727,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "commit": "4078ea2151319b002fbec823cac37e2bd633c54b",
+  "run_id": "36760498050",
+  "python": "3.12.14",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "source_sha256": {
+    "final": "4658092b6aa331b16db267ea10264d7fb42184928f1dde6459631777cf711409",
+    "original": "5965fd51faf6497ca6e117a01fb7eb49e545dccb2669a4291d2d7988de799321",
+    "first_hybrid": "8fedb11af09c0b6def0a63684cd1f2050c4e9c04994f83ab63c65937c4c71894"
+  },
+  "scope": "Real subprocess signals and SQLite recovery; mocked pending HTTP request"
+}
