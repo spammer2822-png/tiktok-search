@@ -1,0 +1,13 @@
+{
+  "status": "COMPLETED",
+  "commit": "80925a694c0750c9c19419d28bf76fa8a1261ba1",
+  "run_id": "36761511421",
+  "python": "3.12.14",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "source_sha256": {
+    "final": "085ac59b7fff344f9c243117f5263691cb7109ec57a5fab64a39aa09ce9d87ff",
+    "original": "5965fd51faf6497ca6e117a01fb7eb49e545dccb2669a4291d2d7988de799321",
+    "first_hybrid": "8fedb11af09c0b6def0a63684cd1f2050c4e9c04994f83ab63c65937c4c71894"
+  },
+  "scope": "Real verified loopback TLS with synthetic origin, no live TikTok claims"
+}
