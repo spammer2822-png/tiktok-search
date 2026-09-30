@@ -1376,7 +1376,9 @@ class AsyncRequestGate:
         while True:
             async with self.lock:
                 self.check()
-                now = time.monotonic()
+                # perf_counter is monotonic and high-resolution on Windows 3.11.
+                # The event-loop timer can wake early; always recheck this deadline.
+                now = time.perf_counter()
                 delay = max(self.next_allowed, self.cooldown_until) - now
                 if delay <= 0:
                     self.next_allowed = now + random.uniform(self.minimum, self.maximum)
@@ -1385,7 +1387,7 @@ class AsyncRequestGate:
             await self.wait(delay)
 
     def cooldown(self, seconds: float) -> None:
-        self.cooldown_until = max(self.cooldown_until, time.monotonic() + seconds)
+        self.cooldown_until = max(self.cooldown_until, time.perf_counter() + seconds)
 
     def penalize(self, seconds: float) -> None:
         self.cooldown(seconds)

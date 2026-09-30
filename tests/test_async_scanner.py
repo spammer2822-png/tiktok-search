@@ -67,6 +67,20 @@ class AsyncTests(unittest.IsolatedAsyncioTestCase):
   async with c:await asyncio.gather(*(c.request_json('profile',{'username':'roblox'}) for _ in range(8)))
   self.assertGreater(peak,1);self.assertLessEqual(peak,3);self.assertEqual(set(routes),{'proxy-001','proxy-002'})
   self.assertTrue(all(b-a>=.018 for a,b in zip(starts,starts[1:])),starts)
+ async def test_pacing_rechecks_deadline_after_early_timer_wakeup(self):
+  now=[100.0];waits=[]
+  gate=s.AsyncRequestGate(.02,.02,asyncio.Event(),ceiling=2,initial=2,adaptive=False)
+  async def early_wait(seconds):
+   waits.append(seconds)
+   now[0]+=max(.001,seconds/2)
+  with patch.object(s.time,'perf_counter',side_effect=lambda:now[0]),patch.object(gate,'wait',side_effect=early_wait):
+   await gate.pace();first=now[0]
+   await gate.pace();second=now[0]
+   self.assertGreaterEqual(second-first,.02)
+   self.assertGreater(len(waits),1)
+   gate.cooldown(.03)
+   await gate.pace()
+   self.assertGreaterEqual(now[0]-second,.03)
  async def test_one_request_concurrency(self):
   active=peak=0
   async def handler(route,request):
@@ -78,7 +92,7 @@ class AsyncTests(unittest.IsolatedAsyncioTestCase):
  async def test_delayed_client_preparation_cannot_bunch_request_starts(self):
   starts=[];prepared=0;ready=asyncio.Event()
   async def handler(route,request):
-   starts.append(time.monotonic())
+   starts.append(time.perf_counter())
    return httpx.Response(200,json=PROFILE)
   c,_=self.setup_http(handler,spacing=.03,ceiling=4)
   original=c.borrow_client
