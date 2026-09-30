@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "mode": "report",
+  "version": "scanner-verification-1srbes5v",
+  "python": "3.12.14",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "workers": 2500,
+  "accounts": 180000,
+  "pages_per_direction": 12,
+  "members_per_page": 20,
+  "raw_enabled": true,
+  "latency_model_seconds": 0.02,
+  "proxy_routes": 0,
+  "network": "HTTPX MockTransport; no TCP/TLS/service measurements",
+  "startup_seconds": 0.11585656699998026,
+  "fixture_seconds": 11.114527606999957,
+  "resume_seconds": 0.40079006599995637,
+  "checkpoint_mean_seconds": 0.009233277549995478,
+  "summary_mean_seconds": 0.006006181340000012,
+  "retry_candidates": 3600,
+  "failed_lookup_seconds": 0.00024609099995132055,
+  "html_generation_seconds": 15.575180045000025,
+  "html_bytes": 19323743,
+  "report_path": "/home/runner/work/_temp/scanner-verification-1srbes5v/results/report_uip19psp/report_report_uip19psp.html",
+  "total_seconds": 27.927578686999993,
+  "cpu_seconds": 27.644034212999998,
+  "cpu_percent_one_core": 98.98471515494474,
+  "peak_rss_mib": 471.5625,
+  "call_inclusive_seconds": {
+    "atomic_save": 0.06249560899999551,
+    "summary": 0.7515633789997764,
+    "checkpoint": 0.20836903500003245,
+    "recover": 0.40078629999999293
+  },
+  "call_counts": {
+    "atomic_save": 68,
+    "summary": 123,
+    "checkpoint": 22,
+    "recover": 1
+  }
+}
