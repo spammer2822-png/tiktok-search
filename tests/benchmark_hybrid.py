@@ -101,11 +101,12 @@ def main():
         finally:
             active -= 1; latencies.append(time.perf_counter()-started)
     original_client = s.WorkerApiClient
+    original_dispatcher = h.create_client
     def factory(gate, pool, **kwargs):
         def transport(route, options):
             client = httpx.AsyncClient(transport=httpx.MockTransport(handle), **{k:v for k,v in options.items() if k != 'proxy'})
             clients.append(client); return client
-        client = (original_client if args.original else h.HybridClient)(gate, pool, client_factory=transport, **kwargs)
+        client = (original_client if args.original else original_dispatcher)(gate, pool, client_factory=transport, **kwargs)
         if hasattr(client, "metrics"): metrics.append(client.metrics)
         return client
     async def run():
@@ -150,7 +151,7 @@ def main():
         profiler.disable(); profiler.dump_stats(str(args.result.with_suffix('.pstats')))
     quant = lambda values, q: sorted(values)[min(len(values)-1, int(len(values)*q))] if values else 0
     doc = dict(scope='OFFLINE HTTPX MockTransport; real signing, parsing, SQLite, exports and report; no real sockets/proxy/TLS/live service claims',
-               mixed_profile_counts=[0,1,4,10], lists_per_profile=2, keep_raw=True, backend=args.backend, python=platform.python_version(), workers=args.workers, accounts=args.accounts,
+               harness_version=2, production_dispatcher=True, mixed_profile_counts=[0,1,4,10], lists_per_profile=2, keep_raw=True, backend=args.backend, python=platform.python_version(), workers=args.workers, accounts=args.accounts,
                page_sizes={'worker': 20, 'direct': cfg.get('direct_page_size', 35)}, mock_latency_seconds=args.latency,
                completion_seconds=seconds, requests=requests, successful_rps=requests/seconds, accounts_per_second=args.accounts/seconds,
                followers_per_second=sum(total(i) for i in range(args.accounts))/seconds,

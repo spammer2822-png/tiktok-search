@@ -61,7 +61,7 @@ class AsyncTests(unittest.IsolatedAsyncioTestCase):
   starts=[];routes=[];active=0;peak=0
   async def handler(route,request):
    nonlocal active,peak
-   starts.append(time.monotonic());routes.append(route.label);active+=1;peak=max(peak,active)
+   starts.append(time.perf_counter());routes.append(route.label);active+=1;peak=max(peak,active)
    await asyncio.sleep(.08);active-=1;return httpx.Response(200,json=PROFILE)
   c,_=self.setup_http(handler,spacing=.02,ceiling=3)
   async with c:await asyncio.gather(*(c.request_json('profile',{'username':'roblox'}) for _ in range(8)))

@@ -171,3 +171,47 @@ class AuditTests(unittest.IsolatedAsyncioTestCase):
             self.assertIsNone(state.claim())
         finally:
             state.close()
+
+
+    async def test_cancel_during_store_open_closes_handle_with_and_without_disk_lane(self):
+        import threading
+        from contextlib import asynccontextmanager
+        from scan_runtime import DiskLane
+        original = s.UserStore.__init__
+        @asynccontextmanager
+        async def no_lane():
+            yield None
+        for use_lane in (False, True):
+            entered, release = threading.Event(), threading.Event()
+            acquired = []
+            def paused_init(store, path):
+                original(store, path)
+                acquired.append(store)
+                entered.set()
+                if not release.wait(5):
+                    raise RuntimeError('test constructor was not released')
+            async with (DiskLane(capacity=2, io_workers=1) if use_lane else no_lane()) as lane:
+                token = s._DISK_LANE.set(lane)
+                try:
+                    async def open_and_use():
+                        async with s.open_user_store(self.root/f'cancel-{use_lane}.sqlite3'):
+                            self.fail('cancelled construction must not enter body')
+                    with patch.object(s.UserStore, '__init__', paused_init):
+                        task = asyncio.create_task(open_and_use())
+                        try:
+                            while not entered.is_set():
+                                await asyncio.sleep(.001)
+                            task.cancel()
+                            await asyncio.sleep(.01)
+                            task.cancel()
+                            await asyncio.sleep(.01)
+                            self.assertFalse(task.done())
+                        finally:
+                            release.set()
+                        with self.assertRaises(asyncio.CancelledError):
+                            await task
+                    self.assertEqual(len(acquired), 1)
+                    with self.assertRaises(s.sqlite3.ProgrammingError):
+                        acquired[0].connection.execute('SELECT 1')
+                finally:
+                    s._DISK_LANE.reset(token)

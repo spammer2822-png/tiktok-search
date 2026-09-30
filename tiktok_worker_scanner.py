@@ -1437,12 +1437,9 @@ async def disk_call(function: Callable[..., Any], *args: Any, **kwargs: Any) -> 
         if isolated:
             return await lane.independent(function, *args, **kwargs)
         return await lane.call(function, *args, **kwargs)
+    from scan_runtime import await_durable
     task = asyncio.create_task(asyncio.to_thread(function, *args, **kwargs))
-    try:
-        return await asyncio.shield(task)
-    except asyncio.CancelledError:
-        await asyncio.shield(task)
-        raise
+    return await await_durable(task)
 
 
 class WorkerApiClient:
@@ -2260,26 +2257,30 @@ class UserStore:
         # One owner per profile. Only its awaited final writer may access this
         # connection from another thread; page writes and export never overlap.
         self.connection = sqlite3.connect(path, check_same_thread=False)
-        self.connection.execute("PRAGMA journal_mode=WAL")
-        self.connection.execute("PRAGMA synchronous=FULL")
-        self.connection.execute("PRAGMA temp_store=MEMORY")
-        # Create a new profile's schema in one durable transaction rather than
-        # flushing each CREATE separately. Existing databases are unchanged.
-        self.connection.executescript(
-            """
-            BEGIN IMMEDIATE;
-            CREATE TABLE IF NOT EXISTS members (
-                list_name TEXT NOT NULL,
-                member_key TEXT NOT NULL,
-                list_position INTEGER NOT NULL,
-                payload TEXT NOT NULL,
-                PRIMARY KEY (list_name, member_key)
-            );
-            CREATE TABLE IF NOT EXISTS checkpoint (name TEXT PRIMARY KEY, payload TEXT NOT NULL);
-            CREATE TABLE IF NOT EXISTS page_cursors (name TEXT, cursor TEXT, PRIMARY KEY(name,cursor));
-            COMMIT;
-            """
-        )
+        try:
+            self.connection.execute("PRAGMA journal_mode=WAL")
+            self.connection.execute("PRAGMA synchronous=FULL")
+            self.connection.execute("PRAGMA temp_store=MEMORY")
+            # Create a new profile's schema in one durable transaction rather than
+            # flushing each CREATE separately. Existing databases are unchanged.
+            self.connection.executescript(
+                """
+                BEGIN IMMEDIATE;
+                CREATE TABLE IF NOT EXISTS members (
+                    list_name TEXT NOT NULL,
+                    member_key TEXT NOT NULL,
+                    list_position INTEGER NOT NULL,
+                    payload TEXT NOT NULL,
+                    PRIMARY KEY (list_name, member_key)
+                );
+                CREATE TABLE IF NOT EXISTS checkpoint (name TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS page_cursors (name TEXT, cursor TEXT, PRIMARY KEY(name,cursor));
+                COMMIT;
+                """
+            )
+        except BaseException:
+            self.connection.close()
+            raise
         self._counts: dict[str, int] = {}
         self.last_members: list[dict[str, Any]] = []
 
@@ -2853,11 +2854,20 @@ async def process_profile(
 
 @asynccontextmanager
 async def open_user_store(path: Path):
-    store = await disk_call(UserStore, path)
+    # A cancellation during construction must not discard the newly opened
+    # connection. The durable call completes before this finally block runs.
+    opened = []
+    def acquire():
+        store = UserStore(path)
+        opened.append(store)
+        return store
     try:
+        lane = _DISK_LANE.get()
+        store = await lane.independent(acquire) if lane is not None else await disk_call(acquire)
         yield store
     finally:
-        await disk_call(store.close)
+        if opened:
+            await disk_call(opened[0].close)
 
 
 class SharedScanControl:
