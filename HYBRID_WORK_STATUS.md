@@ -1,9 +1,16 @@
 # Current work status — 30 September 2026
 
-Recovered and in progress. The earlier missing-source blocker is resolved: current code was recovered from checkpoint 6 and later edits reconstructed from preserved session history. Recovered baseline evidence is immutable historical evidence; new verification is recorded separately.
+Recovered work and original/first-hybrid/upstream archives are preserved in GitHub. No restart from scratch was performed. The local execution workspace became unavailable; work continues from the latest remote code using GitHub Actions. Do not treat stale transient paths as a recoverable current checkout.
 
-Implemented locally: Worker/Direct/Hybrid routing, native signing, isolated sessions/proxies, cursor ownership and deduplicating restarts, pooled async transport, persistence/resume/report behavior, and the new 429 controller. Current regression and benchmark results will be linked here after verification.
+Implemented: existing Worker contract, Worker/Direct/Hybrid modes, native signing and normalization, dynamic valid-record routing, per-chain ownership and safe deduplicating restarts, persistent isolated proxy sessions, scalable configured workers/connections, adaptive Direct concurrency, shared per-execution 429 lifecycle, durable stop/resume, incremental metrics, background persistence/logging, large offline reports and avatar repair.
 
-Still pending: final requirement-by-requirement audit, throughput review, matched benchmark comparison, browser verification and final complete-source review. HYBRID_COMPLETION_CHECKLIST.csv is historical until replaced during this audit; its old missing-source statements are no longer current.
+Verification:
+- Unmodified upstream: 2529 unit/replay and 528 integration passes; see hybrid_baseline/ci_verified_20260930.json.
+- Scanner: prior complete green run 36759162542 (Linux 221 tests; Windows 215 with one POSIX-only skip). A later Windows repeat exposed early pacing admission; runtime fix e6e64a7 now awaits its fresh four-platform gate.
+- Corrected real loopback TLS matrix: run 36759670077 COMPLETED; all 15 cases through 5000 workers.
+- Original/first/final single and repeated SIGINT/resume: run 36760498050 COMPLETED, all six cases.
+- Matched production-dispatcher full scan matrix, profiles/components and 180000-row browser/avatar verification: run 36759496281 still running. Its original network-fixture failure is preserved and superseded by 36759670077.
 
-External blockers: real TikTok request/page-size/signing compatibility and production throughput have not been verified with an authorized test account. The preserved upstream service baseline has 17 Redis setup errors, 480 skipped integration cases and 3 DNS-dependent unit failures. No claim is made that those are modification-introduced failures or that the full upstream deployment has passed.
+Remaining feasible work: finish and review matched measurements/browser results; resolve regressions; update both-spec audit and benchmark report; confirm latest regression gate and final source/spec review; preserve final integrity manifest and deliverable.
+
+Live TikTok compatibility, largest reliable page size and production throughput remain BLOCKED BY ENVIRONMENT: authorized accounts/Direct identity/session/proxy/deployment configuration were not supplied. See LIVE_VERIFICATION.md. Local fixtures and loopback TLS are not live certification. The old missing-source and Redis/DNS baseline blockers are resolved and must not be carried forward as current blockers.
