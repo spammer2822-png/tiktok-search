@@ -35,6 +35,12 @@
       "mode": "worker",
       "workers": 2500,
       "returncode": 0
+    },
+    {
+      "variant": "final",
+      "mode": "worker",
+      "workers": 5000,
+      "returncode": 0
     }
   ]
 }
