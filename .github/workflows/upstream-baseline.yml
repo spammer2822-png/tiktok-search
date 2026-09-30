@@ -40,7 +40,27 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - name: Restore exact unmodified 737bf3d source
         working-directory: .
-        run: python -c "from zipfile import ZipFile; ZipFile('hybrid_baseline/upstream_737bf3d_unmodified.zip').extractall('upstream')"
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          import hashlib, json
+          root = Path('upstream')
+          with ZipFile('hybrid_baseline/upstream_737bf3d_unmodified.zip') as archive:
+              archive.extractall(root)
+              hashes = {}
+              for entry in archive.infolist():
+                  if entry.is_dir():
+                      continue
+                  path = root / entry.filename
+                  # ZipFile.extractall does not restore the original executable bits.
+                  mode = (entry.external_attr >> 16) & 0o777
+                  if mode:
+                      path.chmod(mode)
+                  assert path.read_bytes() == archive.read(entry)
+                  hashes[entry.filename] = hashlib.sha256(path.read_bytes()).hexdigest()
+          (root / 'baseline-source-hashes.json').write_text(json.dumps(hashes, indent=2))
+          PY
       - uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9
         with:
           python-version: '3.12'
@@ -74,4 +94,5 @@ jobs:
           path: |
             upstream/baseline-*.xml
             upstream/baseline-*.log
+            upstream/baseline-source-hashes.json
           retention-days: 30
