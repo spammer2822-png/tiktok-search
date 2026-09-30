@@ -1,0 +1,90 @@
+Wed Sep 30 19:13:16 2026    /home/runner/work/_temp/scanner-verification-g2_cvehf/results/first_profile.pstats
+
+         60784916 function calls (58142836 primitive calls) in 42.031 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1367 to 80 due to restriction <80>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+   124940    0.881    0.000  147.383    0.001 base_events.py:1922(_run_once)
+       14    0.000    0.000  119.276    8.520 threading.py:1117(join)
+36360/36309    0.026    0.000  119.152    0.003 {method 'acquire' of '_thread.lock' objects}
+       14    0.000    0.000  119.130    8.509 threading.py:1155(_wait_for_tstate_lock)
+   124940    0.617    0.000   82.355    0.001 selectors.py:451(select)
+        3    0.000    0.000   80.206   26.735 base_events.py:655(run_until_complete)
+        3    0.000    0.000   80.205   26.735 base_events.py:631(run_forever)
+        4    0.000    0.000   80.111   20.028 thread.py:220(shutdown)
+   238878    0.262    0.000   59.810    0.000 events.py:86(_run)
+   238878    0.298    0.000   58.289    0.000 {method 'run' of '_contextvars.Context' objects}
+   124940    1.663    0.000   42.785    0.000 {method 'poll' of 'select.epoll' objects}
+        1    0.000    0.000   40.949   40.949 runners.py:160(run)
+        1    0.000    0.000   40.948   40.948 runners.py:61(__exit__)
+        1    0.000    0.000   40.948   40.948 runners.py:64(close)
+     14/1    0.000    0.000   40.947   40.947 threading.py:1018(_bootstrap)
+     14/1    0.000    0.000   40.909   40.909 threading.py:1058(_bootstrap_inner)
+     14/1    0.035    0.003   40.909   40.909 threading.py:1001(run)
+        1    0.000    0.000   40.909   40.909 base_events.py:614(_do_shutdown)
+     13/1    0.000    0.000   40.675   40.675 thread.py:70(_worker)
+30081/150    0.733    0.000   40.673    0.271 {method 'get' of '_queue.SimpleQueue' objects}
+11005/5005    0.019    0.000   39.388    0.008 contextlib.py:214(__aexit__)
+        1    0.000    0.000   39.258   39.258 runners.py:86(run)
+       17    0.000    0.000   39.245    2.309 benchmark_hybrid.py:112(run)
+       16    0.001    0.000   39.244    2.453 tiktok_worker_scanner.py:3083(run_scan)
+        8    0.000    0.000   39.241    4.905 tiktok_worker_scanner.py:3020(session_runtime)
+        2    0.000    0.000   39.202   19.601 scan_runtime.py:127(__aexit__)
+30623/15613    0.170    0.000   11.731    0.001 thread.py:54(run)
+     7498    0.052    0.000    5.179    0.001 hybrid_backend.py:183(send)
+    51429    0.062    0.000    4.599    0.000 tiktok_worker_scanner.py:2814(worker_loop)
+    47685    0.109    0.000    4.346    0.000 tiktok_worker_scanner.py:2608(process_profile)
+     1776    0.015    0.000    3.904    0.002 benchmark_hybrid.py:114(ticker)
+1302482/37035    2.247    0.000    3.334    0.000 tiktok_worker_scanner.py:1105(clean)
+     6000    0.012    0.000    2.969    0.000 _client.py:1485(request)
+1498/1490    0.052    0.000    2.695    0.002 direct_protocol.py:57(signed_url)
+34644/34639    0.292    0.000    2.581    0.000 {built-in method builtins.any}
+    31684    0.061    0.000    2.557    0.000 tiktok_worker_scanner.py:2107(export_one_list)
+1498/1490    0.023    0.000    2.471    0.002 tiktok_sign.py:649(sign)
+69272/53272    2.760    0.000    2.404    0.000 {method 'execute' of 'sqlite3.Connection' objects}
+    77992    0.157    0.000    2.277    0.000 tiktok_worker_scanner.py:1420(disk_call)
+     8998    0.034    0.000    2.236    0.000 _urls.py:77(__init__)
+     6000    0.016    0.000    2.171    0.000 _client.py:1594(send)
+3024/3022    0.061    0.000    2.171    0.001 tiktok_worker_scanner.py:350(atomic_write_json)
+     6000    0.022    0.000    2.128    0.000 _client.py:1645(_send_handling_auth)
+     6002    0.096    0.000    2.121    0.000 _urlparse.py:213(urlparse)
+     6000    0.014    0.000    2.086    0.000 _client.py:1679(_send_handling_redirects)
+     1776    0.946    0.001    2.077    0.001 tasks.py:43(all_tasks)
+     6000    0.034    0.000    2.056    0.000 _client.py:1717(_send_single_request)
+30623/30188    0.138    0.000    1.969    0.000 _base.py:537(set_result)
+     7000    0.068    0.000    1.925    0.000 tiktok_worker_scanner.py:2287(save_checkpoint)
+     5996    0.013    0.000    1.829    0.000 _urlparse.py:186(copy_with)
+13151/13097    0.169    0.000    1.796    0.000 {built-in method builtins.sum}
+     2000    0.027    0.000    1.754    0.001 tiktok_worker_scanner.py:2246(commit_page)
+    56994    0.240    0.000    1.734    0.000 scan_runtime.py:75(independent)
+     1498    0.003    0.000    1.638    0.001 _urls.py:327(copy_with)
+     1000    0.401    0.000    1.634    0.002 tiktok_worker_scanner.py:2208(__init__)
+     1078    0.011    0.000    1.601    0.001 tiktok_worker_scanner.py:2926(dispatch_profiles)
+  1653311    0.873    0.000    1.599    0.000 benchmark_hybrid.py:120(<genexpr>)
+     2156    0.011    0.000    1.593    0.001 tasks.py:435(wait)
+     6000    0.011    0.000    1.516    0.000 mock.py:29(handle_async_request)
+     6000    0.066    0.000    1.503    0.000 benchmark_hybrid.py:72(handle)
+30623/30188    0.033    0.000    1.471    0.000 _base.py:337(_invoke_callbacks)
+  2183200    0.789    0.000    1.362    0.000 _urlparse.py:273(<genexpr>)
+    30623    0.076    0.000    1.353    0.000 base_events.py:853(run_in_executor)
+    51036    0.136    0.000    1.344    0.000 __init__.py:183(dumps)
+30623/30190    0.063    0.000    1.339    0.000 futures.py:396(_call_set_state)
+     2996    0.022    0.000    1.318    0.000 tiktok_sign.py:410(seal)
+6553313/6547310    1.043    0.000    1.292    0.000 {built-in method builtins.isinstance}
+     2996    0.129    0.000    1.231    0.000 tiktok_sign.py:383(_crypt)
+     8001    1.144    0.000    1.144    0.000 {method 'commit' of 'sqlite3.Connection' objects}
+    51036    0.156    0.000    1.130    0.000 encoder.py:183(encode)
+     2000    0.050    0.000    1.116    0.001 tiktok_worker_scanner.py:2315(save_batch)
+    11352    0.009    0.000    1.094    0.000 hybrid_backend.py:419(fetch_chain_page)
+    11352    0.024    0.000    1.084    0.000 hybrid_backend.py:295(fetch_page)
+8065/8060    1.062    0.000    1.061    0.000 {built-in method posix.fsync}
+     9000    0.030    0.000    0.963    0.000 tiktok_worker_scanner.py:2396(write_json_property)
+     1000    0.026    0.000    0.953    0.001 tiktok_worker_scanner.py:2402(write_final_json)
+    11984    0.142    0.000    0.953    0.000 tiktok_sign.py:355(_keystream)
+     6182    0.098    0.000    0.927    0.000 hybrid_backend.py:166(request_json)
+        1    0.014    0.014    0.920    0.920 report_generator.py:251(generate_report)
+    16000    0.019    0.000    0.918    0.000 dataclasses.py:1308(asdict)
+
+
