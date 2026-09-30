@@ -1,3 +1,7 @@
+# Hybrid update — 30 September 2026
+
+Worker, Direct and Hybrid modes are available at **Start/Resume → Backend configuration**. See [HYBRID_CONFIGURATION.md](HYBRID_CONFIGURATION.md) for routing, session/proxy settings, the new 429 lifecycle and explicit resource limits. Current requirement evidence is tracked in [HYBRID_COMPLETION_CHECKLIST.csv](HYBRID_COMPLETION_CHECKLIST.csv); live validation is not yet certified.
+
 # September 26 speed update
 
 Read **BENCHMARK_REPORT.md** for measured speed comparisons and **PERFORMANCE.md** for concurrency details. Run `py -3.11 -m pip install -r requirements.txt` and `py -3.11 main.py` from this folder. Resume your existing search through the normal menu; keep its entire log folder.
@@ -70,10 +74,11 @@ starting TikTok username. Configure the target, size limits, normal or double
 phase mode, workers, delays, and proxy use. Zero size limits mean unlimited.
 
 Workers run independent profiles concurrently. The saved worker setting accepts
-1–10,000 and is a desired maximum. Runtime starts with up to 64 request slots,
-then grows with successful responses and adapts to latency/errors. The profile
-task pool grows with admission and available jobs. Missing `max_connections`,
-or 0, uses the configured workers; an explicit value from 1–10,000 is respected.
+any positive integer and is a desired maximum. Admission starts at the configured
+capacity, with Direct optionally starting at `direct_initial_concurrency`. The
+profile task pool grows with admission and available jobs. Missing
+`max_connections`, or 0, uses the configured workers; an explicit positive value
+is respected.
 The POSIX file-descriptor budget can lower it. Startup and statistics display both
 configured workers and actual concurrency. These values are not requests/second
 or an API/proxy plan entitlement. Global request delays are still respected,
@@ -124,8 +129,9 @@ restart and select the same folder to recover committed pages and exact cursors.
 - Each Worker HTTP 404 gets exactly one additional attempt for the same request,
   route, UID, cursor and logical page. A second 404 remains an HTTP error;
   committed pages and the continuation cursor survive. HTTP 404 alone does not
-  mean the TikTok account is missing. The first Worker HTTP 429 now stops the
-  entire scan immediately, with no 429 retry in that execution.
+  mean the TikTok account is missing. In Worker-only mode the first Worker HTTP 429 stops the
+  entire scan immediately. In Hybrid mode it disables Worker and migrates work
+  to Direct. Worker is never retried in the same execution.
   That one-time 404 allowance is independent of ordinary transient-error retries:
   `404 -> 500 -> success` can recover when the normal budget permits it.
 
@@ -153,8 +159,10 @@ separate status fields. Resume updates the same HTML with all old and new data.
 
 ## Rate limits, statistics and performance
 
-The first Worker HTTP 429 closes the global request gate as soon as its response
-headers arrive. Waiting semaphore users, queued profiles, delayed retries and
+In Worker-only mode, the first Worker HTTP 429 closes the global request gate as
+soon as its response headers arrive. Hybrid mode instead disables only Worker
+and migrates unfinished work to Direct; Direct has one cooldown/recovery opportunity
+before a repeated 429 triggers shutdown. See HYBRID_CONFIGURATION.md. In all modes, Waiting semaphore users, queued profiles, delayed retries and
 HTTPX request hooks all check the stop state. No automatic retry or proxy
 rotation follows a Worker 429. Already transmitted calls cannot be recalled;
 unfinished HTTP tasks are cancelled immediately and completed responses may

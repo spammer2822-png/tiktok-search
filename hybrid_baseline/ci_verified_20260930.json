@@ -1,0 +1,24 @@
+{
+  "date": "2026-09-30",
+  "repository": "spammer2822-png/tiktok-search",
+  "run_id": 36722825940,
+  "job_id": 109912030116,
+  "scanner_commit": "3a3e737069651dcaff6de67a68aa7b4b99f896cc",
+  "pristine_upstream_commit": "737bf3dfe9de1dbff57990c0ec4c9e02c75c3d0f",
+  "archive_sha256": "6f0887ced28b85f97f3acde546a1ce5e2109de91fd51ca2908095ce0cfde0989",
+  "source": "Exact archived files; original modes restored; bytes compared to each ZIP member",
+  "unit_replay": {
+    "passed": 2529,
+    "failed": 0
+  },
+  "integration": {
+    "passed": 528,
+    "failed": 0
+  },
+  "services": [
+    "PostgreSQL 17 / TimescaleDB",
+    "Redis 8"
+  ],
+  "live_tiktok": "NOT RUN; account/identity not configured",
+  "scope": "Repeat verification of the original unmodified source; historical pre-integration baseline retained separately."
+}

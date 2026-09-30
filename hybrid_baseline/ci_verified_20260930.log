@@ -1,0 +1,11 @@
+2026-09-30T13:36:49.9299311Z [36;1m            path.chmod(mode)[0m
+2026-09-30T13:36:49.9300630Z [36;1m(root / 'baseline-source-hashes.json').write_text(json.dumps(hashes, indent=2))[0m
+2026-09-30T13:36:52.9713638Z  + pytest==9.1.1
+2026-09-30T13:36:52.9714293Z  + pytest-asyncio==1.4.0
+2026-09-30T13:36:52.9714918Z  + pytest-cov==7.1.0
+2026-09-30T13:37:08.1463400Z [36;1muv run pytest tests/unit tests/replay -q --junitxml=baseline-unit.xml 2>&1 | tee baseline-unit.log[0m
+2026-09-30T13:37:27.7265022Z 2529 passed in 17.89s
+2026-09-30T13:37:28.7189937Z [36;1muv run pytest tests/integration -q -m integration --junitxml=baseline-integration.xml 2>&1 | tee baseline-integration.log[0m
+2026-09-30T13:41:29.2833733Z 528 passed in 236.90s (0:03:56)
+upstream/baseline-source-hashes.json
+2026-09-30T13:41:38.4945148Z Artifact download URL: https://github.com/spammer2822-png/tiktok-search/actions/runs/36722825940/artifacts/11101917015
