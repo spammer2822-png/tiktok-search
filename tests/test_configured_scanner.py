@@ -17,7 +17,7 @@ def job(name,uid='',phase=1):return s.ProfileJob(name,'https://www.tiktok.com/@'
 
 class ConfigurationTests(unittest.TestCase):
  def setUp(self):
-  self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.base=self.root/'logs';self.input=self.root/'input.json';self.input.write_text('["a"]');self.calls=[];self.options=[]
+  self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.base=self.root/'logs';self.input=self.root/'input.json';self.input.write_text('["a"]', encoding="utf-8");self.calls=[];self.options=[]
  def tearDown(self):self.tmp.cleanup()
  def run_main(self,answers,handler,env_extra=None):
   original=s.WorkerApiClient;output=io.StringIO();prompts=[];items=iter(answers)
@@ -50,8 +50,8 @@ class ConfigurationTests(unittest.TestCase):
   state=s.DurableScanState(root,meta,root,cfg);state.add_jobs([job(name) for name in names]);state.snapshot();state.close();return root,cfg,meta
  def test_new_startup_order_snapshot_and_custom_target(self):
   code,out,prompts=self.run_main(self.new(workers='10'),self.empty);self.assertEqual(code,0)
-  root=self.base/'wanted';cfg=json.loads((root/'scan_config.json').read_text());self.assertEqual(cfg['workers'],10);self.assertEqual(cfg['request_delay'],{'minimum_seconds':0,'maximum_seconds':0});self.assertEqual(self.options[-1][:3],(10,0.,0.));self.assertEqual(json.loads((root/'sucess_find.json').read_text())['target_user'],'wanted')
-  self.assertEqual(json.loads((root/'starting_dataset.json').read_text()),['a']);self.assertEqual(len(self.calls),3)
+  root=self.base/'wanted';cfg=json.loads((root/'scan_config.json').read_text(encoding="utf-8"));self.assertEqual(cfg['workers'],10);self.assertEqual(cfg['request_delay'],{'minimum_seconds':0,'maximum_seconds':0});self.assertEqual(self.options[-1][:3],(10,0.,0.));self.assertEqual(json.loads((root/'sucess_find.json').read_text(encoding="utf-8"))['target_user'],'wanted')
+  self.assertEqual(json.loads((root/'starting_dataset.json').read_text(encoding="utf-8")),['a']);self.assertEqual(len(self.calls),3)
   positions=[next(i for i,x in enumerate(prompts) if token in x) for token in ['Select starting','Target TikTok','Maximum followers','Maximum following','Scan mode','Number of workers','Minimum request','Maximum request']];self.assertEqual(positions,sorted(positions))
  def test_saved_config_beats_environment_and_python_defaults(self):
   root,cfg,_=self.create_saved();self.input.unlink()
@@ -66,7 +66,7 @@ class ConfigurationTests(unittest.TestCase):
  def test_resume_edit_saves_workers_delay_same_folder(self):
   root,cfg,_=self.create_saved()
   answers=['1','2','20000','8000','1','6','0','0','','','','1','n']
-  code,out,_=self.run_main(answers,self.empty);self.assertEqual(code,0);saved=json.loads((root/'scan_config.json').read_text());self.assertEqual(saved['workers'],6);self.assertEqual(saved['follower_skip_limit'],20000);self.assertEqual(len(list(self.base.iterdir())),1);self.assertIn('UPDATED SCAN CONFIGURATION',out)
+  code,out,_=self.run_main(answers,self.empty);self.assertEqual(code,0);saved=json.loads((root/'scan_config.json').read_text(encoding="utf-8"));self.assertEqual(saved['workers'],6);self.assertEqual(saved['follower_skip_limit'],20000);self.assertEqual(len(list(self.base.iterdir())),1);self.assertIn('UPDATED SCAN CONFIGURATION',out)
  def test_invalid_saved_config_no_fallback_or_new_folder(self):
   root,cfg,_=self.create_saved();cfg['workers']=0;s.atomic_write_json(root/'scan_config.json',cfg)
   code,out,_=self.run_main(['1'],self.empty);self.assertEqual(code,2);self.assertEqual(self.calls,[]);self.assertIn('Invalid saved workers',out);self.assertEqual(len(list(self.base.iterdir())),1)
@@ -76,7 +76,7 @@ class ConfigurationTests(unittest.TestCase):
   async def handle(req):
    self.assertEqual(req.url.path,'/');return httpx.Response(200,json=response_profile('a',1,'10.5K','821'))
   code,out,_=self.run_main(self.new(limit='10000'),handle);self.assertEqual(code,0);self.assertEqual(len(self.calls),1);self.assertIn('SKIPPED_SIZE',out)
-  root=self.base/'wanted';item=json.loads((root/'skipped_accounts.json').read_text())[0];self.assertEqual(item['status'],'skipped_size');self.assertEqual(item['metadata']['user_id'],'1');self.assertEqual(item['metadata']['counts']['followers']['raw'],'10.5K');self.assertFalse(item['metadata']['counts']['followers']['exact'])
+  root=self.base/'wanted';item=json.loads((root/'skipped_accounts.json').read_text(encoding="utf-8"))[0];self.assertEqual(item['status'],'skipped_size');self.assertEqual(item['metadata']['user_id'],'1');self.assertEqual(item['metadata']['counts']['followers']['raw'],'10.5K');self.assertFalse(item['metadata']['counts']['followers']['exact'])
  def test_both_limits_exact_boundary_zero_and_unknown(self):
   for followers,following,fl,fg,expected in [('10','5',10,5,None),('11','6',10,5,'skipped_size'),('1M','999',0,0,None),('Unknown','0',1,0,'skipped_unknown_size')]:
    profile=s.parse_profile_response(response_profile('a',1,followers,following),'a')
@@ -93,7 +93,7 @@ class ConfigurationTests(unittest.TestCase):
    return httpx.Response(200,json=page())
   answers=['0','2','@Seed','wanted','0','0','1','4','0','0','n','1']
   code,out,_=self.run_main(answers,handle);self.assertEqual(code,0)
-  dataset=json.loads((self.base/'wanted'/'starting_dataset.json').read_text());self.assertEqual({r['id'] for r in dataset},{'1','2'});self.assertEqual(len(dataset),2)
+  dataset=json.loads((self.base/'wanted'/'starting_dataset.json').read_text(encoding="utf-8"));self.assertEqual({r['id'] for r in dataset},{'1','2'});self.assertEqual(len(dataset),2)
   self.assertTrue(all(r['private_account'] is False for r in dataset));self.assertTrue(all(r['discovered_through_both'] for r in dataset));self.assertTrue(all(r['follower_count'] is None and r['following_count'] is None for r in dataset));self.assertFalse(any('username=private_user' in c for c in self.calls))
  def test_private_seed_returns_to_source_selection(self):
   async def handle(req):return httpx.Response(200,json=response_profile('seed',9,private=True))
@@ -108,13 +108,13 @@ class ConfigurationTests(unittest.TestCase):
    if uid=='2':return httpx.Response(200,json=page([public_member('c',4)]))
    return httpx.Response(200,json=page())
   code,out,_=self.run_main(self.new(mode='2'),handle);self.assertEqual(code,0);lookups=[u for u in self.calls if '?username=' in u];self.assertEqual(len(lookups),3);self.assertFalse(any('username=c' in u or 'username=private_user' in u for u in lookups));self.assertIn('PHASE 1 COMPLETE',out)
-  root=self.base/'wanted';queue=json.loads((root/'phase2_queue.json').read_text());self.assertEqual({q['username'] for q in queue},{'b','wanted'});self.assertTrue(all(q['status']=='completed' for q in queue));finds=json.loads((root/'sucess_find.json').read_text());entry=next(x for x in finds['profiles'] if x['username']=='a');self.assertEqual(set(entry['found_in']),{'followers','following'});self.assertTrue(entry['relationship']['mutual'])
-  discoveries=json.loads((root/'discovered_profiles.json').read_text());self.assertFalse(any(r['username']=='c' for r in discoveries));b=next(r for r in discoveries if r['username']=='b');self.assertEqual(set(b['discovered_from']),{'@a/followers','@a/following'})
+  root=self.base/'wanted';queue=json.loads((root/'phase2_queue.json').read_text(encoding="utf-8"));self.assertEqual({q['username'] for q in queue},{'b','wanted'});self.assertTrue(all(q['status']=='completed' for q in queue));finds=json.loads((root/'sucess_find.json').read_text(encoding="utf-8"));entry=next(x for x in finds['profiles'] if x['username']=='a');self.assertEqual(set(entry['found_in']),{'followers','following'});self.assertTrue(entry['relationship']['mutual'])
+  discoveries=json.loads((root/'discovered_profiles.json').read_text(encoding="utf-8"));self.assertFalse(any(r['username']=='c' for r in discoveries));b=next(r for r in discoveries if r['username']=='b');self.assertEqual(set(b['discovered_from']),{'@a/followers','@a/following'})
  def test_normal_mode_never_expands(self):
   async def handle(req):
    if req.url.params.get('username'):return httpx.Response(200,json=response_profile('a',1))
    return httpx.Response(200,json=page([public_member('b',2)]))
-  code,_,_=self.run_main(self.new(),handle);self.assertEqual(code,0);self.assertEqual(len(self.calls),3);self.assertEqual(json.loads((self.base/'wanted'/'phase2_queue.json').read_text()),[])
+  code,_,_=self.run_main(self.new(),handle);self.assertEqual(code,0);self.assertEqual(len(self.calls),3);self.assertEqual(json.loads((self.base/'wanted'/'phase2_queue.json').read_text(encoding="utf-8")),[])
  def test_terminal_outcomes_preserved_with_changed_limits(self):
   root,cfg,meta=self.create_saved(('a','b','c','d','e','f'))
   state=s.DurableScanState(root,meta,root,cfg)
@@ -125,23 +125,23 @@ class ConfigurationTests(unittest.TestCase):
    if req.url.params.get('username'):
     self.assertEqual(req.url.params['username'],'f');return httpx.Response(200,json=response_profile('f',6))
    return httpx.Response(200,json=page())
-  code,_,_=self.run_main(['1','1','1','n'],handle);self.assertEqual(code,0);self.assertEqual(len(self.calls),3);summary=json.loads((root/'scan_state.json').read_text())['summary'];self.assertEqual(summary['processed_profiles'],6);self.assertEqual(summary['statuses']['skipped_size'],1)
+  code,_,_=self.run_main(['1','1','1','n'],handle);self.assertEqual(code,0);self.assertEqual(len(self.calls),3);summary=json.loads((root/'scan_state.json').read_text(encoding="utf-8"))['summary'];self.assertEqual(summary['processed_profiles'],6);self.assertEqual(summary['statuses']['skipped_size'],1)
  def test_resume_phase_two_does_not_repeat_phase_one(self):
   root,cfg,meta=self.create_saved(('a',),'double_phase');state=s.DurableScanState(root,meta,root,cfg);item=state.claim();state.record(s.error_profile_result(item,status='partial',started_at_utc=s.utc_iso(),error='fixture'));state.discover('a','followers',[{'username':'b','id':'2','private_account':False}]);state.advance_phase();self.assertEqual(state.claim().username,'b');state.close()
   async def handle(req):
    if req.url.params.get('username'):
     self.assertEqual(req.url.params['username'],'b');return httpx.Response(200,json=response_profile('b',2))
    return httpx.Response(200,json=page())
-  code,_,_=self.run_main(['1','1','1','n'],handle);self.assertEqual(code,0);self.assertEqual(len(self.calls),3);self.assertEqual(json.loads((root/'scan_state.json').read_text())['current_phase'],2)
+  code,_,_=self.run_main(['1','1','1','n'],handle);self.assertEqual(code,0);self.assertEqual(len(self.calls),3);self.assertEqual(json.loads((root/'scan_state.json').read_text(encoding="utf-8"))['current_phase'],2)
  def test_uid_register_prevents_concurrent_alias_page_scans(self):
-  self.input.write_text('["a","a_alias"]')
+  self.input.write_text('["a","a_alias"]', encoding="utf-8")
   async def handle(req):
    name=req.url.params.get('username')
    if name:return httpx.Response(200,json=response_profile(name,1))
    return httpx.Response(200,json=page())
-  code,_,_=self.run_main(self.new(),handle);self.assertEqual(code,0);self.assertEqual(len([c for c in self.calls if '/api/' in c]),2);summary=json.loads((self.base/'wanted'/'scan_state.json').read_text())['summary'];self.assertEqual(summary['statuses']['skipped_duplicate'],1)
+  code,_,_=self.run_main(self.new(),handle);self.assertEqual(code,0);self.assertEqual(len([c for c in self.calls if '/api/' in c]),2);summary=json.loads((self.base/'wanted'/'scan_state.json').read_text(encoding="utf-8"))['summary'];self.assertEqual(summary['statuses']['skipped_duplicate'],1)
  def test_config_validation_python311_and_saved_limits(self):
-  ast.parse(Path(s.__file__).read_text(),feature_version=(3,11));cfg=s.default_scan_config()
+  ast.parse(Path(s.__file__).read_text(encoding="utf-8"),feature_version=(3,11));cfg=s.default_scan_config()
   for field,value in [('workers',True),('workers',0),('following_skip_limit',-1)]:
    changed=copy.deepcopy(cfg);changed[field]=value
    with self.assertRaises(s.ExporterError):s.validate_scan_config(changed)

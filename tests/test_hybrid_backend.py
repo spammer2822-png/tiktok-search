@@ -140,7 +140,7 @@ class HybridTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_cookie_credentials_never_reach_worker(self):
         session = self.root/'private.json'
-        session.write_text(json.dumps({'cookies': {'sessionid': 'fixture-session', 'msToken': 'fixture-token'}}))
+        session.write_text(json.dumps({'cookies': {'sessionid': 'fixture-session', 'msToken': 'fixture-token'}}), encoding="utf-8")
         settings = {**self.settings, 'direct_session_file': str(session)}
         async def handle(req):
             if req.url.host.endswith('workers.dev'):

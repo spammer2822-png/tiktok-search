@@ -1,0 +1,7 @@
+2026-09-30T13:29:17.4474523Z Traceback (most recent call last):
+2026-09-30T13:29:17.4491897Z   File "D:\a\tiktok-search\tiktok-search\tests\test_async_scanner.py", line 8, in <module>
+2026-09-30T13:29:17.4492692Z     FOLLOWERS=json.loads((Path(__file__).parent/'fixtures'/'sample_followers.json').read_text())
+2026-09-30T13:29:17.4493900Z   File "C:\hostedtoolcache\windows\Python\3.11.9\x64\Lib\pathlib.py", line 1059, in read_text
+2026-09-30T13:29:17.4495478Z     return codecs.charmap_decode(input,self.errors,decoding_table)[0]
+2026-09-30T13:29:17.4496339Z UnicodeDecodeError: 'charmap' codec can't decode byte 0x9d in position 294: character maps to <undefined>
+2026-09-30T13:29:17.4860537Z ##[error]Process completed with exit code 1.

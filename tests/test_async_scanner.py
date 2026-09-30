@@ -4,9 +4,9 @@ from pathlib import Path
 from unittest.mock import patch
 import httpx
 import tiktok_worker_scanner as s
-PROFILE=json.loads((Path(__file__).parent/'fixtures'/'sample_profile.json').read_text())
-FOLLOWERS=json.loads((Path(__file__).parent/'fixtures'/'sample_followers.json').read_text())
-FOLLOWING=json.loads((Path(__file__).parent/'fixtures'/'sample_following.json').read_text())
+PROFILE=json.loads((Path(__file__).parent/'fixtures'/'sample_profile.json').read_text(encoding="utf-8"))
+FOLLOWERS=json.loads((Path(__file__).parent/'fixtures'/'sample_followers.json').read_text(encoding="utf-8"))
+FOLLOWING=json.loads((Path(__file__).parent/'fixtures'/'sample_following.json').read_text(encoding="utf-8"))
 
 def profile(name='example',followers='0',following='0'):
  d=copy.deepcopy(PROFILE);d['data'].update(username=name,followers=followers,following=following)
@@ -221,7 +221,7 @@ class AsyncTests(unittest.IsolatedAsyncioTestCase):
   c,_=self.setup_http(handler,configs=[secret]);c.raw_directory=self.root/'raw'
   async with c:
    data=await c.request_json('followers',{'Uid':'1','minCursor':'0'});await c.save_raw('example','followers_000001',data)
-  text=next((self.root/'raw').rglob('*.json')).read_text();self.assertNotIn(secret.password,text);self.assertIn('[REDACTED]',text)
+  text=next((self.root/'raw').rglob('*.json')).read_text(encoding="utf-8");self.assertNotIn(secret.password,text);self.assertIn('[REDACTED]',text)
  async def test_list_one_page_and_empty(self):
   for name in ('followers','following'):
    result,rows,_,_=await self.run_list([page()],name=name);self.assertTrue(result.complete);self.assertEqual(rows,[])
@@ -240,10 +240,10 @@ class AsyncTests(unittest.IsolatedAsyncioTestCase):
   p=profile();job=s.ProfileJob('example',p.profile_url,('profiles',));rec=self.recorder()
   c=AsyncFakeClient(p,{'followers':[page([member(s.TARGET_USER)])],'following':[page([member(s.TARGET_USER)])]})
   r=await s.process_profile(c,job,output_directory=self.root,success_recorder=rec,stop_event=asyncio.Event(),use_resume=True)
-  self.assertTrue(r.complete);doc=json.loads(Path(r.export_path).read_text());self.assertEqual(doc['schema_version'],4);before=Path(r.export_path).read_bytes()
+  self.assertTrue(r.complete);doc=json.loads(Path(r.export_path).read_text(encoding="utf-8"));self.assertEqual(doc['schema_version'],4);before=Path(r.export_path).read_bytes()
   with patch.object(c,'lookup_profile',side_effect=AssertionError('resume used network')):
    resumed=await s.process_profile(c,job,output_directory=self.root,success_recorder=rec,stop_event=asyncio.Event(),use_resume=True)
-  self.assertEqual(resumed.status,'resumed_complete');self.assertEqual(before,Path(r.export_path).read_bytes());self.assertTrue(json.loads(rec.path.read_text())['profiles'][0]['relationship']['mutual'])
+  self.assertEqual(resumed.status,'resumed_complete');self.assertEqual(before,Path(r.export_path).read_bytes());self.assertTrue(json.loads(rec.path.read_text(encoding="utf-8"))['profiles'][0]['relationship']['mutual'])
  async def test_partial_restarts_and_preserves_success(self):
   p=profile();job=s.ProfileJob('example',p.profile_url,('profiles',));rec=self.recorder()
   c=AsyncFakeClient(p,{'followers':[page([member(s.TARGET_USER)],True,'a'),s.WorkerApiError('failed')],'following':[page()]})
@@ -256,7 +256,7 @@ class AsyncTests(unittest.IsolatedAsyncioTestCase):
   async def wait_forever():reached.set();await asyncio.Future()
   c=AsyncFakeClient(p,{'followers':[page([member(s.TARGET_USER)],True,'a'),wait_forever],'following':[]})
   task=asyncio.create_task(s.process_profile(c,job,output_directory=self.root,success_recorder=rec,stop_event=asyncio.Event(),use_resume=True));await reached.wait();task.cancel();result=await task
-  self.assertEqual(result.status,'cancelled');self.assertEqual(len(json.loads(Path(result.export_path).read_text())['followers']),1);self.assertEqual(self.recorder().found_lists_for('example'),['followers'])
+  self.assertEqual(result.status,'cancelled');self.assertEqual(len(json.loads(Path(result.export_path).read_text(encoding="utf-8"))['followers']),1);self.assertEqual(self.recorder().found_lists_for('example'),['followers'])
  async def test_concurrent_shared_files_and_restart(self):
   rec=self.recorder();state=self.state(12);jobs=[s.ProfileJob(f'user{i}',f'url{i}',('profiles',)) for i in range(12)]
   class Client(AsyncFakeClient):
@@ -268,8 +268,8 @@ class AsyncTests(unittest.IsolatedAsyncioTestCase):
   with patch.object(s,'WorkerApiClient',Client):
    _,snapshot,_=await s.run_scan(jobs,output_directory=self.root,worker_count=4,pacing=(0,0),success_recorder=rec,state_recorder=state,use_resume=True)
   self.assertTrue(snapshot['scan_complete']);self.assertEqual(snapshot['summary']['processed_profiles'],12)
-  for file in self.root.glob('*.json'):json.loads(file.read_text())
-  self.assertEqual(len(json.loads(rec.path.read_text())['profiles']),12)
+  for file in self.root.glob('*.json'):json.loads(file.read_text(encoding="utf-8"))
+  self.assertEqual(len(json.loads(rec.path.read_text(encoding="utf-8"))['profiles']),12)
   state2=self.state(12);rec2=self.recorder()
   with patch.object(s,'WorkerApiClient',Client),patch.object(Client,'lookup_profile',side_effect=AssertionError('network on restart')):
    _,snapshot,_=await s.run_scan(jobs,output_directory=self.root,worker_count=4,pacing=(0,0),success_recorder=rec2,state_recorder=state2,use_resume=True)
@@ -287,7 +287,7 @@ class AsyncTests(unittest.IsolatedAsyncioTestCase):
   with patch.object(s,'WorkerApiClient',Client):
    task=asyncio.create_task(s.run_scan([s.ProfileJob('example','url',('profiles',))],output_directory=self.root,worker_count=1,pacing=(0,0),success_recorder=rec,state_recorder=state,use_resume=True));await reached.wait();task.cancel()
    with self.assertRaises(asyncio.CancelledError):await task
-  self.assertTrue(closed);checkpoint=json.loads(state.path.read_text());self.assertEqual(checkpoint['profiles'][0]['status'],'cancelled');self.assertEqual(len(json.loads((self.root/'example_followers_and_following.json').read_text())['followers']),1)
+  self.assertTrue(closed);checkpoint=json.loads(state.path.read_text(encoding="utf-8"));self.assertEqual(checkpoint['profiles'][0]['status'],'cancelled');self.assertEqual(len(json.loads((self.root/'example_followers_and_following.json').read_text(encoding="utf-8"))['followers']),1)
 
 class ConfigTests(unittest.TestCase):
  def test_colon_password_and_exact_auth(self):
@@ -303,12 +303,12 @@ class ConfigTests(unittest.TestCase):
    self.assertNotIn('secret',str(caught.exception))
  def test_missing_empty_invalid_proxy_files(self):
   with tempfile.TemporaryDirectory() as temp,patch.object(s,'console'):
-   p=Path(temp)/'proxy.txt';self.assertEqual(s.load_proxy_configs(p),[]);p.write_text('');self.assertEqual(s.load_proxy_configs(p),[]);p.write_text('bad\n# comment\n');self.assertEqual(s.load_proxy_configs(p),[])
+   p=Path(temp)/'proxy.txt';self.assertEqual(s.load_proxy_configs(p),[]);p.write_text('', encoding="utf-8");self.assertEqual(s.load_proxy_configs(p),[]);p.write_text('bad\n# comment\n', encoding="utf-8");self.assertEqual(s.load_proxy_configs(p),[])
  def test_40_webshare_entries_parsed_without_exposure(self):
   messages=[]
   with tempfile.TemporaryDirectory() as d,patch.object(s,'console',side_effect=lambda msg,**kwargs:messages.append(msg)):
    path=Path(d)/'webshare_proxy.txt'
-   path.write_text('\n'.join(f'192.0.2.{i}:8000:synthetic-login:synthetic-password' for i in range(1,41)))
+   path.write_text('\n'.join(f'192.0.2.{i}:8000:synthetic-login:synthetic-password' for i in range(1,41)), encoding="utf-8")
    proxies=s.load_proxy_configs(path)
   self.assertEqual(len(proxies),40);self.assertTrue(all(p.username and p.password and p.mode=='direct_endpoint' for p in proxies))
   self.assertNotIn('synthetic-login','\n'.join(messages));self.assertNotIn('synthetic-password','\n'.join(messages))

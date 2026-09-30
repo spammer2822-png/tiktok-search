@@ -218,7 +218,7 @@ class AvatarTests(AvatarTestCase):
         original['rows'] = [row, bad]
         with patch.object(report,'build_data',return_value=original):
             path = report.generate_report(self.root,emit=lambda _:None)
-        text = path.read_text()
+        text = path.read_text(encoding="utf-8")
         self.assertIn(ref,text)
         self.assertNotIn('</script><script>window.BAD',text)
         self.assertIn("connect-src 'none'",text)
@@ -393,7 +393,7 @@ class ReviewFixTests(AvatarTestCase):
                 with s.UserStore(self.root/'profile.sqlite3') as store:
                     store.save_checkpoint('profile',s.asdict(parsed))
                     self.assertEqual(store.checkpoint('profile')['username'],'annabelle')
-            self.assertEqual(json.loads((self.root/'profile.json').read_text()),payload)
+            self.assertEqual(json.loads((self.root/'profile.json').read_text(encoding="utf-8")),payload)
             cleaned=client.redactor.clean({'bio':'banner','debug':'ann 123 http://ann:123@p.example:80','proxy_password':'123'})
             self.assertEqual(cleaned['bio'],'banner')
             self.assertNotIn('123',cleaned['debug']);self.assertNotIn('ann',cleaned['debug'])
@@ -423,7 +423,7 @@ class ReviewFixTests(AvatarTestCase):
                 stop_event=asyncio.Event(),use_resume=True,store_directory=pages,
                 on_profile=AsyncMock(return_value=False),on_discovery=discovered)
             self.assertEqual(out.status,'skipped_duplicate')
-            data=json.loads(recorder.path.read_text())
+            data=json.loads(recorder.path.read_text(encoding="utf-8"))
             self.assertEqual(len(data['profiles']),1)
             self.assertEqual(data['profiles'][0]['found_in'],['followers'])
             stamp=data['profiles'][0]['match_observed_at_utc']['followers']
@@ -475,7 +475,7 @@ class ReviewFixTests(AvatarTestCase):
 
 class AvatarIntegrationTests(ConfigurationTests):
     def test_main_caches_public_private_and_skipped_avatars(self):
-        self.input.write_text('["a","b","c"]')
+        self.input.write_text('["a","b","c"]', encoding="utf-8")
         async def handler(req):
             if req.url.host=='p16-sign.tiktokcdn.com':
                 return httpx.Response(200,headers={'Content-Type':'image/png'},content=picture())
@@ -510,7 +510,7 @@ class AvatarIntegrationTests(ConfigurationTests):
         self.assertTrue(report.build_data(root)['rows'][0]['avatar'])
         # Reconcile the same saved state again: completed jobs and cache produce
         # no Worker lookup, list retrieval, or second image request.
-        session=json.loads((root/'session.json').read_text());session['scan_complete']=False
+        session=json.loads((root/'session.json').read_text(encoding="utf-8"));session['scan_complete']=False
         s.atomic_write_json(root/'session.json',session)
         self.calls.clear()
         code,_,_=self.run_main(['1','1','1','n'],handler)

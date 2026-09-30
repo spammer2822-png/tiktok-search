@@ -27,7 +27,7 @@ class MetricsTests(unittest.TestCase):
             root=Path(directory);s.atomic_write_json(root/'scan_config.json',{'target_username':'__REPORT_ROWS__'})
             path=report_generator.generate_report(root,emit=lambda _:None)
             self.assertIsNotNone(path)
-            self.assertIn('"target":"__REPORT_ROWS__"',path.read_text())
+            self.assertIn('"target":"__REPORT_ROWS__"',path.read_text(encoding="utf-8"))
 
     def test_rolling_window_eta_unique_profiles_and_request_counts(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -82,9 +82,9 @@ class MetricsTests(unittest.TestCase):
             with history.open('ab') as output:output.write(b'{"torn":')
             resumed=ScanStatistics(root,4);resumed.write(resumed.snapshot({}),s.atomic_write_json,history=True)
             self.assertTrue(history.read_bytes().startswith(old))
-            entries=[json.loads(line) for line in history.read_text().splitlines()]
+            entries=[json.loads(line) for line in history.read_text(encoding="utf-8").splitlines()]
             self.assertEqual(len(entries),2);self.assertNotEqual(entries[0]['session_id'],entries[1]['session_id'])
-            self.assertEqual(json.loads((root/'scan_stats.json').read_text())['session_id'],resumed.session_id)
+            self.assertEqual(json.loads((root/'scan_stats.json').read_text(encoding="utf-8"))['session_id'],resumed.session_id)
 
     def test_connection_budget_and_legacy_config(self):
         for count in (4,64,400,5000,10000):
@@ -119,7 +119,7 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
             output=[]
             with patch('scan_statistics.asyncio.wait_for',side_effect=tick):
                 await stats.report_loop(State(),disk,atomic,output.append)
-            entries=[json.loads(line) for line in (Path(directory)/'scan_stats_history.jsonl').read_text().splitlines()]
+            entries=[json.loads(line) for line in (Path(directory)/'scan_stats_history.jsonl').read_text(encoding="utf-8").splitlines()]
             self.assertEqual(len(writes),40);self.assertEqual(len(entries),2)
             self.assertEqual([x['elapsed_seconds'] for x in entries],[300,600])
             self.assertEqual(entries[-1]['requests_total'],40)
@@ -190,12 +190,12 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
             self.assertLess(max(task_count),600)
             summary=state.summary();self.assertEqual(summary['remaining_profiles'],999);self.assertEqual(summary['failed_profiles'],0)
             self.assertEqual(summary['completed_overall'],1)
-            stats=json.loads((root/'scan_stats.json').read_text())
+            stats=json.loads((root/'scan_stats.json').read_text(encoding="utf-8"))
             self.assertEqual(stats['scan_status'],'stopped_rate_limited');self.assertEqual(stats['http_429_count'],1)
             self.assertEqual(stats['requests_total'],8);self.assertEqual(stats['pending_accounts'],999)
             self.assertIsNone(stats['estimated_completion_time']);self.assertEqual(stats['configured_workers'],10000)
             self.assertEqual(stats['connection_ceiling'],runtime_ceiling(10000,cfg))
-            self.assertEqual(len((root/'scan_stats_history.jsonl').read_text().splitlines()),1)
+            self.assertEqual(len((root/'scan_stats_history.jsonl').read_text(encoding="utf-8").splitlines()),1)
             state.close()
 
     async def test_client_pool_count_bounded_with_many_proxy_routes(self):
@@ -245,7 +245,7 @@ class ResumeSelectionTests(ConfigurationTests):
         code,out,_=self.run_main(['0','2','seed','wanted','0','0','1','4','0','0','n','1'],handler)
         self.assertEqual(code,2);self.assertEqual(len(self.calls),3)
         root=self.base/'wanted'
-        stats=json.loads((root/'scan_stats.json').read_text())
+        stats=json.loads((root/'scan_stats.json').read_text(encoding="utf-8"))
         self.assertEqual(stats['scan_status'],'stopped_rate_limited');self.assertEqual(stats['http_429_count'],1)
         with s.UserStore(root/'bootstrap'/'pages'/'seed.sqlite3') as store:
             self.assertEqual(store.checkpoint('followers')['next_cursor'],'opaque-next')
@@ -270,7 +270,7 @@ class ResumeSelectionTests(ConfigurationTests):
         code,out,prompts=self.run_main(['1','1','1','y'],handler)
         self.assertEqual(code,0);self.assertEqual(len(self.calls),9)
         self.assertTrue(any('Retry failed profiles?' in p for p in prompts))
-        summary=json.loads((root/'scan_state.json').read_text())['summary']
+        summary=json.loads((root/'scan_state.json').read_text(encoding="utf-8"))['summary']
         self.assertEqual(summary['completed_overall'],4);self.assertEqual(summary['statuses']['http_error'],1)
         self.assertEqual(len(list(self.base.iterdir())),1)
 
@@ -279,7 +279,7 @@ class ResumeSelectionTests(ConfigurationTests):
         async def forbidden(request):raise AssertionError('No pending jobs: no network permitted')
         code,_,_=self.run_main(['1','1','1','n'],forbidden)
         self.assertEqual(code,0);self.assertEqual(self.calls,[])
-        statuses=json.loads((root/'scan_state.json').read_text())['summary']['statuses']
+        statuses=json.loads((root/'scan_state.json').read_text(encoding="utf-8"))['summary']['statuses']
         for key in ('network_timeout','network_error','partial','http_error','completed'):self.assertEqual(statuses[key],1)
 
 

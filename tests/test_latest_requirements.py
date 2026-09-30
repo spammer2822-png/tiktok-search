@@ -27,21 +27,21 @@ class BootstrapFlowTests(ConfigurationTests):
   code,out,_=self.run_main(['0','2',seed,target,'0','0','1','4','0','0','n','1'],handler)
   self.assertEqual(code,0);self.assertNotIn('Bootstrap is incomplete',out);self.assertIn('[PROGRESS 398/398]',out)
   self.assertIn('Private accounts skipped: 398',out);self.assertIn('[PROGRESS 0/398]',out)
-  root=self.base/target;state=json.loads((root/'scan_state.json').read_text())
+  root=self.base/target;state=json.loads((root/'scan_state.json').read_text(encoding="utf-8"))
   self.assertEqual(state['bootstrap']['status'],'usable_with_restricted_list');self.assertEqual(state['summary']['processed_profiles'],398)
-  dataset=json.loads((root/'starting_dataset.json').read_text());self.assertEqual(len(dataset),398);self.assertTrue(all(r['from_followers'] and not r['from_following'] for r in dataset))
-  doc=json.loads((root/'sucess_find.json').read_text());entry=next(p for p in doc['profiles'] if p['username']==seed)
+  dataset=json.loads((root/'starting_dataset.json').read_text(encoding="utf-8"));self.assertEqual(len(dataset),398);self.assertTrue(all(r['from_followers'] and not r['from_following'] for r in dataset))
+  doc=json.loads((root/'sucess_find.json').read_text(encoding="utf-8"));entry=next(p for p in doc['profiles'] if p['username']==seed)
   self.assertEqual(entry['relationship'],{'target_follows_profile':True,'profile_follows_target':None,'mutual':None})
   data=report.build_data(root);source=next(r for r in data['rows'] if r['username']==seed);self.assertIsNone(source['mutual'])
   # Resume between a finished bootstrap and dataset import: local export and
   # restricted checkpoint must be reused; all already checked jobs stay terminal.
-  metadata=json.loads((root/'session.json').read_text());metadata.update(scan_complete=False,input_imported=False);s.atomic_write_json(root/'session.json',metadata)
+  metadata=json.loads((root/'session.json').read_text(encoding="utf-8"));metadata.update(scan_complete=False,input_imported=False);s.atomic_write_json(root/'session.json',metadata)
   state.update(scan_complete=False,input_imported=False);s.atomic_write_json(root/'scan_state.json',state)
   self.calls.clear()
   async def no_network(req):raise AssertionError('Completed/restricted resume used network')
   code,out,_=self.run_main(['1','1','1','n'],no_network)
   self.assertEqual(code,0);self.assertFalse(self.calls);self.assertIn('Reused from previous run: 398',out);self.assertIn('Checked during this execution: 0',out)
-  self.assertEqual(json.loads((root/'scan_state.json').read_text())['summary']['private_profiles'],398)
+  self.assertEqual(json.loads((root/'scan_state.json').read_text(encoding="utf-8"))['summary']['private_profiles'],398)
  def test_empty_followers_restricted_following_clean_completion(self):
   async def handler(req):
    if req.url.params.get('username'):
@@ -49,10 +49,10 @@ class BootstrapFlowTests(ConfigurationTests):
    self.assertTrue(req.url.path.endswith('followers'));return httpx.Response(200,json=page())
   code,out,_=self.run_main(['0','2','seed','wanted','0','0','1','4','0','0','n','1'],handler)
   self.assertEqual(code,0);self.assertIn('no usable source profiles',out)
-  root=self.base/'wanted';self.assertEqual(json.loads((root/'starting_dataset.json').read_text()),[])
-  self.assertEqual(json.loads((root/'scan_state.json').read_text())['bootstrap']['status'],'empty_dataset')
+  root=self.base/'wanted';self.assertEqual(json.loads((root/'starting_dataset.json').read_text(encoding="utf-8")),[])
+  self.assertEqual(json.loads((root/'scan_state.json').read_text(encoding="utf-8"))['bootstrap']['status'],'empty_dataset')
  def test_private_not_found_http_error_progress_all_count(self):
-  self.input.write_text('["a","b","c","d"]')
+  self.input.write_text('["a","b","c","d"]', encoding="utf-8")
   async def handler(req):
    name=req.url.params.get('username')
    if name=='a':return httpx.Response(200,json=response_profile('a',1,private=True))
@@ -61,7 +61,7 @@ class BootstrapFlowTests(ConfigurationTests):
    return await self.empty(req)
   code,out,_=self.run_main(self.new(),handler);self.assertEqual(code,0)
   self.assertIn('[PROGRESS 4/4]',out);self.assertIn('Private accounts skipped: 1',out);self.assertIn('Not Found: 1',out)
-  summary=json.loads((self.base/'wanted'/'scan_state.json').read_text())['summary']
+  summary=json.loads((self.base/'wanted'/'scan_state.json').read_text(encoding="utf-8"))['summary']
   self.assertEqual(summary['processed_profiles'],4);self.assertEqual(summary['completed_overall'],1);self.assertEqual(summary['failed_profiles'],1);self.assertEqual(summary['skipped_profiles'],2)
 
 class BootstrapAcceptanceTests(unittest.IsolatedAsyncioTestCase):
@@ -150,7 +150,7 @@ class RestrictedStateTests(unittest.IsolatedAsyncioTestCase):
     self.assertEqual(result.status,'restricted');self.assertFalse(result.complete);self.assertEqual(client.calls,[('followers','0',1)])
     self.assertEqual(state.record(result),(1,1));self.assertEqual(state.summary()['restricted_profiles'],1);self.assertEqual(state.summary()['failed_profiles'],0)
     if observed:
-     entry=json.loads(rec.path.read_text())['profiles'][0];self.assertTrue(entry['relationship']['target_follows_profile']);self.assertIsNone(entry['relationship']['profile_follows_target']);self.assertIsNone(entry['relationship']['mutual'])
+     entry=json.loads(rec.path.read_text(encoding="utf-8"))['profiles'][0];self.assertTrue(entry['relationship']['target_follows_profile']);self.assertIsNone(entry['relationship']['profile_follows_target']);self.assertIsNone(entry['relationship']['mutual'])
     # Downgrade to the old partial representation, then migrate from evidence.
     old=s.asdict(result);old['status']='partial'
     with state.connection:state.connection.execute("UPDATE jobs SET status='failed',result=?",(json.dumps(old),))

@@ -219,7 +219,7 @@ class RateLimitTests(unittest.IsolatedAsyncioTestCase):
                             self.assertEqual(checkpoint['next_cursor'], 'direct+/one=')
                             saved.append(path)
                 self.assertTrue(saved)
-                stats = json.loads((self.root/'scan_stats.json').read_text())
+                stats = json.loads((self.root/'scan_stats.json').read_text(encoding="utf-8"))
                 self.assertEqual(stats['scan_status'], 'stopped_rate_limited')
                 self.assertTrue(stats['findtik_disabled_after_429'])
                 resumed = True

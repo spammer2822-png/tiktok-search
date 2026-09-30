@@ -29,7 +29,7 @@ class DataTests(unittest.TestCase):
             state.snapshot()
             expected=r.build_data(root,s.REDACTOR.clean)['rows']
             path=r.generate_report(root,clean=s.REDACTOR.clean,emit=lambda _:None)
-            text=path.read_text()
+            text=path.read_text(encoding="utf-8")
             metadata=json.loads(re.search(r'<script[^>]+id="report-data"[^>]*>(.*?)</script>',text,re.S)[1])
             raw=re.search(r'<script[^>]+id="report-rows"[^>]*>(.*?)</script>',text,re.S)[1]
             actual=[]
@@ -140,7 +140,7 @@ raise SystemExit(child_sigterm(Path(sys.argv[1])))
                 for _ in range(4):child.send_signal(signal.SIGINT);time.sleep(.03)
                 out,err=child.communicate(timeout=10)
                 self.assertEqual(child.returncode,130,err)
-                checkpoint=next(root.glob('*/scan_state.json'));doc=json.loads(checkpoint.read_text())
+                checkpoint=next(root.glob('*/scan_state.json'));doc=json.loads(checkpoint.read_text(encoding="utf-8"))
                 self.assertEqual(doc['summary']['pending_profiles'],1)
                 self.assertEqual(len(list(checkpoint.parent.glob('report_*.html'))),1)
             finally:

@@ -42,7 +42,7 @@ class DurableTests(unittest.IsolatedAsyncioTestCase):
   state,success=setup(self.root,1);state.recover(success)
   self.assertEqual(state.summary()['completed_overall'],1);self.assertIsNone(state.claim());state.close()
  async def test_in_progress_recovery_and_corrupt_export(self):
-  state,success=setup(self.root,2);state.claim();state.claim();s.output_file_path(self.root,'user0',s.SELECTED_LISTS).write_text('{"complete":true')
+  state,success=setup(self.root,2);state.claim();state.claim();s.output_file_path(self.root,'user0',s.SELECTED_LISTS).write_text('{"complete":true', encoding="utf-8")
   state.close();state,success=setup(self.root,2);state.recover(success);self.assertEqual(state.summary()['pending_profiles'],2);state.close()
  async def test_claim_is_atomic_and_no_duplicate_jobs(self):
   state,success=setup(self.root,40)
@@ -102,9 +102,9 @@ class DurableTests(unittest.IsolatedAsyncioTestCase):
   write_valid(self.root,'user0');state,success=setup(self.root,1);state.recover(success);self.assertIsNone(state.claim());self.assertEqual(state.summary()['completed_overall'],1);state.close()
  async def test_default_proxy_path_and_malformed_lines(self):
   self.assertEqual(str(s.WEBSHARE_PROXY_FILE),r'C:\Users\vailo\Downloads\webshare_proxy.txt')
-  path=self.root/'proxy.txt';path.write_text('\n1.2.3.4:8000:u:p\n1.2.3.4:0:u:p\n1.2.3.4:8000:u\n1.2.3.4:8000\nhttp://p.webshare.io:80\n')
+  path=self.root/'proxy.txt';path.write_text('\n1.2.3.4:8000:u:p\n1.2.3.4:0:u:p\n1.2.3.4:8000:u\n1.2.3.4:8000\nhttp://p.webshare.io:80\n', encoding="utf-8")
   parsed=s.load_proxy_configs(path);self.assertEqual(len(parsed),2);self.assertEqual(parsed[0].password,'p')
- async def test_python311_syntax(self):ast.parse(Path(s.__file__).read_text(),feature_version=(3,11))
+ async def test_python311_syntax(self):ast.parse(Path(s.__file__).read_text(encoding="utf-8"),feature_version=(3,11))
  async def test_run_scan_uses_persistent_claims(self):
   import httpx
   state,success=setup(self.root,8);state.recover(success);calls=[]
@@ -143,8 +143,8 @@ class ProcessTests(unittest.TestCase):
   with tempfile.TemporaryDirectory() as d:
    root=Path(d);self.child(root,'sigterm',graceful=True)
    paths=list(root.glob('*/scan_state.json'));self.assertEqual(len(paths),1)
-   data=json.loads(paths[0].read_text());self.assertEqual(data['summary']['pending_profiles'],1);self.assertEqual(data['summary']['completed_overall'],0)
-   reports=list(paths[0].parent.glob('report_*.html'));self.assertEqual(len(reports),1);self.assertEqual(json.loads((paths[0].parent/'sucess_find.json').read_text())['report']['filename'],reports[0].name)
+   data=json.loads(paths[0].read_text(encoding="utf-8"));self.assertEqual(data['summary']['pending_profiles'],1);self.assertEqual(data['summary']['completed_overall'],0)
+   reports=list(paths[0].parent.glob('report_*.html'));self.assertEqual(len(reports),1);self.assertEqual(json.loads((paths[0].parent/'sucess_find.json').read_text(encoding="utf-8"))['report']['filename'],reports[0].name)
  def test_forcekill_four_workers_three_completed_one_active(self):
   with tempfile.TemporaryDirectory() as d:
    root=Path(d);self.child(root,'workers');state,success=setup(root,4);state.recover(success)
@@ -156,7 +156,7 @@ class ProcessTests(unittest.TestCase):
     state,success=setup(root,0);p=profile('seed','2','0');c=AsyncFakeClient(p,{'followers':[page([member('two','2')])],'following':[page()]})
     async def forbidden(name):raise AssertionError('must reuse persisted profile lookup')
     c.lookup_profile=forbidden
-    path=await s.bootstrap_dataset(c,'seed',root=root,state=state,success=success,stop_event=asyncio.Event());document=json.loads(path.read_text())
+    path=await s.bootstrap_dataset(c,'seed',root=root,state=state,success=success,stop_event=asyncio.Event());document=json.loads(path.read_text(encoding="utf-8"))
     self.assertEqual(c.calls,[('followers','opaque+/==',2),('following','0',1)]);self.assertEqual(len(document),2);state.close()
    asyncio.run(resume())
  def test_forcekill_after_result_before_checkpoint(self):
@@ -169,7 +169,7 @@ class ProcessTests(unittest.TestCase):
 def child_sigterm(root):
  import httpx
  s.console=lambda *args,**kwargs:None
- (root/'input.json').write_text('["user0"]')
+ (root/'input.json').write_text('["user0"]', encoding="utf-8")
  os.environ.update(TIKTOK_INPUT_JSON=str(root/'input.json'),TIKTOK_EXPORT_DIR=str(root),TIKTOK_PROXY_ONLY='0',TIKTOK_MIN_DELAY_SECONDS='0',TIKTOK_MAX_DELAY_SECONDS='0')
  Original=s.WorkerApiClient
  def factory(gate,pool,**kwargs):

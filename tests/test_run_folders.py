@@ -9,7 +9,7 @@ from test_async_scanner import PROFILE, member, page, profile, AsyncFakeClient
 
 class FolderTests(unittest.TestCase):
  def setUp(self):
-  self.temp=tempfile.TemporaryDirectory();self.root=Path(self.temp.name);self.base=self.root/'logs';self.input=self.root/'input.json';self.input.write_text('["user0"]')
+  self.temp=tempfile.TemporaryDirectory();self.root=Path(self.temp.name);self.base=self.root/'logs';self.input=self.root/'input.json';self.input.write_text('["user0"]', encoding="utf-8")
   self.old_redactor=s.REDACTOR
  def tearDown(self):s.REDACTOR=self.old_redactor;self.temp.cleanup()
  def config(self):return {'TIKTOK_EXPORT_DIR':str(self.base),'TIKTOK_INPUT_JSON':str(self.input),'TIKTOK_PROXY_ONLY':'0','TIKTOK_MIN_DELAY_SECONDS':'0','TIKTOK_MAX_DELAY_SECONDS':'0'}
@@ -35,8 +35,8 @@ class FolderTests(unittest.TestCase):
    result=s.sanitize_run_name(name);self.assertTrue(result);self.assertLessEqual(len(result),61);self.assertIsNone(re.search(r'[<>:"/\\|?*\x00-\x1f]',result));self.assertEqual(result,result.rstrip(' .'));self.assertNotIn(result.casefold(),{'con','lpt1','com¹','nul.txt','..'})
   self.assertEqual(s.sanitize_run_name('@AmLie7951'),'amlie7951')
  def test_existing_files_and_folders_are_never_overwritten(self):
-  self.base.mkdir();(self.base/'amlie7951').write_text('keep');(self.base/'amlie7951_2').mkdir()
-  created=s.create_search_directory(self.base,'amlie7951');self.assertEqual(created.name,'amlie7951_3');self.assertEqual((self.base/'amlie7951').read_text(),'keep')
+  self.base.mkdir();(self.base/'amlie7951').write_text('keep', encoding="utf-8");(self.base/'amlie7951_2').mkdir()
+  created=s.create_search_directory(self.base,'amlie7951');self.assertEqual(created.name,'amlie7951_3');self.assertEqual((self.base/'amlie7951').read_text(encoding="utf-8"),'keep')
  def test_multiple_processes_get_unique_sequential_folders(self):
   code='import sys; from pathlib import Path; from tiktok_worker_scanner import create_search_directory; print(create_search_directory(Path(sys.argv[1]), "amlie7951").name)'
   def run(_):return subprocess.check_output([sys.executable,'-c',code,str(self.base)],text=True).strip()
@@ -49,7 +49,7 @@ class FolderTests(unittest.TestCase):
   with redirect_stdout(io.StringIO()),s.RunLog(folder):s.console('resumed')
   self.assertTrue((folder/'run.log').read_bytes().startswith(before))
   for path in [folder/'run.log',folder/'errors.log']:
-   content=path.read_text();self.assertNotIn(proxy.username,content);self.assertNotIn(proxy.password,content)
+   content=path.read_text(encoding="utf-8");self.assertNotIn(proxy.username,content);self.assertNotIn(proxy.password,content)
  def test_nonpersistent_profile_temporary_files_stay_in_search(self):
   folder=s.create_search_directory(self.base,'amlie7951');success=s.SuccessRecorder(folder/s.SUCCESS_FILE_NAME,target_user=s.TARGET_USER,input_path=self.input,started_at_utc=s.utc_iso());job=s.ProfileJob('user0','https://www.tiktok.com/@user0',('profiles',));client=AsyncFakeClient(profile('user0'),{'followers':[page()],'following':[page()]})
   original=tempfile.TemporaryDirectory;seen=[]

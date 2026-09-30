@@ -135,7 +135,7 @@ class AuditTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(state.claim().username, 'user0')
             saved.write_valid(self.root, 'user0')
             path = s.output_file_path(self.root, 'user0', s.SELECTED_LISTS)
-            payload = json.loads(path.read_text())
+            payload = json.loads(path.read_text(encoding="utf-8"))
             payload['source'] = 'tiktok_hybrid_api'
             s.atomic_write_json(path, payload)
             state.recover(success)

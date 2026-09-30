@@ -1,0 +1,7 @@
+{"result": "hybrid_measurements/current/original_worker_100.json", "seconds": 3.203534569999988, "successful_rps": 93.6465623968594}
+{"result": "hybrid_measurements/current/original_worker_500.json", "seconds": 3.167274658999986, "successful_rps": 94.71865635256273}
+{"result": "hybrid_measurements/current/original_worker_1000.json", "seconds": 4.036704558999986, "successful_rps": 74.31804721282825}
+{"result": "hybrid_measurements/current/original_worker_2500.json", "seconds": 3.1335496949999424, "successful_rps": 95.73806998455964}
+{"result": "hybrid_measurements/current/original_worker_5000.json", "seconds": 2.555648589999919, "successful_rps": 117.38703089848887}
+{"result": "hybrid_measurements/current/original_worker_10kfollowers.json", "seconds": 7.696964889000014, "successful_rps": 130.0512623398558}
+{"result": "hybrid_measurements/current/original_worker_1000accounts.json", "seconds": 34.598176459, "successful_rps": 86.70977222036834}
