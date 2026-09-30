@@ -83,6 +83,12 @@
       "mode": "hybrid",
       "workers": 500,
       "returncode": 0
+    },
+    {
+      "variant": "final",
+      "mode": "hybrid",
+      "workers": 1000,
+      "returncode": 0
     }
   ]
 }
