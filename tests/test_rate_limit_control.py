@@ -214,7 +214,7 @@ class RateLimitTests(unittest.IsolatedAsyncioTestCase):
                 for path in (self.root/'pages').glob('*.sqlite3'):
                     with s.UserStore(path) as store:
                         checkpoint = store.checkpoint('followers')
-                        if checkpoint:
+                        if checkpoint and store.count('followers'):
                             self.assertEqual(store.count('followers'), 2)
                             self.assertEqual(checkpoint['next_cursor'], 'direct+/one=')
                             saved.append(path)

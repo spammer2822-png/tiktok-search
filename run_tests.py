@@ -10,6 +10,7 @@ sys.path.insert(0,str(ROOT/'tests'))
 sys.path.insert(0,str(ROOT))
 TESTS = [
  'test_rate_limit_control',
+ 'test_hybrid_audit',
  'test_hybrid_backend',
  'test_hybrid_review.ReviewTests', 'test_hybrid_review.WireReuseTests',
  'test_report_avatar_fix',

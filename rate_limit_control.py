@@ -48,6 +48,11 @@ class RateLimitController:
                 gate.disabled = self.worker_disabled
             elif self.direct_state != 'HEALTHY':
                 gate.local.set_limit(self.recovery_limit)
+        if self.direct_state == 'COOLDOWN' and self.timer is None:
+            self.ready.clear()
+            self.timer = asyncio.create_task(self.cooldown(), name='direct-rate-limit-timer')
+        elif self.direct_state == 'STOPPED':
+            parent.stop_rate_limited('HTTP 429 from Direct after its one recovery opportunity')
 
     def snapshot(self):
         events = self.metrics.events

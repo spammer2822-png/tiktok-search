@@ -36,10 +36,14 @@ class BackendMetrics:
         while latency and latency[0][0] < self.clock()-60:
             latency.popleft()
 
-    def begin(self, backend):
+    def begin(self, backend, proxy=None):
         self.active[backend] += 1
         self.totals[backend]['peak_active_requests'] = max(self.totals[backend]['peak_active_requests'], self.active[backend])
         self.add(backend, requests_total=1)
+        if proxy:
+            counters = self.proxy.setdefault(backend+':'+proxy, Counter())
+            counters.update(requests_total=1, active_requests=1)
+            counters['peak_active_requests'] = max(counters['peak_active_requests'], counters['active_requests'])
 
     def end(self, backend, operation, elapsed, *, success, records=0, kind=None, code=None, proxy=None, size=0):
         self.active[backend] -= 1
@@ -54,6 +58,7 @@ class BackendMetrics:
             if 'network' in kind: values['network_error_count'] = 1
             if 'risk' in kind: values['risk_control_count'] = 1
             if 'invalid' in kind: values['invalid_response_count'] = 1
+            if 'proxy' in kind: values['proxy_error_count'] = 1
         if code and code >= 400:
             values['http_error_count'] = 1
             if code == 429: values['429_count'] = 1
@@ -62,6 +67,7 @@ class BackendMetrics:
         if proxy:
             counters = self.proxy.setdefault(backend+':'+proxy, Counter())
             counters.update(values)
+            counters['active_requests'] -= 1
 
     def score(self, backend):
         self.prune(backend)
@@ -95,7 +101,7 @@ class BackendMetrics:
             totals, recent = self.totals[name], self.recent[name]
             for key, value in totals.items(): output[name+'_'+key] = value
             for key in ('requests_total', 'requests_successful', 'requests_failed', 'followers_received',
-                        'following_received', 'risk_control_count'):
+                        'following_received', 'risk_control_count', '429_count'):
                 output.setdefault(name+'_'+key, 0)
             output[name+'_requests_per_second'] = recent['requests_total']/duration
             output[name+'_successful_rps'] = recent['requests_successful']/duration
@@ -117,7 +123,13 @@ class BackendMetrics:
         if getattr(self, 'rate_limit_provider', None):
             output.update(self.rate_limit_provider())
         output['backend_stages'] = dict(self.stages)
-        output['backend_proxy_metrics'] = {name: dict(values) for name, values in self.proxy.items()}
+        pools = self.proxy_pool_provider() if getattr(self, 'proxy_pool_provider', None) else {}
+        elapsed = max(.001, now-self.started)
+        output['backend_proxy_metrics'] = {
+            name: {**dict(values), 'requests_per_second': values['requests_total']/elapsed,
+                   'average_latency': values['latency_seconds']/max(1, values['requests_successful']+values['requests_failed']),
+                   'rate_scope': 'current execution', 'connections': pools.get(name)}
+            for name, values in self.proxy.items()}
         output['backend_metric_scope'] = '60s rolling rates; latency sample bounded to latest 4096 attempts; response_body_bytes excludes TLS/wire overhead'
         self.last_snapshot = now, output
         return output

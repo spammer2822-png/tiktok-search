@@ -14,6 +14,7 @@ import statistics
 import sys
 import tempfile
 import time
+import hashlib
 from pathlib import Path
 from unittest.mock import patch
 
@@ -49,8 +50,21 @@ def main():
                     for i in range(args.accounts)))
     s.atomic_write_json(root/'scan_config.json', cfg)
     recorder = s.SuccessRecorder(root/'sucess_find.json', target_user='benchmark_target', input_path=root/'input.json', started_at_utc=s.utc_iso())
+    lock_times = {}
+    class MeasuredLock:
+        def __init__(self, lock, name): self.lock, self.name = lock, name
+        def __enter__(self):
+            before = time.perf_counter()
+            self.lock.acquire()
+            lock_times[self.name] = lock_times.get(self.name, 0.)+time.perf_counter()-before
+            return self
+        def __exit__(self, *args): self.lock.release()
+    for obj, name in ((state, 'state_lock_wait_seconds'), (recorder, 'target_lock_wait_seconds')):
+        obj.lock = MeasuredLock(obj.lock, name)
     clients, latencies, lags = [], [], []
     peak = active = requests = 0
+    operations = {'profile': 0, 'followers': 0, 'following': 0}
+    peak_workers = 0
     metrics = []
     def total(i): return args.followers if args.followers >= 0 else (0, 1, 4, 10)[i % 4]
     def user(i): return dict(id=str(7200000000000000000+i), uniqueId=f'person{i}', nickname='Fixture',
@@ -62,6 +76,9 @@ def main():
         try:
             await asyncio.sleep(args.latency)
             profile = req.url.path in ('/', '/api/user/detail/')
+            operation = 'profile' if profile else ('followers' if
+                (req.url.params.get('scene') == '67' if direct else req.url.path.endswith('/followers')) else 'following')
+            operations[operation] += 1
             if profile:
                 name = req.url.params['uniqueId' if direct else 'username']; i = int(name[5:])
                 obj = user(i); obj.update(id=str(7100000000000000000+i), uniqueId=name, secUid='sec'+str(i))
@@ -94,10 +111,13 @@ def main():
     async def run():
         done = asyncio.Event()
         async def ticker():
+            nonlocal peak_workers
             prior = time.perf_counter()
             while not done.is_set():
                 await asyncio.sleep(.02)
                 now = time.perf_counter(); lags.append(max(0, now-prior-.02)); prior = now
+                peak_workers = max(peak_workers, sum(task.get_name().startswith('profile-worker-')
+                    and not task.done() for task in asyncio.all_tasks()))
         tick = asyncio.create_task(ticker())
         try:
             with patch.object(s if args.original else h, 'WorkerApiClient' if args.original else 'create_client', side_effect=factory):
@@ -106,6 +126,11 @@ def main():
         finally:
             done.set(); await tick
     profiler = None
+    def process_io():
+        try:
+            return {key: int(value) for key, value in (line.split(':', 1) for line in Path('/proc/self/io').read_text().splitlines())}
+        except (OSError, ValueError): return {}
+    io_before = process_io()
     if args.profile:
         import cProfile
         profiler = cProfile.Profile(); profiler.enable()
@@ -138,6 +163,18 @@ def main():
                generated_bytes=sum(p.stat().st_size for p in root.rglob('*') if p.is_file()),
                report_bytes=report.stat().st_size if report else 0,
                backend_metrics=metrics[0].snapshot() if metrics else {}, persistence_timings=saved_stats.get("persistence_timings", {}), errors=0, retries=0)
+    doc.update(source_file_sha256=hashlib.sha256(Path(s.__file__).read_bytes()).hexdigest(),
+               platform=platform.platform(), cpu_count=os.cpu_count(), measured_at_utc=s.utc_iso(),
+               attempted_rps=requests/seconds, profiles_per_second=operations['profile']/seconds,
+               successful_records_per_second=(args.accounts+2*sum(total(i) for i in range(args.accounts)))/seconds,
+               requests_by_operation=operations, follower_pages_per_second=operations['followers']/seconds,
+               following_pages_per_second=operations['following']/seconds,
+               users_per_follower_page=sum(total(i) for i in range(args.accounts))/max(1, operations['followers']),
+               average_active_mock_requests=sum(latencies)/seconds, peak_active_profile_workers=peak_workers,
+               connection_ceiling=saved_stats.get('connection_ceiling'),
+               effective_concurrency_at_finish=saved_stats.get('effective_concurrency'),
+               lock_timings=lock_times, disk_io_bytes={key:value-io_before.get(key,value) for key,value in process_io().items()},
+               error_rate=0., timeout_rate=0., risk_control_rate=0.)
     try:
         import resource
         doc['peak_rss_bytes'] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024

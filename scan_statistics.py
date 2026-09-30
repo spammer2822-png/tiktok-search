@@ -208,6 +208,16 @@ class ScanStatistics:
                  f"{r['accounts_per_second']:.2f} accounts/s / {r['accounts_per_second']*60:.1f} accounts/min | "
                  f"In flight {doc['active_requests']} | Limit {doc['effective_concurrency']}/{doc['connection_ceiling']} | "
                  f"Workers {doc['configured_workers']} | I/O writers {doc['profile_io_active']}/{doc['profile_io_workers']} | Elapsed {doc['elapsed_seconds']:.0f}s | ETA {eta_text}")
+            if 'hybrid_total_successful_rps' in doc:
+                lines = [f"{name.upper():6} | {doc[name+'_successful_rps']:.1f} success/s | "
+                         f"{doc[name+'_records_per_second']:.1f} users/s | "
+                         f"{1000*doc[name+'_average_latency']:.0f}ms | "
+                         f"{100-doc[name+'_recent_success_percent']:.1f}% unsuccessful | "
+                         f"{100*doc[name+'_risk_control_rate']:.1f}% risk"
+                         for name in ('worker', 'direct')]
+                lines.append(f"TOTAL  | {doc['hybrid_total_successful_rps']:.1f} success/s | "
+                             f"{doc['hybrid_records_per_second']:.1f} users/s")
+                emit('\n'.join(lines))
             return
         lines = ['========== 5 MINUTE SCAN STATS ==========']
         for key, value in r.items():

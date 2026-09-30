@@ -63,6 +63,8 @@ class BackendGate:
         self.rate_limit_exhausted = False
         self.last_adjustment = time.monotonic()
         self.previous_score = 0.
+        self.previous_attempt_rps = self.previous_latency = 0.
+        self.adaptation_totals = {}
         self.disabled = False
 
     @property
@@ -103,16 +105,31 @@ class BackendGate:
     def observe(self, latency, pool):
         if hasattr(self, 'controller') and self.controller.direct_state != 'HEALTHY':
             return
-        if self.name != 'direct' or time.monotonic()-self.last_adjustment < 1:
+        now = time.monotonic()
+        interval = now-self.last_adjustment
+        if self.name != 'direct' or interval < 1:
             return
-        recent = self.metrics.recent[self.name]
-        score = self.metrics.score(self.name)
-        failed = recent['requests_failed']/max(1, recent['requests_total'])
-        if failed > .15 or recent['risk_control_count'] > 0:
+        totals = self.metrics.totals[self.name]
+        recent = {key: totals[key]-self.adaptation_totals.get(key, 0) for key in (
+            'requests_total', 'requests_successful', 'requests_failed', 'latency_seconds',
+            'records', 'risk_control_count', 'timeout_count')}
+        completed = recent['requests_successful']+recent['requests_failed']
+        if not completed:
+            return
+        score = recent['records']/interval
+        attempted_rps = recent['requests_total']/interval
+        average_latency = recent['latency_seconds']/completed
+        failed = recent['requests_failed']/completed
+        latency_spike = self.previous_latency and average_latency > self.previous_latency*1.5
+        throughput_loss = (self.previous_score and score < self.previous_score*.8
+                           and attempted_rps >= self.previous_attempt_rps*.95)
+        if failed > .15 or recent['risk_control_count'] or recent['timeout_count'] or latency_spike or throughput_loss:
             self.local.set_limit(max(1, self.limit//2))
         elif score >= self.previous_score*.95:
             self.local.set_limit(min(self.ceiling, max(self.limit+1, self.limit*2)))
-        self.previous_score, self.last_adjustment = score, time.monotonic()
+        self.previous_score, self.last_adjustment = score, now
+        self.previous_attempt_rps, self.previous_latency = attempted_rps, average_latency
+        self.adaptation_totals = {key: totals[key] for key in recent}
 
     def observe_failure(self):
         self.observe(0, None)
@@ -237,7 +254,7 @@ class ApiBackend(s.WorkerApiClient):
                     self.gate.check()
                     generation = self.gate.controller.generation
                     begin, started = time.monotonic(), True
-                    self.metrics.begin(self.name)
+                    self.metrics.begin(self.name, proxy=route.label if route else None)
                     if self.gate.stats: self.gate.stats.request_started(retry=attempt > 0)
                     async with asyncio.timeout(self.settings.get('timeouts', {}).get('total', 55.)):
                         return await client.request(method, url, extensions={
@@ -390,6 +407,9 @@ class HybridClient:
         self.bootstrap_mode = False
         self.redactor = self.assets.redactor
         self.metrics.pool_provider = lambda: {name: pool_snapshot(backend.clients.values()) for name, backend in self.backends.items()}
+        self.metrics.proxy_pool_provider = lambda: {
+            name+':'+key: pool_snapshot([client])
+            for name, backend in self.backends.items() for key, client in backend.clients.items() if key != 'direct'}
         self.rate_limits = getattr(gate.stats, 'rate_limits', None) or RateLimitController(self.metrics, self.settings)
         if gate.stats:
             gate.stats.rate_limits = self.rate_limits

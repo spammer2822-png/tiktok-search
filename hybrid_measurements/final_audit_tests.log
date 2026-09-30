@@ -1,0 +1,18 @@
+test_http_200_rate_limit_text_does_not_disable_or_stop (test_hybrid_audit.AuditTests.test_http_200_rate_limit_text_does_not_disable_or_stop) ... [PROXY] No usable proxies remain; using direct connection.
+ok
+test_latency_spike_reduces_direct_even_without_errors (test_hybrid_audit.AuditTests.test_latency_spike_reduces_direct_even_without_errors) ... [ASYNC] Active request limit adjusted to 50 (ceiling 100).
+[ASYNC] Active request limit adjusted to 100 (ceiling 100).
+ok
+test_live_console_includes_both_backends_and_total (test_hybrid_audit.AuditTests.test_live_console_includes_both_backends_and_total) ... ok
+test_lower_yield_with_more_attempts_reduces_direct (test_hybrid_audit.AuditTests.test_lower_yield_with_more_attempts_reduces_direct) ... [ASYNC] Active request limit adjusted to 50 (ceiling 100).
+ok
+test_proxy_metrics_rate_activity_and_errors (test_hybrid_audit.AuditTests.test_proxy_metrics_rate_activity_and_errors) ... ok
+test_worker_continues_during_direct_cooldown (test_hybrid_audit.AuditTests.test_worker_continues_during_direct_cooldown) ... [PROXY] No usable proxies remain; using direct connection.
+[ASYNC] Active request limit adjusted to 1 (ceiling 100).
+[429] Direct paused for 60.00s. One recovery probe will follow.
+ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.067s
+
+OK

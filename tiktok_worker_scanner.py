@@ -1466,6 +1466,11 @@ class WorkerApiClient:
             if gate.stats: gate.stats.backends = self.metrics
         self.raw_directory = raw_directory
         self.clients: dict[str, Any] = {}
+        if not hasattr(self, 'name'):
+            from connection_metrics import pool_snapshot
+            self.metrics.pool_provider = lambda: {'worker': pool_snapshot(self.clients.values())}
+            self.metrics.proxy_pool_provider = lambda: {
+                'worker:'+key: pool_snapshot([client]) for key, client in self.clients.items() if key != 'direct'}
         self.connection_slots = {}
         self.ssl_context = None
         self.client_factory = client_factory
@@ -1709,7 +1714,7 @@ class WorkerApiClient:
                         await self.gate.pace()
                         started = time.monotonic()
                         attempt_started = True
-                        self.metrics.begin('worker')
+                        self.metrics.begin('worker', proxy=route.label if route else None)
                         if self.gate.stats:
                             self.gate.stats.request_started(retry=attempt > 0)
                         # Waiting for pacing is not a network timeout. Once sent,
