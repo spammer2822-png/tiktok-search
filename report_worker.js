@@ -4,7 +4,19 @@ function createReportEngine(post, cooperative) {
   'use strict';
   let rows = [], searches = [], filtered = [], latest = 0, cacheFilter = '', cacheSort = '';
   const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
-  const pause = () => new Promise(resolve => setTimeout(resolve, 0));
+  // Timer nesting clamps setTimeout(0) and used to add seconds to large sorts.
+  // MessageChannel yields to the event loop without an artificial timer delay.
+  let yieldChannel;
+  const yieldQueue = [];
+  const pause = () => new Promise(resolve => {
+    if (typeof MessageChannel !== 'function') { setTimeout(resolve, 0); return; }
+    if (!yieldChannel) {
+      yieldChannel = new MessageChannel();
+      yieldChannel.port1.onmessage = () => { const next = yieldQueue.shift(); if (next) next(); };
+    }
+    yieldQueue.push(resolve);
+    yieldChannel.port2.postMessage(null);
+  });
   const view = (r, key) => {
     switch (key) {
       case 'matches': return r.target_found;
