@@ -69,7 +69,7 @@ class ConfigTests(unittest.TestCase):
 class ClientTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.gate = s.AsyncRequestGate(0, 0, asyncio.Event(), ceiling=8, initial=8, adaptive=False)
-        self.client = d.DtkClient(self.gate, s.ProxyPool([]), settings={**d.DEFAULTS, "dtk_request_attempts": 1})
+        self.client = d.DtkClient(self.gate, s.BackendRuntimeState(), settings={**d.DEFAULTS, "dtk_request_attempts": 1})
 
     async def asyncTearDown(self):
         if self.client.client is not None and hasattr(self.client.client, "aclose"):
