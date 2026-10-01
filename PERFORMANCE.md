@@ -67,7 +67,7 @@ DTK can return stable conditions such as:
 - `ENDPOINT_CIRCUIT_OPEN`
 - `UPSTREAM_RISK_CONTROL`
 
-The scanner respects retry timing rather than immediately resubmitting thousands of requests. If throughput is low because the identity pool is exhausted, raising Python worker count is not the cure. Humanity has tried shouting at queues before; the queue remains unimpressed.
+The scanner respects retry timing rather than immediately resubmitting thousands of requests. If throughput is low because the identity pool is exhausted, raising the Python worker count will not create additional upstream capacity.
 
 ## Historical measurements
 
