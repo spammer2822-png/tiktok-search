@@ -215,6 +215,12 @@
       "mode": "hybrid",
       "workers": 2500,
       "returncode": 0
+    },
+    {
+      "variant": "first_hybrid",
+      "mode": "hybrid",
+      "workers": 5000,
+      "returncode": 0
     }
   ]
 }
