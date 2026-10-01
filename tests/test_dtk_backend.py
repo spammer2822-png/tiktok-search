@@ -159,6 +159,58 @@ class ClientTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn(("/api/v1/admin/settings/pool.tiktok.target_size", 8), calls)
         self.assertIn(("/api/v1/admin/settings/pool.douyin.min_size", 0), calls)
 
+    async def test_proxy_inventory_excludes_bound_reserved_unhealthy_and_cooling_exits(self):
+        now = time.monotonic()
+        self.client.identity_task_proxies["running-task"] = "proxy-reserved"
+        self.client.identity_proxy_cooldown_until["proxy-cooling"] = now + 120
+        self.client._admin_get = AsyncMock(side_effect=[
+            [
+                {"id": "proxy-free", "healthy": True, "decryptable": True, "country": "GB"},
+                {"id": "proxy-bound", "healthy": True, "decryptable": True, "country": "FR"},
+                {"id": "proxy-reserved", "healthy": True, "decryptable": True, "country": "CA"},
+                {"id": "proxy-cooling", "healthy": True, "decryptable": True, "country": "PT"},
+                {"id": "proxy-bad", "healthy": False, "decryptable": True, "country": "US"},
+            ],
+            [
+                {"proxy_id": "proxy-bound", "state": "active"},
+            ],
+        ])
+        inventory = await self.client._mint_proxy_inventory()
+        self.assertEqual([p["id"] for p in inventory["candidates"]], ["proxy-free"])
+        self.assertEqual(inventory["bound"], 1)
+        self.assertEqual(inventory["reserved"], 1)
+        self.assertEqual(inventory["healthy"], 4)
+        self.assertEqual(len(inventory["cooling"]), 1)
+
+    async def test_partial_mint_batch_is_returned_if_later_submission_hits_rate_limit(self):
+        self.client.key_scopes = {"admin", "identity:manage", "tiktok:read"}
+        self.client._mint_proxy_inventory = AsyncMock(return_value={
+            "configured": 2,
+            "healthy": 2,
+            "bound": 0,
+            "reserved": 0,
+            "cooling": [],
+            "candidates": [
+                {"id": "proxy-a", "healthy": True, "decryptable": True},
+                {"id": "proxy-b", "healthy": True, "decryptable": True},
+            ],
+        })
+        attempts = 0
+
+        async def management(method, path, **kwargs):
+            nonlocal attempts
+            attempts += 1
+            if attempts == 1:
+                return {"task_ids": ["task-a"], "count": 1}, SimpleNamespace(status_code=202)
+            raise d.DtkApiError("RATE_LIMITED", "wait", retry_after=9)
+
+        self.client._management_data = AsyncMock(side_effect=management)
+        self.client._record_dtk_error = AsyncMock()
+        tasks = await self.client._request_identity_mint(2, reason="partial")
+        self.assertEqual(tasks, ["task-a"])
+        self.assertEqual(self.client.identity_task_proxies["task-a"], "proxy-a")
+        self.client._record_dtk_error.assert_awaited_once()
+
     async def test_request_identity_mint_rotates_across_distinct_healthy_proxies(self):
         self.client.key_scopes = {"admin", "identity:manage", "tiktok:read"}
         self.client._mint_proxy_inventory = AsyncMock(return_value={
