@@ -1,0 +1,108 @@
+         120492503 function calls (117628088 primitive calls) in 249.958 seconds
+
+   Ordered by: internal time
+   List reduced from 2255 to 100 due to restriction <100>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+  5776910   19.428    0.000   32.845    0.000 benchmark_hybrid.py:123(<genexpr>)
+     6207   13.769    0.002   36.152    0.006 tasks.py:61(<setcomp>)
+  6958956   11.816    0.000   17.148    0.000 futures.py:299(_get_loop)
+  4123670   10.459    0.000   16.831    0.000 _urlparse.py:273(<genexpr>)
+ 13040285   10.232    0.000   10.232    0.000 {method 'done' of '_asyncio.Task' objects}
+9279530/9273530    9.198    0.000   12.235    0.000 {built-in method builtins.isinstance}
+1127311/27614    8.339    0.000   13.383    0.000 tiktok_worker_scanner.py:1115(clean)
+  6904617    6.290    0.000    6.409    0.000 _weakrefset.py:63(__iter__)
+806000/15000    6.047    0.000   18.640    0.001 dataclasses.py:1289(_asdict_inner)
+     6207    6.008    0.001   48.613    0.008 tasks.py:42(all_tasks)
+  6958956    5.332    0.000    5.332    0.000 {method 'get_loop' of '_asyncio.Future' objects}
+    29933    5.215    0.000   39.121    0.001 {built-in method builtins.sum}
+  5837632    5.044    0.000    5.044    0.000 {method 'startswith' of 'str' objects}
+    38200    4.720    0.000   30.832    0.001 {built-in method builtins.any}
+  5770704    4.453    0.000    4.453    0.000 {method 'get_name' of '_asyncio.Task' objects}
+     3138    3.762    0.001    7.804    0.002 tasks.py:507(_wait)
+   747000    3.555    0.000    6.058    0.000 copy.py:128(deepcopy)
+  4224670    3.337    0.000    3.337    0.000 {method 'isprintable' of 'str' objects}
+  1192304    3.312    0.000    3.312    0.000 tiktok_sign.py:340(_quarter_round)
+  4237707    3.236    0.000    3.236    0.000 {method 'isascii' of 'str' objects}
+    67305    3.072    0.000    3.072    0.000 {method 'execute' of 'sqlite3.Connection' objects}
+    36786    2.615    0.000    2.615    0.000 {method 'get' of '_queue.SimpleQueue' objects}
+   122083    2.285    0.000  180.763    0.001 base_events.py:1859(_run_once)
+  2503636    2.089    0.000    2.089    0.000 {method 'append' of 'list' objects}
+  2428987    2.070    0.000    2.070    0.000 {method 'get' of 'dict' objects}
+1149319/529547    1.989    0.000    2.439    0.000 encoder.py:334(_iterencode_dict)
+  1058484    1.960    0.000    8.665    0.000 tasks.py:424(<genexpr>)
+  1142568    1.931    0.000    2.985    0.000 <frozen abc>:117(__instancecheck__)
+   186000    1.924    0.000    3.333    0.000 tiktok_sign.py:240(_escape)
+  1058712    1.878    0.000    6.724    0.000 coroutines.py:34(iscoroutine)
+   642000    1.779    0.000    4.342    0.000 parse.py:818(unquote_plus)
+   122083    1.523    0.000    1.523    0.000 {method 'poll' of 'select.epoll' objects}
+   821000    1.499    0.000    2.411    0.000 dataclasses.py:1253(_is_dataclass_instance)
+  1751385    1.497    0.000    1.497    0.000 {method 'replace' of 'str' objects}
+    24000    1.438    0.000    4.840    0.000 tiktok_sign.py:355(_keystream)
+     9001    1.377    0.000    7.536    0.001 parse.py:745(parse_qsl)
+  1058372    1.334    0.000    1.334    0.000 {method 'add_done_callback' of '_asyncio.Task' objects}
+   654000    1.316    0.000    2.078    0.000 parse.py:675(unquote)
+1096873/1096868    1.244    0.000    1.245    0.000 {built-in method builtins.hasattr}
+   642000    1.193    0.000    5.535    0.000 parse.py:781(_unquote)
+  1142568    1.053    0.000    1.054    0.000 {built-in method _abc._abc_instancecheck}
+  1129775    1.032    0.000    1.032    0.000 {method 'casefold' of 'str' objects}
+   546547    0.935    0.000    3.442    0.000 encoder.py:414(_iterencode)
+  1057366    0.931    0.000    0.931    0.000 {method 'remove_done_callback' of '_asyncio.Task' objects}
+  1101436    0.919    0.000    0.928    0.000 {method 'add' of 'set' objects}
+     5002    0.908    0.000    0.908    0.000 {method 'commit' of 'sqlite3.Connection' objects}
+   122083    0.888    0.000    2.795    0.000 selectors.py:451(select)
+948424/947857    0.871    0.000    0.872    0.000 {built-in method builtins.len}
+     1002    0.846    0.001    0.846    0.001 {method 'executescript' of 'sqlite3.Connection' objects}
+   208106    0.846    0.000    1.923    0.000 base_events.py:781(_call_soon)
+259000/119000    0.758    0.000    9.660    0.000 dataclasses.py:1323(<genexpr>)
+    66000    0.748    0.000    1.182    0.000 tiktok_sign.py:268(encode_field)
+   245951    0.743    0.000  173.327    0.001 {method 'run' of '_contextvars.Context' objects}
+    42620    0.714    0.000    4.994    0.000 encoder.py:183(encode)
+   222106    0.710    0.000    0.990    0.000 events.py:35(__init__)
+     6000    0.706    0.000    1.269    0.000 tiktok_sign.py:393(<listcomp>)
+   245951    0.702    0.000  174.029    0.001 events.py:82(_run)
+    28621    0.681    0.000    0.722    0.000 encoder.py:205(iterencode)
+    50004    0.671    0.000    4.651    0.000 scan_runtime.py:77(independent)
+   281429    0.660    0.000    1.027    0.000 threading.py:271(__enter__)
+   747000    0.638    0.000    0.638    0.000 copy.py:182(_deepcopy_atomic)
+   760563    0.637    0.000    0.637    0.000 {built-in method builtins.id}
+   281429    0.627    0.000    0.902    0.000 threading.py:274(__exit__)
+   176836    0.624    0.000    2.326    0.000 base_events.py:752(call_soon)
+     9000    0.609    0.000    0.618    0.000 tiktok_sign.py:259(hash_state)
+   342000    0.585    0.000    0.866    0.000 tiktok_sign.py:407(<genexpr>)
+     6003    0.585    0.000    0.585    0.000 {method '__exit__' of 'sqlite3.Connection' objects}
+    33000    0.581    0.000    2.523    0.000 {method 'join' of 'bytes' objects}
+    66590    0.562    0.000    1.194    0.000 __init__.py:660(update)
+    55767    0.550    0.000    0.550    0.000 {method 'recv' of '_socket.socket' objects}
+    90006    0.543    0.000    1.015    0.000 parse.py:939(quote_from_bytes)
+    31270    0.518    0.000    0.518    0.000 {method 'send' of '_socket.socket' objects}
+     2007    0.506    0.000    0.506    0.000 {method 'close' of 'sqlite3.Connection' objects}
+     4119    0.485    0.000    0.549    0.000 {built-in method io.open}
+   464876    0.474    0.000    0.474    0.000 {built-in method builtins.getattr}
+     8203    0.469    0.000    0.469    0.000 {built-in method posix.fsync}
+   218688    0.462    0.000    0.734    0.000 base_futures.py:14(isfuture)
+327482/141482    0.423    0.000    3.891    0.000 {method 'join' of 'str' objects}
+    31269    0.413    0.000    1.552    0.000 thread.py:161(submit)
+   105605    0.409    0.000    2.591    0.000 {method 'set_result' of '_asyncio.Future' objects}
+    15000    0.392    0.000    0.750    0.000 dataclasses.py:1235(fields)
+    26261    0.385    0.000    0.715    0.000 pathlib.py:56(parse_parts)
+   453000    0.385    0.000    0.385    0.000 {method 'to_bytes' of 'int' objects}
+   312568    0.383    0.000    0.384    0.000 {built-in method builtins.max}
+    93000    0.367    0.000    1.527    0.000 parse.py:863(quote)
+   167138    0.366    0.000    0.531    0.000 base_events.py:701(time)
+    68983    0.363    0.000    6.123    0.000 tiktok_worker_scanner.py:1432(disk_call)
+   347171    0.352    0.000    0.352    0.000 base_events.py:1954(get_debug)
+    31269    0.351    0.000    1.276    0.000 futures.py:365(_chain_future)
+   352413    0.333    0.000    0.333    0.000 {method 'partition' of 'str' objects}
+   105828    0.332    0.000    0.441    0.000 base_events.py:426(create_future)
+    31269    0.331    0.000    2.787    0.000 futures.py:345(_copy_future_state)
+   340000    0.328    0.000    0.328    0.000 dataclasses.py:1250(<genexpr>)
+     1000    0.326    0.000    1.869    0.002 tiktok_worker_scanner.py:2266(__init__)
+   119001    0.321    0.000    0.510    0.000 _urlparse.py:223(<genexpr>)
+    31269    0.314    0.000    2.405    0.000 _base.py:537(set_result)
+     6109    0.311    0.000    3.497    0.001 hybrid_backend.py:199(request_json)
+     2007    0.306    0.000    0.407    0.000 {built-in method _sqlite3.connect}
+    96000    0.303    0.000    3.636    0.000 tiktok_sign.py:237(<genexpr>)
+   351255    0.297    0.000    0.297    0.000 {built-in method from_bytes}
+
+
