@@ -886,6 +886,14 @@ class DtkClient:
             and row.get("proxy_id")
             and str(row.get("state") or "").lower() != "retired"
         }
+        # A proxy assigned to a submitted/queued/running mint is not in the
+        # identities table yet. Reserve it locally so a replacement task cannot
+        # accidentally reuse the same egress before the first task finishes.
+        reserved = {
+            str(proxy_id)
+            for proxy_id in self.identity_task_proxies.values()
+            if proxy_id
+        }
         now = time.monotonic()
         candidates = []
         cooling = []
@@ -896,7 +904,7 @@ class DtkClient:
             self.identity_proxy_info[proxy_id] = proxy
             if not proxy.get("decryptable", True):
                 continue
-            if proxy_id in bound:
+            if proxy_id in bound or proxy_id in reserved:
                 continue
             until = float(self.identity_proxy_cooldown_until.get(proxy_id, 0.0) or 0.0)
             if until > now:
@@ -908,6 +916,7 @@ class DtkClient:
             "configured": len(all_proxies),
             "healthy": len(proxies),
             "bound": len(bound),
+            "reserved": len(reserved),
             "candidates": candidates,
             "cooling": cooling,
         }
@@ -991,23 +1000,39 @@ class DtkClient:
             if proxy is not None:
                 proxy_id = str(proxy["id"])
                 payload["proxy_id"] = proxy_id
-            data, response = await self._management_data(
-                "POST",
-                "/api/v1/admin/identities/mint",
-                json=payload,
-            )
-            ids = [
-                str(task_id)
-                for task_id in ((data or {}).get("task_ids") or [])
-                if isinstance(task_id, (str, int)) and str(task_id)
-            ] if isinstance(data, dict) else []
-            if not ids:
-                raise DtkApiError(
-                    "INVALID_RESPONSE",
-                    "identity mint was accepted without any task ids",
-                    status=response.status_code,
-                    details={"proxy_id": proxy_id},
+            try:
+                data, response = await self._management_data(
+                    "POST",
+                    "/api/v1/admin/identities/mint",
+                    json=payload,
                 )
+                ids = [
+                    str(task_id)
+                    for task_id in ((data or {}).get("task_ids") or [])
+                    if isinstance(task_id, (str, int)) and str(task_id)
+                ] if isinstance(data, dict) else []
+                if not ids:
+                    raise DtkApiError(
+                        "INVALID_RESPONSE",
+                        "identity mint was accepted without any task ids",
+                        status=response.status_code,
+                        details={"proxy_id": proxy_id},
+                    )
+            except DtkApiError as exc:
+                await self._record_dtk_error(
+                    exc,
+                    f"identity mint submission"
+                    + (f" via proxy {self._proxy_debug_name(proxy_id)}" if proxy_id else " via direct egress"),
+                )
+                if proxy_id and exc.dtk_code not in {"RATE_LIMITED", "QUEUE_FULL"}:
+                    self._cooldown_mint_proxy(proxy_id, f"submission {exc.dtk_code}")
+                # Never orphan tasks already accepted earlier in this batch.
+                # Return those ids so the supervisor can keep tracking them;
+                # the uncovered shortfall will be submitted on the next pass.
+                if task_ids:
+                    break
+                raise
+
             for task_id in ids:
                 self.identity_task_states[task_id] = "submitted"
                 self.identity_task_proxies[task_id] = proxy_id
