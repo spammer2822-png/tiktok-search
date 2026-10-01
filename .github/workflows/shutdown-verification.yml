@@ -7,6 +7,9 @@ permissions:
   contents: write
 jobs:
   verify:
+    concurrency:
+      group: tiktok-verification-evidence-publisher
+      cancel-in-progress: false
     strategy:
       fail-fast: false
       matrix:
