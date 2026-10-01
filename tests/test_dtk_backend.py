@@ -123,6 +123,74 @@ class ClientTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn(("/api/v1/admin/settings/pool.tiktok.target_size", 8), calls)
         self.assertIn(("/api/v1/admin/settings/pool.douyin.min_size", 0), calls)
 
+    async def test_startup_wait_is_strict_below_configured_minimum(self):
+        self.client.settings["dtk_identity_wait_seconds"] = 1
+        self.client._identity_pool_row = AsyncMock(return_value=(
+            {"platforms": []},
+            {"platform": "tiktok", "usable": 1},
+        ))
+        with patch.object(d.time, "monotonic", side_effect=[0.0, 0.0, 2.0]), \
+                patch.object(d.asyncio, "sleep", new=AsyncMock()):
+            with self.assertRaisesRegex(s.ExporterError, "need at least 3 usable"):
+                await self.client._wait_for_minimum_identities(3, initial_usable=1)
+
+    async def test_identity_self_heal_mints_shortfall_and_waits_for_minimum(self):
+        self.client.key_scopes = {"admin", "identity:manage", "tiktok:read"}
+        self.client.settings["dtk_min_usable_identities"] = 5
+        self.client.settings["dtk_target_identities"] = 8
+        self.client._identity_pool_row = AsyncMock(return_value=(
+            {"platforms": []},
+            {"platform": "tiktok", "usable": 2},
+        ))
+        self.client.client = AsyncMock()
+        self.client.client.post.return_value = httpx.Response(
+            200,
+            json={"success": True, "data": {"task_ids": ["a", "b", "c"]}},
+        )
+        self.client._wait_for_minimum_identities = AsyncMock()
+        await self.client._repair_identity_pool("IDENTITY_POOL_EXHAUSTED")
+        self.client.client.post.assert_awaited_once_with(
+            "/api/v1/admin/identities/mint",
+            json={"platform": "tiktok", "count": 3},
+        )
+        self.client._wait_for_minimum_identities.assert_awaited_once_with(
+            5, initial_usable=2
+        )
+
+    async def test_identity_error_in_request_triggers_self_heal_before_retry(self):
+        attempts = 0
+
+        async def handle(request):
+            nonlocal attempts
+            attempts += 1
+            if attempts == 1:
+                return httpx.Response(
+                    503,
+                    json={
+                        "success": False,
+                        "error": {
+                            "code": "IDENTITY_POOL_EXHAUSTED",
+                            "message": "no usable identity",
+                            "retry_after": 0,
+                        },
+                    },
+                )
+            return httpx.Response(
+                200,
+                json={"success": True, "data": author()},
+            )
+
+        self.client.settings["dtk_request_attempts"] = 2
+        self.client.client = httpx.AsyncClient(
+            transport=httpx.MockTransport(handle),
+            base_url="http://127.0.0.1:8000",
+        )
+        self.client._repair_identity_pool = AsyncMock()
+        with patch.object(self.client.gate, "wait", new=AsyncMock()):
+            data = await self.client._call("/api/v1/tiktok/user", {"url": "x"}, "profile")
+        self.assertEqual(data["unique_id"], "person1")
+        self.client._repair_identity_pool.assert_awaited_once_with("IDENTITY_POOL_EXHAUSTED")
+
     async def test_profile_and_lists_use_only_dtk_routes(self):
         self.client._call = AsyncMock(return_value=author())
         profile = await self.client.lookup_profile("person1")
