@@ -9,7 +9,7 @@ from contextlib import contextmanager
 class BackendMetrics:
     def __init__(self, clock=time.monotonic):
         self.clock, self.started = clock, clock()
-        self.totals = {name: Counter() for name in ('worker', 'direct')}
+        self.totals = {name: Counter() for name in ('dtk',)}
         self.buckets = {name: deque() for name in self.totals}
         self.latencies = {name: deque(maxlen=4096) for name in self.totals}
         self.recent = {name: Counter() for name in self.totals}
@@ -114,8 +114,8 @@ class BackendMetrics:
                 output[name+'_'+suffix] = values[min(len(values)-1, int(len(values)*quant))] if values else 0
             for kind in ('timeout', 'network_error', 'http_error', 'risk_control', 'invalid_response'):
                 output[name+'_'+kind+'_rate'] = recent[kind+'_count']/max(1, recent['requests_total'])
-        output['hybrid_total_successful_rps'] = sum(output[n+'_successful_rps'] for n in self.totals)
-        output['hybrid_records_per_second'] = sum(output[n+'_records_per_second'] for n in self.totals)
+        output['dtk_total_successful_rps'] = output['dtk_successful_rps']
+        output['dtk_total_records_per_second'] = output['dtk_records_per_second']
         for key in ('backend_switches', 'backend_failovers', 'cursor_chain_restarts'):
             output.setdefault(key, 0)
         if getattr(self, 'pool_provider', None):
