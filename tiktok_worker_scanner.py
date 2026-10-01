@@ -1191,7 +1191,7 @@ def normalize_member(entry: Any) -> tuple[str, dict[str, Any]] | None:
         "profile_url": f"{TIKTOK_ORIGIN}/@{username}" if username else "",
         "bio": entry.get("signature") if isinstance(entry.get("signature"), str) else "",
         "avatar_url": entry.get("avatarThumb") if isinstance(entry.get("avatarThumb"), str) else "",
-        # Keep the Worker's display value exactly; expose a separate boolean
+        # Preserve DTK's display value exactly; expose a separate boolean
         # for consumers that need a verification predicate.
         "verified": entry.get("verified") if isinstance(entry.get("verified"), str) else None,
         "is_verified": verification_flag(entry.get("verified")),
