@@ -865,6 +865,79 @@ class DtkClient:
     def _can_manage_identities(self):
         return bool({"identity:manage", "admin"} & getattr(self, "key_scopes", set()))
 
+    async def _mint_proxy_inventory(self):
+        """Healthy proxy candidates, excluding exits already bound to live TikTok identities."""
+        proxies = await self._admin_get(
+            "/api/v1/admin/proxies",
+            params={"healthy_only": "true"},
+        )
+        all_proxies = await self._admin_get("/api/v1/admin/proxies")
+        identities = await self._admin_get(
+            "/api/v1/admin/identities",
+            params={"platform": "tiktok", "limit": 200},
+        )
+        proxies = proxies if isinstance(proxies, list) else []
+        all_proxies = all_proxies if isinstance(all_proxies, list) else []
+        identities = identities if isinstance(identities, list) else []
+
+        bound = {
+            str(row.get("proxy_id"))
+            for row in identities
+            if isinstance(row, dict)
+            and row.get("proxy_id")
+            and str(row.get("state") or "").lower() != "retired"
+        }
+        now = time.monotonic()
+        candidates = []
+        cooling = []
+        for proxy in proxies:
+            if not isinstance(proxy, dict) or not proxy.get("id"):
+                continue
+            proxy_id = str(proxy["id"])
+            self.identity_proxy_info[proxy_id] = proxy
+            if not proxy.get("decryptable", True):
+                continue
+            if proxy_id in bound:
+                continue
+            until = float(self.identity_proxy_cooldown_until.get(proxy_id, 0.0) or 0.0)
+            if until > now:
+                cooling.append((proxy_id, until))
+                continue
+            candidates.append(proxy)
+
+        return {
+            "configured": len(all_proxies),
+            "healthy": len(proxies),
+            "bound": len(bound),
+            "candidates": candidates,
+            "cooling": cooling,
+        }
+
+    def _proxy_debug_name(self, proxy_id):
+        proxy = self.identity_proxy_info.get(str(proxy_id), {})
+        label = proxy.get("label") if isinstance(proxy, dict) else None
+        country = proxy.get("country") if isinstance(proxy, dict) else None
+        bits = [str(proxy_id)[:8]]
+        if label:
+            bits.append(str(label))
+        if country:
+            bits.append(str(country))
+        return "/".join(bits)
+
+    def _cooldown_mint_proxy(self, proxy_id, reason):
+        if not proxy_id:
+            return
+        seconds = float(self.settings["dtk_proxy_mint_cooldown_seconds"])
+        until = time.monotonic() + seconds
+        self.identity_proxy_cooldown_until[str(proxy_id)] = max(
+            float(self.identity_proxy_cooldown_until.get(str(proxy_id), 0.0) or 0.0),
+            until,
+        )
+        s.console(
+            f"[DTK DEBUG] Proxy {self._proxy_debug_name(proxy_id)} failed TikTok identity minting "
+            f"({reason}); excluding it from new mint attempts for {int(seconds)}s."
+        )
+
     async def _request_identity_mint(self, count, *, reason):
         if count <= 0:
             return []
@@ -873,31 +946,89 @@ class DtkClient:
                 "DTK needs more TikTok identities, but this API key cannot mint them "
                 "(identity:manage or admin scope required)."
             )
+
         count = min(IDENTITY_MINT_TASK_CAP, max(1, int(count)))
-        response = await self._control_request(
-            "POST",
-            "/api/v1/admin/identities/mint",
-            json={"platform": "tiktok", "count": count},
-        )
-        data = self._unwrap(response)
-        task_ids = [
-            str(task_id) for task_id in (data.get("task_ids") or [])
-            if isinstance(task_id, (str, int)) and str(task_id)
-        ] if isinstance(data, dict) else []
-        if not task_ids:
-            raise DtkApiError(
-                "INVALID_RESPONSE",
-                "identity mint was accepted without any task ids",
-                status=response.status_code,
+        inventory = await self._mint_proxy_inventory()
+        candidates = list(inventory["candidates"])
+        configured = int(inventory["configured"])
+
+        # With configured proxies, explicitly name a different healthy/unbound
+        # proxy for each mint. DTK's automatic picker otherwise always chooses
+        # the oldest free proxy, so a TikTok-specific bad egress can be retried
+        # forever even though dozens of other generic-health probes are green.
+        chosen = []
+        if configured:
+            if not candidates:
+                now = time.monotonic()
+                cooling = list(inventory["cooling"])
+                retry_after = min(
+                    [max(1.0, until - now) for _proxy_id, until in cooling] or
+                    [float(self.settings["dtk_identity_control_poll_seconds"])]
+                )
+                raise DtkApiError(
+                    "QUEUE_FULL",
+                    "no eligible healthy unbound proxy is currently available for TikTok identity minting",
+                    retry_after=retry_after,
+                    details={
+                        "reason": "no_eligible_proxy",
+                        "configured": configured,
+                        "healthy": inventory["healthy"],
+                        "bound": inventory["bound"],
+                        "cooling": len(cooling),
+                    },
+                )
+            offset = self.identity_proxy_cursor % len(candidates)
+            ordered = candidates[offset:] + candidates[:offset]
+            chosen = ordered[:count]
+            self.identity_proxy_cursor = (offset + len(chosen)) % max(1, len(candidates))
+        else:
+            # A deployment with no proxies intentionally uses direct egress.
+            chosen = [None] * count
+
+        task_ids = []
+        for proxy in chosen:
+            payload = {"platform": "tiktok", "count": 1}
+            proxy_id = None
+            if proxy is not None:
+                proxy_id = str(proxy["id"])
+                payload["proxy_id"] = proxy_id
+            data, response = await self._management_data(
+                "POST",
+                "/api/v1/admin/identities/mint",
+                json=payload,
             )
+            ids = [
+                str(task_id)
+                for task_id in ((data or {}).get("task_ids") or [])
+                if isinstance(task_id, (str, int)) and str(task_id)
+            ] if isinstance(data, dict) else []
+            if not ids:
+                raise DtkApiError(
+                    "INVALID_RESPONSE",
+                    "identity mint was accepted without any task ids",
+                    status=response.status_code,
+                    details={"proxy_id": proxy_id},
+                )
+            for task_id in ids:
+                self.identity_task_states[task_id] = "submitted"
+                self.identity_task_proxies[task_id] = proxy_id
+                task_ids.append(task_id)
+                if proxy_id:
+                    s.console(
+                        f"[DTK DEBUG] Queued TikTok identity mint task {task_id[:8]} through "
+                        f"proxy {self._proxy_debug_name(proxy_id)} ({reason})."
+                    )
+                else:
+                    s.console(
+                        f"[DTK DEBUG] Queued TikTok identity mint task {task_id[:8]} through "
+                        f"direct egress ({reason})."
+                    )
+
         self.identity_repair_last_mint = time.monotonic()
         s.console(
-            f"[DTK DEBUG] Queued {len(task_ids)} TikTok guest identit"
-            f"{'y' if len(task_ids) == 1 else 'ies'} ({reason}). "
-            f"Tracking every DTK mint task until it succeeds or reports an error."
+            f"[DTK DEBUG] Tracking {len(task_ids)} new TikTok identity mint task"
+            f"{'' if len(task_ids) == 1 else 's'} until success or failure."
         )
-        for task_id in task_ids:
-            self.identity_task_states[task_id] = "submitted"
         return task_ids
 
     def _task_error(self, task_id, task):
@@ -969,9 +1100,13 @@ class DtkClient:
                 data = task.get("data") if isinstance(task.get("data"), dict) else {}
                 if data.get("minted") is True:
                     identity_id = str(data.get("identity_id") or "")
+                    proxy_id = self.identity_task_proxies.get(task_id) or data.get("proxy_id")
+                    if proxy_id:
+                        self.identity_proxy_cooldown_until.pop(str(proxy_id), None)
                     s.console(
                         f"[DTK DEBUG] Mint task {task_id[:8]} completed successfully"
-                        + (f"; identity {identity_id[:8]} created." if identity_id else ".")
+                        + (f"; identity {identity_id[:8]} created" if identity_id else "")
+                        + (f" through proxy {self._proxy_debug_name(proxy_id)}." if proxy_id else " through direct egress.")
                     )
                     pending.discard(task_id)
                     succeeded.append(task_id)
@@ -983,11 +1118,21 @@ class DtkClient:
                         details={"task_data": data},
                     )
                     await self._record_dtk_error(exc, f"identity mint task {task_id}")
+                    proxy_id = self.identity_task_proxies.get(task_id)
+                    if proxy_id:
+                        self._cooldown_mint_proxy(proxy_id, "invalid completed mint result")
                     pending.discard(task_id)
                     failed.append(exc)
             elif state == "failed":
                 exc = self._task_error(task_id, task)
                 await self._record_dtk_error(exc, f"identity mint task {task_id}")
+                proxy_id = self.identity_task_proxies.get(task_id)
+                # RATE_LIMITED/busy is a control-plane/lock condition, not proof
+                # that the egress itself is bad. INTERNAL and similar mint
+                # failures are exactly what the user's logs showed for the
+                # repeated 502/msToken-zero proxy, so quarantine that egress.
+                if proxy_id and exc.dtk_code not in {"RATE_LIMITED", "QUEUE_FULL"}:
+                    self._cooldown_mint_proxy(proxy_id, exc.dtk_code)
                 pending.discard(task_id)
                 failed.append(exc)
                 max_retry_after = max(max_retry_after, float(exc.retry_after or 0))
@@ -998,9 +1143,18 @@ class DtkClient:
                     request_id=f"task:{task_id}",
                 )
                 await self._record_dtk_error(exc, f"identity mint task {task_id}")
+                proxy_id = self.identity_task_proxies.get(task_id)
+                if proxy_id:
+                    self._cooldown_mint_proxy(proxy_id, f"unknown task state {state}")
                 pending.discard(task_id)
                 failed.append(exc)
 
+        # Keep only live task mappings. Successful identities are already bound
+        # inside DTK; failed proxy ids live separately in the cooldown table.
+        live = set(pending)
+        for task_id in list(self.identity_task_proxies):
+            if task_id not in live:
+                self.identity_task_proxies.pop(task_id, None)
         return succeeded, failed, max_retry_after
 
     async def _emit_identity_activity(self, pool):
@@ -1167,7 +1321,7 @@ class DtkClient:
                 )
                 next_log = now + IDENTITY_DEBUG_SECONDS
 
-            await asyncio.sleep(min(IDENTITY_POLL_SECONDS, max(0.1, deadline - now)))
+            await asyncio.sleep(min(float(self.settings['dtk_identity_control_poll_seconds']), max(0.1, deadline - now)))
 
         for task_id in sorted(pending):
             state = self.identity_task_states.get(task_id, "unknown")
@@ -1224,7 +1378,7 @@ class DtkClient:
                 await self._emit_identity_activity(pool)
             except DtkApiError as exc:
                 await self._record_dtk_error(exc, f"{reason} replacement activity")
-            await asyncio.sleep(IDENTITY_POLL_SECONDS)
+            await asyncio.sleep(float(self.settings['dtk_identity_control_poll_seconds']))
         error = s.ExporterError(f"DTK could not confirm a replacement TikTok identity after {reason}.")
         await self._record_dtk_error(error, "identity replacement timeout")
         raise error
