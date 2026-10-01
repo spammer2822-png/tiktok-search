@@ -34,6 +34,8 @@ DEFAULTS = {
     "dtk_min_usable_identities": 3,
     "dtk_target_identities": 8,
     "dtk_identity_wait_seconds": 600,
+    "dtk_proxy_mint_cooldown_seconds": 900,
+    "dtk_identity_control_poll_seconds": 5,
     "dtk_page_size": 35,
     "dtk_wait_seconds": 30,
     "dtk_request_attempts": 5,
@@ -78,8 +80,8 @@ IDENTITY_RECOVERY_CODES = {
 }
 IDENTITY_REPAIR_COOLDOWN_SECONDS = 15.0
 IDENTITY_MINT_TASK_CAP = 10
-IDENTITY_POLL_SECONDS = 2.0
 IDENTITY_DEBUG_SECONDS = 5.0
+IDENTITY_RATE_LIMIT_FLOOR_SECONDS = 1.0
 IDENTITY_RETRY_MAX_SECONDS = 30.0
 IDENTITY_FATAL_REASONS = {
     "browser_rpc_unconfigured",
@@ -108,6 +110,8 @@ def validate(config):
         ("dtk_min_usable_identities", 1, 200),
         ("dtk_target_identities", 1, 200),
         ("dtk_identity_wait_seconds", 1, 3600),
+        ("dtk_proxy_mint_cooldown_seconds", 30, 86400),
+        ("dtk_identity_control_poll_seconds", 1, 60),
         ("dtk_page_size", 1, 50),
         ("dtk_wait_seconds", 1, 30),
         ("dtk_request_attempts", 1, 20),
@@ -514,6 +518,12 @@ class DtkClient:
         self.identity_repair_last_mint = 0.0
         self.dtk_error_lock = asyncio.Lock()
         self.identity_task_states = {}
+        self.identity_task_proxies = {}
+        self.identity_proxy_cooldown_until = {}
+        self.identity_proxy_info = {}
+        self.identity_proxy_cursor = 0
+        self.identity_control_blocked_until = 0.0
+        self.identity_control_last_notice_until = 0.0
         self.identity_activity_seen = set()
         self.identity_activity_current = None
         self.identity_activity_backoff = None
@@ -595,9 +605,43 @@ class DtkClient:
                 details={"path": path, "transport": "request_error"},
             ) from None
 
+    async def _wait_identity_control_window(self):
+        """Honor one shared DTK Retry-After window across pool/task/proxy polling."""
+        delay = self.identity_control_blocked_until - time.monotonic()
+        if delay <= 0:
+            return
+        if self.identity_control_blocked_until > self.identity_control_last_notice_until:
+            self.identity_control_last_notice_until = self.identity_control_blocked_until
+            s.console(
+                f"[DTK DEBUG] DTK control-plane rate limit active; pausing all identity "
+                f"management requests for {delay:.1f}s."
+            )
+        await self.gate.wait(delay)
+
+    def _apply_identity_control_retry_after(self, exc):
+        if getattr(exc, "dtk_code", None) != "RATE_LIMITED":
+            return
+        delay = max(
+            IDENTITY_RATE_LIMIT_FLOOR_SECONDS,
+            float(getattr(exc, "retry_after", None) or self.settings["dtk_identity_control_poll_seconds"]),
+        )
+        self.identity_control_blocked_until = max(
+            self.identity_control_blocked_until,
+            time.monotonic() + delay,
+        )
+
+    async def _management_data(self, method, path, **kwargs):
+        """One globally paced DTK management request with shared 429 handling."""
+        await self._wait_identity_control_window()
+        response = await self._control_request(method, path, **kwargs)
+        try:
+            return self._unwrap(response), response
+        except DtkApiError as exc:
+            self._apply_identity_control_retry_after(exc)
+            raise
+
     async def _validate_key(self):
-        response = await self._control_request("GET", "/api/v1/auth/me")
-        data = self._unwrap(response)
+        data, _response = await self._management_data("GET", "/api/v1/auth/me")
         if not isinstance(data, dict):
             raise s.ExporterError("DTK /auth/me returned an invalid response.")
         user = data.get("user") if isinstance(data.get("user"), dict) else {}
@@ -802,13 +846,13 @@ class DtkClient:
                         self.gate.observe_failure()
         raise last or s.ExporterError("DTK retry budget exhausted.")
 
-    async def _admin_get(self, path):
-        response = await self._control_request("GET", path)
-        return self._unwrap(response)
+    async def _admin_get(self, path, **kwargs):
+        data, _response = await self._management_data("GET", path, **kwargs)
+        return data
 
     async def _admin_put(self, path, value):
-        response = await self._control_request("PUT", path, json={"value": value})
-        return self._unwrap(response)
+        data, _response = await self._management_data("PUT", path, json={"value": value})
+        return data
 
     async def _identity_pool_row(self):
         pool = await self._admin_get("/api/v1/admin/identities/pool")
@@ -887,8 +931,7 @@ class DtkClient:
         return None
 
     async def _identity_task_view(self, task_id):
-        response = await self._control_request("GET", f"/api/v1/tasks/{task_id}")
-        task = self._unwrap(response)
+        task, _response = await self._management_data("GET", f"/api/v1/tasks/{task_id}")
         if not isinstance(task, dict):
             raise DtkApiError(
                 "INVALID_RESPONSE",
@@ -1457,6 +1500,8 @@ def edit_backend_config(config):
         f"Auto-mint identities: {updated['dtk_auto_mint']}\n"
         f"Identity minimum/target: {updated['dtk_min_usable_identities']}/{updated['dtk_target_identities']}\n"
         f"Identity create/recovery wait: {updated['dtk_identity_wait_seconds']}s\n"
+        f"Failed proxy mint cooldown: {updated['dtk_proxy_mint_cooldown_seconds']}s\n"
+        f"Identity control polling: {updated['dtk_identity_control_poll_seconds']}s\n"
         f"Page size: {updated['dtk_page_size']}\n"
         f"Max local DTK connections: {updated['dtk_max_connections']}"
     )
@@ -1472,6 +1517,12 @@ def edit_backend_config(config):
     updated["dtk_identity_wait_seconds"] = s.ask_number(
         f"Identity create/recovery wait seconds [Enter = keep {updated['dtk_identity_wait_seconds']}]: ",
         updated["dtk_identity_wait_seconds"], integer=True, minimum=60, maximum=3600)
+    updated["dtk_proxy_mint_cooldown_seconds"] = s.ask_number(
+        f"Failed proxy mint cooldown seconds [Enter = keep {updated['dtk_proxy_mint_cooldown_seconds']}]: ",
+        updated["dtk_proxy_mint_cooldown_seconds"], integer=True, minimum=30, maximum=86400)
+    updated["dtk_identity_control_poll_seconds"] = s.ask_number(
+        f"Identity control polling seconds [Enter = keep {updated['dtk_identity_control_poll_seconds']}]: ",
+        updated["dtk_identity_control_poll_seconds"], integer=True, minimum=1, maximum=60)
     updated["dtk_page_size"] = s.ask_number(
         f"DTK list page size (1-50) [Enter = keep {updated['dtk_page_size']}]: ",
         updated["dtk_page_size"], integer=True, minimum=1, maximum=50)
