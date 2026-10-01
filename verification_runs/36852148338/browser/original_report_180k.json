@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "mode": "report",
+  "version": "scanner-verification-9m66ero2",
+  "python": "3.12.14",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "workers": 2500,
+  "accounts": 180000,
+  "pages_per_direction": 12,
+  "members_per_page": 20,
+  "raw_enabled": true,
+  "latency_model_seconds": 0.02,
+  "proxy_routes": 0,
+  "network": "HTTPX MockTransport; no TCP/TLS/service measurements",
+  "startup_seconds": 0.0854304270000057,
+  "fixture_seconds": 8.855442936999964,
+  "resume_seconds": 0.3060685560000138,
+  "checkpoint_mean_seconds": 0.007111064099990472,
+  "summary_mean_seconds": 0.0048776120100001204,
+  "retry_candidates": 3600,
+  "failed_lookup_seconds": 0.00022182800000791758,
+  "html_generation_seconds": 9.983181088000038,
+  "html_bytes": 19323742,
+  "report_path": "/home/runner/work/_temp/scanner-verification-9m66ero2/results/report_msmtk8gt/report_report_msmtk8gt.html",
+  "total_seconds": 19.81554969499996,
+  "cpu_seconds": 18.221957608,
+  "cpu_percent_one_core": 91.95787090679565,
+  "peak_rss_mib": 471.0,
+  "call_inclusive_seconds": {
+    "atomic_save": 0.04985889100021268,
+    "summary": 0.6007098140001403,
+    "checkpoint": 0.1585680069999853,
+    "recover": 0.30606538099999625
+  },
+  "call_counts": {
+    "atomic_save": 68,
+    "summary": 123,
+    "checkpoint": 22,
+    "recover": 1
+  }
+}
