@@ -154,10 +154,10 @@ class ScanStatistics:
                'estimated_accounts_remaining': remaining, 'estimated_seconds_remaining': round(eta) if eta is not None else None,
                'estimated_completion_time': self.iso(self.wall() + eta) if eta is not None else None,
                'eta_basis': 'recent successful profiles; excludes skips, failures and restricted profiles',
-               'request_scope': 'Worker API attempts only; avatars and proxy validation are excluded'}
+               'request_scope': 'DTK API attempts only; avatars are excluded'}
         if getattr(self, 'backends', None) is not None:
             doc.update(self.backends.snapshot())
-            doc['request_scope'] = 'Worker and Direct API attempts; avatars and proxy validation excluded'
+            doc['request_scope'] = 'DTK API attempts only; avatars are excluded'
         if disk is not None:
             doc['persistence_timings'] = dict(getattr(disk, 'timings', {}))
         return doc
@@ -208,16 +208,12 @@ class ScanStatistics:
                  f"{r['accounts_per_second']:.2f} accounts/s / {r['accounts_per_second']*60:.1f} accounts/min | "
                  f"In flight {doc['active_requests']} | Limit {doc['effective_concurrency']}/{doc['connection_ceiling']} | "
                  f"Workers {doc['configured_workers']} | I/O writers {doc['profile_io_active']}/{doc['profile_io_workers']} | Elapsed {doc['elapsed_seconds']:.0f}s | ETA {eta_text}")
-            if 'hybrid_total_successful_rps' in doc:
-                lines = [f"{name.upper():6} | {doc[name+'_successful_rps']:.1f} success/s | "
-                         f"{doc[name+'_records_per_second']:.1f} users/s | "
-                         f"{1000*doc[name+'_average_latency']:.0f}ms | "
-                         f"{100-doc[name+'_recent_success_percent']:.1f}% unsuccessful | "
-                         f"{100*doc[name+'_risk_control_rate']:.1f}% risk"
-                         for name in ('worker', 'direct')]
-                lines.append(f"TOTAL  | {doc['hybrid_total_successful_rps']:.1f} success/s | "
-                             f"{doc['hybrid_records_per_second']:.1f} users/s")
-                emit('\n'.join(lines))
+            if 'dtk_successful_rps' in doc:
+                emit(f"DTK    | {doc['dtk_successful_rps']:.1f} success/s | "
+                     f"{doc['dtk_records_per_second']:.1f} users/s | "
+                     f"{1000*doc['dtk_average_latency']:.0f}ms | "
+                     f"{100-doc['dtk_recent_success_percent']:.1f}% unsuccessful | "
+                     f"{100*doc['dtk_risk_control_rate']:.1f}% risk")
             return
         lines = ['========== 5 MINUTE SCAN STATS ==========']
         for key, value in r.items():
