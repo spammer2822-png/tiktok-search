@@ -1,0 +1,15 @@
+{
+  "run_id": "36854983351",
+  "job": "browser",
+  "commit": "324be21545db95c5be12780c0ec73c5a4a9f30e8",
+  "python": "3.12.14",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "cpu_count": 4,
+  "runner_image": "20260927.320.1",
+  "sources": {
+    "final": "c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd",
+    "original": "5965fd51faf6497ca6e117a01fb7eb49e545dccb2669a4291d2d7988de799321",
+    "first": "8fedb11af09c0b6def0a63684cd1f2050c4e9c04994f83ab63c65937c4c71894"
+  },
+  "scope": "Offline fixtures and real loopback TLS only; no live TikTok claims"
+}
