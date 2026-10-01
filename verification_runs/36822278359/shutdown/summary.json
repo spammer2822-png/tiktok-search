@@ -75,6 +75,22 @@
         "stderr_type": "none",
         "resume_seconds": 0.01749396899998601
       }
+    },
+    {
+      "variant": "first_hybrid",
+      "repeated": false,
+      "returncode": 0,
+      "measurement": {
+        "version": "shutdown-verification-rfgzegiv",
+        "repeat": false,
+        "injected_report_delay_seconds": 0,
+        "shutdown_seconds": 0.22400574700000675,
+        "exit_code": 130,
+        "report_count": 1,
+        "pending": 1000,
+        "stderr_type": "none",
+        "resume_seconds": 0.03439618299998415
+      }
     }
   ]
 }
