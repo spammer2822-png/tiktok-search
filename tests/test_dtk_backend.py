@@ -45,6 +45,8 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(config["backend_mode"], "dtk")
         self.assertNotIn("direct_session_file", config)
         self.assertNotIn("worker_retry_attempts", config)
+        upgraded = d.migrate_config({"dtk_identity_wait_seconds": 120})
+        self.assertEqual(upgraded["dtk_identity_wait_seconds"], 600)
         d.validate(config)
         with self.assertRaises(s.ExporterError):
             d.validate({**config, "backend_mode": "worker"})
@@ -125,40 +127,129 @@ class ClientTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn(("/api/v1/admin/settings/pool.tiktok.target_size", 8), calls)
         self.assertIn(("/api/v1/admin/settings/pool.douyin.min_size", 0), calls)
 
-    async def test_startup_wait_is_strict_below_configured_minimum(self):
-        self.client.settings["dtk_identity_wait_seconds"] = 1
-        self.client._identity_pool_row = AsyncMock(return_value=(
-            {"platforms": []},
-            {"platform": "tiktok", "usable": 1},
-        ))
-        ticks = iter([0.0, 0.0, 2.0])
-        fake_time = SimpleNamespace(monotonic=lambda: next(ticks))
-        with patch.object(d, "time", fake_time), \
-                patch.object(d.asyncio, "sleep", new=AsyncMock()):
-            with self.assertRaisesRegex(s.ExporterError, "need at least 3 usable"):
-                await self.client._wait_for_minimum_identities(3, initial_usable=1)
+    async def test_identity_supervisor_queues_shortfall_before_ready(self):
+        self.client.key_scopes = {"admin", "identity:manage", "tiktok:read"}
+        self.client.settings["dtk_min_usable_identities"] = 5
+        self.client.settings["dtk_target_identities"] = 8
+        pool1 = {"platforms": [], "activity": {"current": None, "recent": [], "backoff": None}}
+        row1 = {"platform": "tiktok", "usable": 1, "min_size": 5, "target_size": 8, "auto": True}
+        pool5 = {"platforms": [], "activity": {"current": None, "recent": [], "backoff": None}}
+        row5 = {"platform": "tiktok", "usable": 5, "min_size": 5, "target_size": 8, "auto": True}
+        self.client._identity_pool_row = AsyncMock(side_effect=[(pool1, row1), (pool5, row5)])
+        self.client._poll_identity_tasks = AsyncMock(return_value=([], [], 0.0))
+        self.client._request_identity_mint = AsyncMock(return_value=["a", "b", "c", "d"])
+        self.client._emit_identity_activity = AsyncMock()
+        with patch.object(d.asyncio, "sleep", new=AsyncMock()):
+            row = await self.client._wait_for_minimum_identities(
+                5, initial_usable=1, reason="test startup"
+            )
+        self.assertEqual(row["usable"], 5)
+        self.client._request_identity_mint.assert_awaited_once_with(
+            4, reason="test startup; need 5, currently 1"
+        )
 
-    async def test_identity_self_heal_mints_shortfall_and_waits_for_minimum(self):
+    async def test_identity_supervisor_replaces_failed_mint_task(self):
+        self.client.key_scopes = {"admin", "identity:manage", "tiktok:read"}
+        self.client.settings["dtk_min_usable_identities"] = 2
+        self.client.settings["dtk_target_identities"] = 8
+        self.client.settings["dtk_identity_wait_seconds"] = 600
+        requests = []
+
+        async def mint(count, *, reason):
+            task_id = f"task{len(requests) + 1}"
+            requests.append((count, reason, task_id))
+            self.client.identity_task_states[task_id] = "submitted"
+            return [task_id]
+
+        async def poll(pending):
+            if "task1" in pending:
+                pending.remove("task1")
+                return [], [d.DtkApiError(
+                    "INTERNAL",
+                    "browser temporarily unavailable",
+                    details={"reason": "rpc_unavailable"},
+                )], 0.0
+            if "task2" in pending:
+                pending.remove("task2")
+                return ["task2"], [], 0.0
+            return [], [], 0.0
+
+        async def pool_row():
+            usable = 2 if len(requests) >= 2 else 1
+            return (
+                {"platforms": [], "activity": {"current": None, "recent": [], "backoff": None}},
+                {"platform": "tiktok", "usable": usable, "min_size": 2, "target_size": 8, "auto": True},
+            )
+
+        self.client._request_identity_mint = AsyncMock(side_effect=mint)
+        self.client._poll_identity_tasks = AsyncMock(side_effect=poll)
+        self.client._identity_pool_row = AsyncMock(side_effect=pool_row)
+        self.client._emit_identity_activity = AsyncMock()
+        ticks = iter(range(0, 5000, 10))
+        fake_time = SimpleNamespace(monotonic=lambda: next(ticks))
+        with patch.object(d, "time", fake_time), patch.object(d.asyncio, "sleep", new=AsyncMock()):
+            row = await self.client._wait_for_minimum_identities(
+                2, initial_usable=1, reason="replacement test"
+            )
+        self.assertEqual(row["usable"], 2)
+        self.assertEqual(len(requests), 2)
+        self.assertEqual(requests[0][0], 1)
+        self.assertEqual(requests[1][0], 1)
+
+    async def test_poll_identity_task_surfaces_failed_task_details(self):
+        async def handle(request):
+            self.assertTrue(request.url.path.startswith("/api/v1/tasks/"))
+            return httpx.Response(200, json={
+                "success": True,
+                "data": {
+                    "task_id": "fixture",
+                    "state": "failed",
+                    "endpoint": "identity.mint",
+                    "error": {
+                        "code": "INTERNAL",
+                        "message": "minting produced no identity",
+                        "details": {"reason": "rpc_unavailable", "platform": "tiktok"},
+                    },
+                },
+            })
+        self.client.client = httpx.AsyncClient(
+            transport=httpx.MockTransport(handle),
+            base_url="http://127.0.0.1:8000",
+        )
+        self.client._record_dtk_error = AsyncMock()
+        pending = {"fixture"}
+        succeeded, failed, _retry = await self.client._poll_identity_tasks(pending)
+        self.assertEqual(succeeded, [])
+        self.assertEqual(len(failed), 1)
+        self.assertEqual(failed[0].details["reason"], "rpc_unavailable")
+        self.assertEqual(pending, set())
+        self.client._record_dtk_error.assert_awaited_once()
+
+    def test_no_free_proxy_mint_failure_is_actionable_and_fatal(self):
+        exc = d.DtkApiError(
+            "INTERNAL",
+            "minting produced no identity",
+            details={"reason": "no_free_proxy", "platform": "tiktok"},
+        )
+        message = self.client._mint_failure_action(exc)
+        self.assertIn("no unused proxy", message)
+        self.assertIn("lower the scanner minimum", message)
+
+    async def test_identity_self_heal_waits_for_hard_minimum(self):
         self.client.key_scopes = {"admin", "identity:manage", "tiktok:read"}
         self.client.settings["dtk_min_usable_identities"] = 5
         self.client.settings["dtk_target_identities"] = 8
         self.client._identity_pool_row = AsyncMock(return_value=(
-            {"platforms": []},
+            {"platforms": [], "activity": {"current": None, "recent": [], "backoff": None}},
             {"platform": "tiktok", "usable": 2},
         ))
-        self.client.client = AsyncMock()
-        self.client.client.post.return_value = httpx.Response(
-            200,
-            json={"success": True, "data": {"task_ids": ["a", "b", "c"]}},
-        )
+        self.client._emit_identity_activity = AsyncMock()
         self.client._wait_for_minimum_identities = AsyncMock()
         await self.client._repair_identity_pool("IDENTITY_POOL_EXHAUSTED")
-        self.client.client.post.assert_awaited_once_with(
-            "/api/v1/admin/identities/mint",
-            json={"platform": "tiktok", "count": 3},
-        )
         self.client._wait_for_minimum_identities.assert_awaited_once_with(
-            5, initial_usable=2
+            5,
+            initial_usable=2,
+            reason="runtime self-heal after IDENTITY_POOL_EXHAUSTED",
         )
 
     async def test_identity_error_in_request_triggers_self_heal_before_retry(self):
