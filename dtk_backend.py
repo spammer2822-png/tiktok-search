@@ -517,10 +517,17 @@ class DtkClient:
     async def _validate_key(self):
         response = await self.client.get("/api/v1/auth/me")
         data = self._unwrap(response)
-        scopes = set(data.get("scopes") or [])
-        if "tiktok:read" not in scopes and "admin" not in scopes:
+        if not isinstance(data, dict):
+            raise s.ExporterError("DTK /auth/me returned an invalid response.")
+        user = data.get("user") if isinstance(data.get("user"), dict) else {}
+        scopes = set(user.get("scopes") or [])
+        # DTK API keys remain scope-bounded even when owned by an admin account.
+        if "tiktok:read" not in scopes:
             raise s.ExporterError("DTK API key lacks the tiktok:read scope.")
-        s.console(f"[DTK] Authenticated local API key; effective rate limit: {data.get('rate_limit_per_min')} requests/minute.")
+        self.key_scopes = scopes
+        limit = data.get("rate_limit_per_min")
+        rendered = "unlimited" if isinstance(limit, (int, float)) and limit <= 0 else f"{limit} requests/minute"
+        s.console(f"[DTK] Authenticated local API key; effective rate limit: {rendered}.")
 
     def _unwrap(self, response):
         request_id = response.headers.get("X-Request-ID")
@@ -655,6 +662,8 @@ class DtkClient:
     async def _ensure_identity_pool(self):
         if not self.settings.get("dtk_auto_mint", True):
             return
+        minimum = self.settings["dtk_min_usable_identities"]
+        target = self.settings["dtk_target_identities"]
         try:
             pool = await self._admin_get("/api/v1/admin/identities/pool")
         except DtkApiError as exc:
@@ -666,17 +675,37 @@ class DtkClient:
         row = next((x for x in platforms or [] if x.get("platform") == "tiktok"), None)
         if not row:
             raise s.ExporterError("DTK identity pool did not report TikTok.")
-        minimum = self.settings["dtk_min_usable_identities"]
-        target = self.settings["dtk_target_identities"]
-        if not row.get("auto", True):
-            s.console("[DTK] TikTok auto-refill was disabled; enabling it for this scanner.")
-            await self._admin_put("/api/v1/admin/settings/pool.tiktok.min_size", minimum)
-            await self._admin_put("/api/v1/admin/settings/pool.tiktok.target_size", target)
+
+        # This scanner is TikTok-only. Keep DTK's background filler aligned with
+        # the scanner's configured pool marks and stop it wasting browser mints on Douyin.
+        can_manage = bool({"identity:manage", "admin"} & getattr(self, "key_scopes", set()))
+        if can_manage:
+            desired = (
+                ("pool.tiktok.min_size", minimum, row.get("min_size")),
+                ("pool.tiktok.target_size", target, row.get("target_size")),
+            )
+            for name, value, current in desired:
+                if current != value:
+                    await self._admin_put(f"/api/v1/admin/settings/{name}", value)
+            douyin = next((x for x in platforms or [] if x.get("platform") == "douyin"), None)
+            if douyin and douyin.get("min_size") != 0:
+                try:
+                    await self._admin_put("/api/v1/admin/settings/pool.douyin.min_size", 0)
+                except DtkApiError:
+                    pass
+            if row.get("min_size") != minimum or row.get("target_size") != target or not row.get("auto", True):
+                pool = await self._admin_get("/api/v1/admin/identities/pool")
+                platforms = pool.get("platforms") if isinstance(pool, dict) else []
+                row = next((x for x in platforms or [] if x.get("platform") == "tiktok"), row)
+
         usable = int(row.get("usable") or 0)
         s.console(f"[DTK] TikTok identity pool: {usable} usable; scanner minimum {minimum}; DTK target {target}.")
         if usable >= minimum:
             return
-        shortfall = min(10, minimum - usable)
+
+        # Manual kick for startup latency. DTK's own pool filler remains the
+        # long-lived authority and continues replacing unhealthy identities.
+        shortfall = min(10, max(1, minimum - usable))
         try:
             response = await self.client.post(
                 "/api/v1/admin/identities/mint",
@@ -692,6 +721,7 @@ class DtkClient:
                 )
         except DtkApiError as exc:
             s.console(f"[DTK] Immediate mint request did not complete ({exc.dtk_code}); DTK background refill remains enabled.")
+
         deadline = time.monotonic() + self.settings["dtk_identity_wait_seconds"]
         best = usable
         while time.monotonic() < deadline:
