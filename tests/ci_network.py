@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from zipfile import ZipFile
 
 repo = Path.cwd()
@@ -36,11 +37,13 @@ def publish(message):
     if git("diff", "--cached", "--quiet", check=False).returncode == 0:
         return
     git("commit", "-m",  "Network comparison " + run_id + ": " + message)
-    for _ in range(5):
-        git("pull", "--rebase", "origin", "main")
-        if git("push", "origin", "HEAD:main", check=False).returncode == 0:
+    target_branch = os.environ.get("GITHUB_REF_NAME") or "main"
+    for attempt in range(8):
+        git("pull", "--rebase", "origin", target_branch)
+        if git("push", "origin", "HEAD:" + target_branch, check=False).returncode == 0:
             return
-    raise RuntimeError("Could not publish evidence; retained in artifact")
+        time.sleep(min(0.5 * (2 ** attempt), 5.0))
+    raise RuntimeError("Could not publish evidence to " + target_branch + "; retained in artifact")
 
 provenance = {
     "commit": os.environ.get("GITHUB_SHA"), "run_id": run_id,
