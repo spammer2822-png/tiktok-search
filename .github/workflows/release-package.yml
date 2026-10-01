@@ -1,0 +1,125 @@
+name: Final reversible release package
+
+on:
+  push:
+    branches:
+      - work/final-verification-20261001
+    paths:
+      - .github/workflows/release-package.yml
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+
+      - name: Install test dependencies
+        run: python -m pip install -r requirements-test.txt
+
+      - name: Run final regression suite
+        run: python run_tests.py
+
+      - name: Regenerate release manifest
+        shell: python
+        run: |
+          import hashlib
+          import json
+          import subprocess
+          from pathlib import Path
+
+          excluded_prefixes = (
+              '.github/',
+              'verification_runs/',
+              'verification_analysis/',
+          )
+          excluded_files = {
+              'RELEASE_SHA256.json',
+          }
+
+          tracked = subprocess.check_output(
+              ['git', 'ls-files', '-z'],
+              text=False,
+          ).split(b'\0')
+
+          manifest = {}
+          for raw in tracked:
+              if not raw:
+                  continue
+              name = raw.decode('utf-8')
+              if name in excluded_files or name.startswith(excluded_prefixes):
+                  continue
+              path = Path(name)
+              if not path.is_file():
+                  continue
+              manifest[name] = hashlib.sha256(path.read_bytes()).hexdigest()
+
+          Path('RELEASE_SHA256.json').write_text(
+              json.dumps(dict(sorted(manifest.items())), indent=2) + '\n',
+              encoding='utf-8',
+          )
+          print(f'manifest files={len(manifest)}')
+
+      - name: Commit manifest checkpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add RELEASE_SHA256.json
+          if git diff --cached --quiet; then
+            echo "Manifest already current"
+          else
+            git commit -m "Refresh final release integrity manifest"
+            git push origin HEAD:work/final-verification-20261001
+          fi
+
+      - name: Build and verify final archive
+        shell: python
+        run: |
+          import hashlib
+          import json
+          import zipfile
+          from pathlib import Path
+
+          manifest = json.loads(Path('RELEASE_SHA256.json').read_text(encoding='utf-8'))
+          output = Path('TikTokScanner_final_verified.zip')
+          prefix = 'TikTokScanner/'
+
+          with zipfile.ZipFile(output, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+              for name in sorted(manifest):
+                  z.write(name, prefix + name)
+              z.write('RELEASE_SHA256.json', prefix + 'RELEASE_SHA256.json')
+
+          with zipfile.ZipFile(output, 'r') as z:
+              names = set(z.namelist())
+              expected = {prefix + name for name in manifest} | {prefix + 'RELEASE_SHA256.json'}
+              if names != expected:
+                  raise SystemExit(f'archive inventory mismatch: missing={expected-names}, extra={names-expected}')
+              for name, expected_hash in manifest.items():
+                  actual = hashlib.sha256(z.read(prefix + name)).hexdigest()
+                  if actual != expected_hash:
+                      raise SystemExit(f'hash mismatch: {name}: {actual} != {expected_hash}')
+
+          digest = hashlib.sha256(output.read_bytes()).hexdigest()
+          Path(str(output) + '.sha256').write_text(
+              f'{digest}  {output.name}\n',
+              encoding='utf-8',
+          )
+          print(f'archive={output} sha256={digest} files={len(manifest)+1}')
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: TikTokScanner-final-verified
+          path: |
+            TikTokScanner_final_verified.zip
+            TikTokScanner_final_verified.zip.sha256
+          if-no-files-found: error
