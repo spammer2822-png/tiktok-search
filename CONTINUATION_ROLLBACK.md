@@ -20,6 +20,16 @@ The protected rollback branch must not be modified as part of this continuation.
 5. Before final integration, compare the working branch against the protected rollback point and review every changed file.
 6. The final specification audit must identify any requirement that remains environment-blocked rather than pretending it passed.
 
+
+## Recorded continuation side effects
+
+One obsolete intermediate verification run started before the branch-aware publisher commit was present. It wrote two generated browser-evidence commits to `main`:
+
+- `2003e01c710194c1e93a75b085b617a0db1522d8` — verification start/provenance evidence.
+- `234a6c706764ca8e4a0bef464380e88712b7b7f6` — 180k browser-result evidence.
+
+These commits contain generated verification evidence only; they do not modify scanner runtime source. They are recorded here so they can be individually reverted if a completely pre-continuation `main` history is ever required. Do not reset `main` wholesale to the protected rollback SHA because unrelated/pre-existing verification evidence may have advanced there independently.
+
 ## How to revert
 
 To discard the entire continuation, reset or restore from:
