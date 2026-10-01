@@ -1,0 +1,1 @@
+{"load_ms":762.264455,"accounts":180000,"engine":"worker","initial_ui_lag_ms":58.5,"page_ms":57.33530799999971,"sort_ms":124.65507900000011,"search_ms":204.32553000000007,"filter_ms":53.214898999999605,"dom_nodes":785,"js_heap_bytes":10000000,"cdp":{"ScriptDuration":0,"TaskDuration":0.000011,"JSHeapUsedSize":3991584,"JSHeapTotalSize":6676480},"external_requests":0,"errors":[]}
