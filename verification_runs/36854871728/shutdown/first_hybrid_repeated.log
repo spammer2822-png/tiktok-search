@@ -1,0 +1,1 @@
+{"version": "shutdown-verification-hmhions7", "repeat": true, "injected_report_delay_seconds": 0.25, "shutdown_seconds": 1.6800546999999995, "exit_code": 130, "report_count": 1, "pending": 1000, "stderr_type": "none", "resume_seconds": 0.02794180900000498}
