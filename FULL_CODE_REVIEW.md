@@ -1,6 +1,6 @@
 # Full source review — recovered hybrid implementation
 
-This review covers the recovered scanner and the changes through runtime checkpoint f2991c2. The source was recovered from the newest available checkpoint and compared with the preserved original and first-hybrid archives. It was not rebuilt as a replacement application. Benchmark and browser acceptance remain open until their results are reconciled; this document does not certify live TikTok compatibility.
+This review covers the recovered scanner through accepted runtime commit `1e069ffb57fdf09bf6575d02576dbc5828cc2d21` (scanner source SHA-256 `c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd`). The source was recovered from the newest available checkpoint and compared with the preserved original and first-hybrid archives. It was not rebuilt as a replacement application. Offline benchmark, profiling, browser, shutdown and regression acceptance are now reconciled; this document still does not certify live TikTok compatibility.
 
 ## Runtime review
 
@@ -44,16 +44,18 @@ Network I/O is asynchronous. Per-profile SQLite/export work is awaited through i
 
 Global request admission, small in-memory counter updates and short matching/lookups remain synchronous because scheduling every tiny operation would add work. SQLite durability is retained even when it costs throughput. Per-profile writes and raw exports can dominate fixtures containing many tiny accounts. Large sparse reports exercise resume/serialization differently from fully completed-account scans.
 
-A source review cannot prove maximum possible speed, absence of every race, or production service reliability. Open performance acceptance items stay FAILED/in progress in the requirement audit until matched measurements have been reviewed. Live requests, maximum reliable Direct page size, real proxy-plan behavior and production throughput remain BLOCKED BY ENVIRONMENT without configured authorized test subjects and identities.
+A source review cannot prove maximum possible speed, absence of every race, or production service reliability. The current matched measurements, profiling, browser, shutdown and four-platform regression gates have now been reviewed and all locally verifiable performance acceptance items are complete. The audit intentionally retains three live-dependent checklist items as BLOCKED BY ENVIRONMENT. Live requests, maximum reliable Direct page size, real proxy-plan behavior and production throughput remain unverified without configured authorized test subjects and identities.
 
 ## Evidence and fixes
 
-- Passing pre-pacing-fix four-platform logs: `verification_runs/36759162542/regressions/`; final pacing change requires a fresh green gate.
-- Worker/Direct/Hybrid loopback TLS scaling at 100/500/1,000/2,500/5,000 workers: `verification_runs/36759670077/network/`.
-- Single and repeated SIGINT, one persisted report, 1,000 pending jobs and same-folder recovery for all three source variants: `verification_runs/36760498050/shutdown/`.
-- Source definition inventory with file hashes and line spans: the shutdown evidence's `source_inventory.json`. This inventory aids review navigation; generating an AST list is not itself a source review.
-- Full pipeline/profile/component and browser results: `verification_runs/36759496281/`, with the failed initial network fixture explicitly superseded by the corrected network run.
-- Current acceptance authority: both files under `specifications/`, `HYBRID_COMPLETION_CHECKLIST.csv` and `SPECIFICATION_AUDIT.json`.
+- Current matched scan comparison: `verification_runs/36852148338/comparison/`; 56 production-dispatcher cases plus original/first/final components and profiles completed successfully at runtime `1e069ff`.
+- Current Worker/Direct/Hybrid loopback TLS scaling through 5,000 configured workers: `verification_runs/36852148287/network/`; all 35 cases completed successfully.
+- Current per-thread CPU and observability profiling: `verification_runs/36852148287/cpu/`; profiling completion is recorded separately from unprofiled throughput.
+- Current 180,000-row browser/report evidence: `verification_runs/36852148287/browser/`, with fresh isolated rerun `verification_runs/36854983351/browser/` on the continuation branch.
+- Fresh single/repeated SIGINT, one persisted report, 1,000 pending jobs and same-folder recovery for all three source variants: `verification_runs/36854871728/shutdown/`.
+- Fresh four-platform regression gate: run `36854871750`, with 225 tests on each Linux Python version and 219 on each Windows version (one POSIX-only skip), all green.
+- Source definition inventory with file hashes and line spans remains in the shutdown evidence. This inventory aids review navigation; generating an AST list is not itself a source review.
+- Current acceptance authority: both files under `specifications/`, `REQUIREMENTS_AUDIT.md`, `HYBRID_COMPLETION_CHECKLIST.csv` and `SPECIFICATION_AUDIT.json`.
 
 ## 1 October performance and compatibility pass
 
@@ -61,4 +63,13 @@ A terminal list page already commits its finalized result atomically. The former
 
 Worker-only now continues to honor the saved retry_attempts value. Hybrid defaults previously introduced worker_retry_attempts into all configurations, which could override that old setting. ApiBackend keeps its separate per-backend retry policy. A failure-injection regression verifies exactly two attempts with a legacy budget of two even when the hybrid setting is five.
 
-The current full Linux suite passes 224 tests locally. Final four-platform and matched comparison verification runs are 36822278401 and 36822278359. The native signer was compared byte for byte against src/dtk/signing/native/tiktok_sign.py in the exact upstream archive and matches SHA-256 0e26209c93dc9125a6b4b762590ce3b6e5530c572d38752f92a77ca12e73527d. No upstream signer modification is hidden in this integration.
+The earlier local suite passed 224 tests before the final timing regression was added. The fresh continuation gate `36854871750` now passes 225 tests on Linux 3.11/3.12 and 219 tests on Windows 3.11/3.12 with one POSIX-only skip. Current-runtime matched comparison evidence is run `36852148338`; current network/CPU/browser evidence is run `36852148287`. The native signer was compared byte for byte against src/dtk/signing/native/tiktok_sign.py in the exact upstream archive and matches SHA-256 0e26209c93dc9125a6b4b762590ce3b6e5530c572d38752f92a77ca12e73527d. No upstream signer modification is hidden in this integration.
+
+
+## Final continuation review — 1 October 2026
+
+The continuation itself changed verification infrastructure and documentation, not scanner runtime source. The defect found was in CI evidence publication: parallel jobs pulled/rebased/pushed a hard-coded `main` branch and could fail after successful verification because another job advanced the ref. Evidence publishing now targets `GITHUB_REF_NAME`, retries with bounded backoff, and all evidence-producing workflows share a serialized publisher concurrency group. This allows branch-isolated verification and makes the continuation reversible.
+
+Current matched measurements explicitly retain regressions. In the current 10,000-account fixture, original Worker completed in 207.601 s and final Worker in 209.863 s, while first Hybrid completed in 249.522 s and final Hybrid in 243.587 s. In the dedicated 10,000-follower fixture, original Worker completed in 5.952 s and final Worker in 6.629 s. The Worker-only list slowdown is not concealed. The final path performs additional durable state/discovery and observability work; profiling shows 1,001 atomic JSON writes, 1,000 page commits and 1,000 durable discovery updates in that fixture. Those operations preserve resume/crash semantics, so they were not removed merely to improve a synthetic score.
+
+The final audit therefore makes no universal speedup claim. It certifies that measured bottlenecks and regressions were reviewed, current offline/local gates pass, and no remaining FAILED checklist item exists. Three live-dependent checklist items remain blocked exactly as required by the specification.
