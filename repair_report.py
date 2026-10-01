@@ -15,7 +15,7 @@ from report_generator import generate_report
 from scan_runtime import DiskLane, ShutdownGuard, runtime_ceiling
 
 
-async def repair_avatars(root: Path, config: dict, pool: s.ProxyPool) -> dict:
+async def repair_avatars(root: Path, config: dict, pool: s.BackendRuntimeState) -> dict:
     stop = asyncio.Event()
     delay = config['request_delay']
     ceiling = min(config.get('avatar_workers', 0) or config['workers'], runtime_ceiling(config['workers'], config))
@@ -24,7 +24,7 @@ async def repair_avatars(root: Path, config: dict, pool: s.ProxyPool) -> dict:
     async with DiskLane() as lane:
         token = s._DISK_LANE.set(lane)
         try:
-            async with s.WorkerApiClient(gate, pool, settings=config, avatar_directory=root) as client:
+            from dtk_backend import create_client\n            async with create_client(gate, pool, settings=config, avatar_directory=root) as client:
                 return await client.cache_saved_avatars(root)
         finally:
             stop.set()
@@ -42,11 +42,8 @@ def main(argv=None) -> int:
             raise s.ExporterError('Choose the existing search folder containing state.sqlite3 and scan_config.json.')
         config = s.read_scan_config(root)
         with s.ScanLock(root):
-            proxies = s.load_proxy_configs(Path(config['proxy_file'])) if config['use_proxies'] else []
-            s.REDACTOR = s.CredentialRedactor(proxies)
-            if config['proxy_only'] and not proxies:
-                raise s.ExporterError('Proxy-only mode is enabled but no configured proxies could be loaded.')
-            pool = s.ProxyPool(proxies, proxy_only=config['proxy_only'])
+            s.REDACTOR = s.CredentialRedactor()
+            pool = s.BackendRuntimeState()
             with s.RunLog(root), ShutdownGuard(s.console) as guard:
                 s.console('[AVATAR] Repairing saved profile pictures. Scan progress and account results are preserved.')
                 interrupted = False
@@ -68,7 +65,7 @@ def main(argv=None) -> int:
                 path = generate_report(root, clean=s.REDACTOR.clean, emit=s.console)
                 return 130 if interrupted else 0 if path else 2
     except (s.ExporterError, OSError, ValueError, EOFError) as exc:
-        s.console(f'[ERROR] Report repair failed: {type(exc).__name__}. Check the search folder and proxy configuration.', error=True)
+        s.console(f'[ERROR] Report repair failed: {type(exc).__name__}. Check the search folder and DTK configuration.', error=True)
         return 2
 
 
