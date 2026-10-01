@@ -1,0 +1,71 @@
+{
+  "runs": {
+    "scan": "36759496281",
+    "network": "36761511421",
+    "browser": "36761289359",
+    "shutdown": "36760498050"
+  },
+  "scan_cases": 56,
+  "network_cases": 35,
+  "browser_measurements": 9,
+  "shutdown_cases": 6,
+  "scope": "Offline fixtures / real loopback TLS only; no live production claim",
+  "csv_percent_change": "100 * (after / before - 1); negative is better for time/bytes and worse for throughput",
+  "stage_percentages": "Overlapping aggregate observed task durations / wall time; may exceed 100%. Do not sum.",
+  "sources": {
+    "scan": {
+      "run_id": "36759496281",
+      "job": "comparison",
+      "commit": "97c3a5845ce852559814311e1a268817efe09011",
+      "python": "3.12.14",
+      "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+      "cpu_count": 4,
+      "runner_image": "20260920.314.1",
+      "sources": {
+        "final": "4658092b6aa331b16db267ea10264d7fb42184928f1dde6459631777cf711409",
+        "original": "5965fd51faf6497ca6e117a01fb7eb49e545dccb2669a4291d2d7988de799321",
+        "first": "8fedb11af09c0b6def0a63684cd1f2050c4e9c04994f83ab63c65937c4c71894"
+      },
+      "scope": "Offline fixtures and real loopback TLS only; no live TikTok claims"
+    },
+    "network": {
+      "commit": "80925a694c0750c9c19419d28bf76fa8a1261ba1",
+      "run_id": "36761511421",
+      "python": "3.12.14",
+      "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+      "source_sha256": {
+        "final": "085ac59b7fff344f9c243117f5263691cb7109ec57a5fab64a39aa09ce9d87ff",
+        "original": "5965fd51faf6497ca6e117a01fb7eb49e545dccb2669a4291d2d7988de799321",
+        "first_hybrid": "8fedb11af09c0b6def0a63684cd1f2050c4e9c04994f83ab63c65937c4c71894"
+      },
+      "scope": "Real verified loopback TLS with synthetic origin, no live TikTok claims"
+    },
+    "browser": {
+      "run_id": "36761289359",
+      "job": "browser",
+      "commit": "23276455f08abfcca5e941ef72fc30f24bb2a8f8",
+      "python": "3.12.14",
+      "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+      "cpu_count": 4,
+      "runner_image": "20260920.314.1",
+      "sources": {
+        "final": "085ac59b7fff344f9c243117f5263691cb7109ec57a5fab64a39aa09ce9d87ff",
+        "original": "5965fd51faf6497ca6e117a01fb7eb49e545dccb2669a4291d2d7988de799321",
+        "first": "8fedb11af09c0b6def0a63684cd1f2050c4e9c04994f83ab63c65937c4c71894"
+      },
+      "scope": "Offline fixtures and real loopback TLS only; no live TikTok claims"
+    },
+    "shutdown": {
+      "commit": "4078ea2151319b002fbec823cac37e2bd633c54b",
+      "run_id": "36760498050",
+      "python": "3.12.14",
+      "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+      "source_sha256": {
+        "final": "4658092b6aa331b16db267ea10264d7fb42184928f1dde6459631777cf711409",
+        "original": "5965fd51faf6497ca6e117a01fb7eb49e545dccb2669a4291d2d7988de799321",
+        "first_hybrid": "8fedb11af09c0b6def0a63684cd1f2050c4e9c04994f83ab63c65937c4c71894"
+      },
+      "scope": "Real subprocess signals and SQLite recovery; mocked pending HTTP request"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # Full source review — recovered hybrid implementation
 
-This review covers the recovered scanner and the changes through the Windows pacing fix in e6e64a7. The source was recovered from the newest available checkpoint and compared with the preserved original and first-hybrid archives. It was not rebuilt as a replacement application. Benchmark and browser acceptance remain open until their results are reconciled; this document does not certify live TikTok compatibility.
+This review covers the recovered scanner and the changes through runtime checkpoint f2991c2. The source was recovered from the newest available checkpoint and compared with the preserved original and first-hybrid archives. It was not rebuilt as a replacement application. Benchmark and browser acceptance remain open until their results are reconciled; this document does not certify live TikTok compatibility.
 
 ## Runtime review
 
@@ -28,7 +28,7 @@ This review covers the recovered scanner and the changes through the Windows pac
 
 ## Browser assets, dependencies and verification code
 
-The complete report template and browser worker were reviewed: row reconstruction, indexes, search, filters, numeric/string sort, tabs, pagination, details, relationships, avatar references, error fallback, keyboard dismissal, escaping and mobile layout. Rendering is bounded by the chosen 20–500 row page; the complete dataset remains queryable. The cooperative fallback yields between chunks, although its CPU work remains higher than the browser worker. The current 180,000-row comparison will determine measured generation/load/search/sort regressions rather than assuming them away.
+The complete report template and browser worker were reviewed: row reconstruction, indexes, search, filters, numeric/string sort, tabs, pagination, details, relationships, avatar references, error fallback, keyboard dismissal, escaping and mobile layout. Rendering is bounded by the chosen 20–500 row page; the complete dataset remains queryable. The cooperative fallback yields between chunks, although its CPU work remains higher than the browser worker. The matched 180,000-row comparison exposed nested timer delays in the cooperative fallback. MessageChannel yields preserve responsiveness without the timer clamp: matched sort time fell from 7,078 ms to 635 ms and load from 9,342 ms to 1,320 ms. The same controls, mobile checks and avatar tests passed (run 36761289359).
 
 Vendored signing code remains isolated under its provenance/license files. The immutable upstream archive and pre-integration evidence are preserved. CI repeated the unmodified upstream tests with real PostgreSQL/Redis: 2,529 unit/replay and 528 integration passes. Historical environment failures were not erased or attributed to this integration. This later repeat is not misrepresented as having happened before integration.
 
@@ -54,3 +54,11 @@ A source review cannot prove maximum possible speed, absence of every race, or p
 - Source definition inventory with file hashes and line spans: the shutdown evidence's `source_inventory.json`. This inventory aids review navigation; generating an AST list is not itself a source review.
 - Full pipeline/profile/component and browser results: `verification_runs/36759496281/`, with the failed initial network fixture explicitly superseded by the corrected network run.
 - Current acceptance authority: both files under `specifications/`, `HYBRID_COMPLETION_CHECKLIST.csv` and `SPECIFICATION_AUDIT.json`.
+
+## 1 October performance and compatibility pass
+
+A terminal list page already commits its finalized result atomically. The former final pass called finish again, changed the timestamp, and wrote the same result in a second durable transaction. Successful terminal pages now return their committed result directly. Error/cancellation paths retain their final save. The new regression compares the returned result with the pre-callback checkpoint and reopens the store to verify its members and checkpoint. For 1,000 profiles this removes 2,000 save_checkpoint calls (5,000 to 3,000); three alternating local samples averaged 12.035 s before and 11.465 s after (4.7% less time). Original Worker averaged 10.992 s on the same host, so this is not a claim of universal speedup over the original.
+
+Worker-only now continues to honor the saved retry_attempts value. Hybrid defaults previously introduced worker_retry_attempts into all configurations, which could override that old setting. ApiBackend keeps its separate per-backend retry policy. A failure-injection regression verifies exactly two attempts with a legacy budget of two even when the hybrid setting is five.
+
+The current full Linux suite passes 224 tests locally. Final four-platform and matched comparison verification runs are 36822278401 and 36822278359. The native signer was compared byte for byte against src/dtk/signing/native/tiktok_sign.py in the exact upstream archive and matches SHA-256 0e26209c93dc9125a6b4b762590ce3b6e5530c572d38752f92a77ca12e73527d. No upstream signer modification is hidden in this integration.

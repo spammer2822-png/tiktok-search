@@ -1,6 +1,6 @@
-# Hybrid update — 30 September 2026
+# Hybrid update — 1 October 2026
 
-Worker, Direct and Hybrid modes are available at **Start/Resume → Backend configuration**. See [HYBRID_CONFIGURATION.md](HYBRID_CONFIGURATION.md) for routing, session/proxy settings, the new 429 lifecycle and explicit resource limits. Current requirement evidence is tracked in [HYBRID_COMPLETION_CHECKLIST.csv](HYBRID_COMPLETION_CHECKLIST.csv); live validation is not yet certified.
+Worker, Direct and Hybrid modes are available at **Start/Resume → Backend configuration**. See [HYBRID_CONFIGURATION.md](HYBRID_CONFIGURATION.md) for routing, session/proxy settings, the new 429 lifecycle and explicit resource limits. Both authoritative specifications are mapped in [REQUIREMENTS_AUDIT.md](REQUIREMENTS_AUDIT.md) and [HYBRID_COMPLETION_CHECKLIST.csv](HYBRID_COMPLETION_CHECKLIST.csv). Live validation is not yet certified.
 
 # September 26 speed update
 
@@ -27,8 +27,8 @@ avatar URLs, reuses cached images, and rebuilds the report in the same folder.
 It preserves scan results and cursors. Accounts without an available picture keep
 their placeholder. Close the scanner before repairing the same run.
 
-This release still uses the Worker backend. The separately requested hybrid
-backend is unfinished; see `HYBRID_WORK_STATUS.md` for verified progress and blockers.
+Worker, Direct and Hybrid implementations are present. See `HYBRID_WORK_STATUS.md`
+for current acceptance evidence and remaining live-verification requirements.
 
 Extract this entire folder. Keep the Python modules, HTML template and
 `report_worker.js` together. The report generator embeds the JavaScript; users
