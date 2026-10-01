@@ -26,6 +26,11 @@ class ScanStatistics:
         self.stop_reason = None
         self.stopped_at = None
         self.gate = None
+        # The statistics task starts before DTK preflight so persistence remains
+        # active during startup, but live scan counters stay hidden until DTK has
+        # the configured minimum usable TikTok identities.
+        self.scan_requests_enabled = False
+        self.scan_started_at = None
         self.done = asyncio.Event()
 
     @staticmethod
@@ -154,7 +159,9 @@ class ScanStatistics:
                'estimated_accounts_remaining': remaining, 'estimated_seconds_remaining': round(eta) if eta is not None else None,
                'estimated_completion_time': self.iso(self.wall() + eta) if eta is not None else None,
                'eta_basis': 'recent successful profiles; excludes skips, failures and restricted profiles',
-               'request_scope': 'DTK API attempts only; avatars are excluded'}
+               'request_scope': 'DTK API attempts only; avatars are excluded',
+               'scan_requests_enabled': bool(self.scan_requests_enabled),
+               'scan_started_at': self.scan_started_at}
         if getattr(self, 'backends', None) is not None:
             doc.update(self.backends.snapshot())
             doc['request_scope'] = 'DTK API attempts only; avatars are excluded'
@@ -238,15 +245,18 @@ class ScanStatistics:
             if self.done.is_set():
                 break
             doc = self.snapshot(summary)
-            self.display(doc, emit)
+            if self.scan_requests_enabled:
+                self.display(doc, emit)
             now = self.clock()
             if now >= next_write or now >= next_history:
                 history = now >= next_history
                 if hasattr(state, 'snapshot'):
                     await disk_call(state.snapshot)
                 await disk_call(self.write, doc, atomic_write, history=history)
-                emit('[CHECKPOINT] Progress and scan_stats.json saved; committed page cursors remain durable.')
+                if self.scan_requests_enabled:
+                    emit('[CHECKPOINT] Progress and scan_stats.json saved; committed page cursors remain durable.')
                 next_write = now + 15
                 if history:
-                    self.display(doc, emit, detailed=True)
+                    if self.scan_requests_enabled:
+                        self.display(doc, emit, detailed=True)
                     next_history = now + 300
