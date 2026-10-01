@@ -24,7 +24,8 @@ async def repair_avatars(root: Path, config: dict, pool: s.BackendRuntimeState) 
     async with DiskLane() as lane:
         token = s._DISK_LANE.set(lane)
         try:
-            from dtk_backend import create_client\n            async with create_client(gate, pool, settings=config, avatar_directory=root) as client:
+            from dtk_backend import create_client
+            async with create_client(gate, pool, settings=config, avatar_directory=root) as client:
                 return await client.cache_saved_avatars(root)
         finally:
             stop.set()
