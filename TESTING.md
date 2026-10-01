@@ -1,59 +1,62 @@
-# Verification
+# DTK-only verification
 
-Run from this folder on Windows:
-
-```cmd
-py -3.12 -m pip install -r requirements-test.txt
-py -3.12 run_tests.py
-```
-
-Python 3.11 is also supported; use py -3.11 in the same commands. On Linux run python3.12 or python3.11. The explicit runner avoids inherited unittest classes being collected twice.
-
-## Current and historical gates
-
-- Fresh continuation gate: GitHub Actions run **36854871750** on `work/final-verification-20261001` passed on all four supported CI combinations. Ubuntu ran **225 tests** on Python 3.11 and **225 tests** on Python 3.12, both `OK`. Windows ran **219 tests** on Python 3.11 and **219 tests** on Python 3.12, both `OK (skipped=1)`; the skip is the POSIX-only signal harness. This branch changes verification publication/documentation only; scanner runtime code remains the recovered final runtime.
-- Latest pre-continuation runtime gate: main run **36852148172** completed successfully for runtime commit `1e069ffb57fdf09bf6575d02576dbc5828cc2d21`.
-- Previous complete green gate: verification_runs/36761511342/regressions, **222 tests on Linux** and **216 on Windows (one skipped)**. It remains historical evidence from before the later regression additions.
-- Unmodified upstream repeat: **2,529 unit/replay and 528 integration passes**, with PostgreSQL 17/TimescaleDB and Redis 8. See hybrid_baseline/ci_verified_20260930.json. Historical setup/DNS failures remain in the original logs.
-
-## Behavioral coverage
-
-| Area | Test modules / evidence |
-|---|---|
-| Worker contract, profile/list fields, pacing, proxies, retries and failure classification | test_async_scanner, test_configured_scanner, test_proxy_wire |
-| Direct signing, normalization, risk responses, mode selection, routing, isolation, cursor ownership, racing/cache | test_hybrid_backend, test_hybrid_review, test_hybrid_audit |
-| Worker 429 with 100+ queued and 2,500 active requests; both list directions; central Direct cooldown/probe/ramp/stop; durable resume | test_rate_limit_control, test_hybrid_audit |
-| Atomic pages/exports, forced process interruption, failed-profile requeue, resumed aliases/targets, count mismatches, two-phase discovery | test_persistent_scanner, test_prior_features, test_latest_requirements, test_optimization, test_release_checks |
-| Bounded scheduling, no fixed 64-worker ceiling, repeated cancellation and signals, file-handle cleanup | test_speed_update, test_hybrid_audit, test_async_scanner |
-| Run-folder allocation, credential redaction, previous saved-config compatibility | test_run_folders, test_configured_scanner, test_release_checks |
-| Avatar cache/repair, pending/error/partial profiles, placeholders, byte-preserved scan state | test_avatar_update, test_report_avatar_fix |
-| Metrics/history, resumed session accounting, 15-second snapshots and five-minute history/display | test_optimization, test_hybrid_audit |
-
-Tests use synthetic API responses and real local TLS/CONNECT servers. No live account search or Webshare credentials are required. An HTTP 200 alone is not considered valid profile/list data.
-
-## Matched performance and browser checks
-
-Final CI run 36822278359 measures original, first-hybrid and final source variants on one runner per comparison group. Cases run sequentially inside that group and source snapshots remain immutable while results are committed. It covers:
-
-- 56 full pipeline cases: three modes where supported; 100/500/1,000/2,500/5,000 configured workers; both 10,000-member directions; 1,000 and 10,000 mixed accounts; raw captures, SQLite, exports, report and resume.
-- 35 real verified loopback TLS cases through each production dispatcher, including all 5,000 logical jobs. Connections, CPU/RAM, wire bytes, latencies and event-loop lag are measured. The fixture origin shares the process, so its CPU cost is included.
-- Original/first/final components and CPU profiles; separate logging/statistics comparisons; aggregate queue, lock, pool, signing, parse, normalization and persistence timings. Overlapping task-duration percentages are not an additive CPU partition.
-- 180,000-account reports in browser-worker and cooperative fallback modes: search, filtering, sorting, 20/500-row pages, details and mobile layout. Six-section avatar checks include five cached images, a missing-image placeholder, idempotent repair and unchanged scan state. All run offline.
-- Single/repeated SIGINT in real subprocesses with one report, 1,000 preserved pending jobs and same-folder recovery, for all three source variants.
-
-The September matrices are preserved separately. Their analysis is verification_analysis/20260930/MEASUREMENTS.md. Earlier hybrid_measurements/current results used a harness that did not select the production Worker-only factory; they are historical and do not supply current ratios. The initial TLS fixture username error was fixed in the fixture, not by weakening validation.
-
-To reproduce an individual scan measurement:
+Run from the project folder:
 
 ```cmd
-mkdir verification_output
-py -3.12 tests/benchmark_hybrid.py --source . --backend hybrid --workers 2500 --accounts 1000 --latency .001 --result verification_output/hybrid.json
+py -3.11 -m pip install -r requirements-test.txt
+py -3.11 run_tests.py
 ```
 
-Use --profile for a separate CPU-profile run. --io-workers permits a controlled persistence-thread comparison. Benchmark timings must not be compared across different machines.
+Python 3.11 and 3.12 are exercised in GitHub Actions on Windows and Ubuntu.
 
-Browser harnesses require Node, Playwright and Chromium only for development. The pinned setup is in the browser/final verification workflows. Set PLAYWRIGHT_MODULE when Playwright is installed outside the project, then use tests/benchmark_sparse_report.cjs and tests/check_avatar_sections.cjs with an absolute report and Chromium path.
+## Active regression scope
 
-## Remaining live scope
+The active suite is intentionally DTK-specific after removal of the old Worker, native Direct and Hybrid transports.
 
-No production TikTok compatibility, live request rate, maximum reliable page size, proxy-plan capacity or real Windows console key injection is certified by offline fixtures. Follow LIVE_VERIFICATION.md for authorized accounts/session setup and manual checks. The application and both specifications are audited in REQUIREMENTS_AUDIT.md, SPECIFICATION_AUDIT.json and HYBRID_COMPLETION_CHECKLIST.csv.
+- `tests/test_dtk_backend.py`
+  - DTK-only configuration migration/validation
+  - author/member normalization
+  - private profile handling
+  - API-key scope parsing
+  - identity-pool tuning
+  - DTK profile/followers/following route selection
+  - environment credential loading
+
+- `tests/test_dtk_pipeline.py`
+  - durable page commits
+  - exact opaque cursor persistence
+  - duplicate suppression
+  - target detection
+  - completed-chain reuse without another request
+  - resume after a temporary DTK failure
+
+The CI suite uses synthetic local responses. It never needs the real API key and never sends TikTok traffic.
+
+## Live evidence
+
+The upstream DTK stack was separately run on the target Windows machine with:
+
+- API healthy
+- worker healthy
+- PostgreSQL healthy
+- Redis healthy
+- browser-rpc healthy
+- successful TikTok guest identity mint
+- successful real TikTok smoke test
+- successful TikTok author-profile request in the Playground
+
+This proves the upstream DTK installation works on the machine. It does not by itself prove every scanner code path, so deterministic integration tests remain separate from live evidence.
+
+## Historical evidence
+
+The repository still contains earlier Worker/Direct/Hybrid benchmarks, audits and verification logs. They are retained as historical project evidence only. They do not describe the active backend and are not loaded by `run_tests.py`.
+
+## Release gate
+
+Before packaging a DTK-only release:
+
+1. The current branch must pass the Windows/Ubuntu Python 3.11/3.12 matrix.
+2. `dtk_api_key.txt` must remain ignored and absent from Git history.
+3. The release snapshot must be generated from the exact final branch head.
+4. The ZIP must be hash-checked after any local-only credential file is added.
+5. The GitHub branch and protected rollback branch must remain separate.
