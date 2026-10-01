@@ -69,4 +69,4 @@ Do not intentionally force upstream rate limits. Queue-full, rate-limit, identit
 
 ## Security
 
-Never commit or attach `dtk_api_key.txt`, DTK `.env`, cookies, browser identity exports or other local credentials. The release archive intentionally contains no real API key.
+Never commit `dtk_api_key.txt`, DTK `.env`, cookies, browser identity exports or other local credentials to GitHub. The tracked repository snapshot contains no real API key. A user-specific local delivery ZIP may contain `dtk_api_key.txt` only when the owner explicitly requested that convenience; that local credential copy is not part of Git history or CI artifacts.
