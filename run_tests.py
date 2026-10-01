@@ -5,7 +5,6 @@ import unittest
 from pathlib import Path
 
 sys.dont_write_bytecode = True
-
 ROOT = Path(__file__).resolve().parent
 os.chdir(ROOT)
 sys.path.insert(0, str(ROOT / "tests"))
@@ -13,10 +12,7 @@ sys.path.insert(0, str(ROOT))
 
 TESTS = [
     "test_dtk_backend",
-    "test_async_scanner.AsyncTests",
-    "test_persistent_scanner.DurableTests",
-    "test_speed_update.DataTests",
-    "test_report_avatar_fix",
+    "test_dtk_pipeline",
 ]
 
 if __name__ == "__main__":
