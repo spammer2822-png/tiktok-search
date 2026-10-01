@@ -453,6 +453,17 @@ def _member_from_author(author):
     }
 
 
+def _append_jsonl(path, payload):
+    """Append one durable, redacted diagnostic record without truncating older errors."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    line = json.dumps(s.REDACTOR.clean(payload), ensure_ascii=True, separators=(",", ":")) + "\n"
+    with path.open("a", encoding="utf-8", newline="\n") as stream:
+        stream.write(line)
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
 class DtkClient:
     bootstrap_mode = False
 
@@ -468,6 +479,11 @@ class DtkClient:
         validate(self.settings)
         self.base_url = self.settings["dtk_base_url"].rstrip("/")
         self.raw_directory = raw_directory
+        self.output_directory = (
+            Path(avatar_directory)
+            if avatar_directory is not None
+            else (Path(raw_directory).parent if raw_directory is not None else None)
+        )
         self.client = None
         self.api_key = ""
         self.request_retries = ContextVar("dtk_request_retries", default=0)
@@ -481,6 +497,7 @@ class DtkClient:
         self.avatar_backfill_requested = False
         self.identity_repair_lock = asyncio.Lock()
         self.identity_repair_last_mint = 0.0
+        self.dtk_error_lock = asyncio.Lock()
         if avatar_directory is not None:
             from avatar_cache import AvatarCache
             self.avatars = AvatarCache(
@@ -542,7 +559,43 @@ class DtkClient:
         self.key_scopes = scopes
         limit = data.get("rate_limit_per_min")
         rendered = "unlimited" if isinstance(limit, (int, float)) and limit <= 0 else f"{limit} requests/minute"
-        s.console(f"[DTK] Authenticated local API key; effective rate limit: {rendered}.")
+        s.console(f"[DTK DEBUG] Authenticated local API key; effective rate limit: {rendered}.")
+
+    async def _record_dtk_error(self, exc, context):
+        """Persist every DTK/API transport failure to errors.log and dtk_errors.jsonl."""
+        kind = getattr(exc, "kind", type(exc).__name__)
+        code = getattr(exc, "dtk_code", None) or getattr(exc, "code", None)
+        retryable = bool(getattr(exc, "retryable", False))
+        request_id = getattr(exc, "request_id", None)
+        retry_after = getattr(exc, "retry_after", None)
+        safe_message = s.REDACTOR.text(str(exc))
+        payload = {
+            "timestamp_utc": s.utc_iso(),
+            "context": str(context),
+            "error_type": type(exc).__name__,
+            "kind": kind,
+            "code": code,
+            "retryable": retryable,
+            "retry_after": retry_after,
+            "request_id": request_id,
+            "message": safe_message,
+        }
+        s.console(f"[DTK ERROR] {context}: {safe_message}", error=True)
+        if self.output_directory is not None:
+            async with self.dtk_error_lock:
+                await s.disk_call(_append_jsonl, self.output_directory / "dtk_errors.jsonl", payload)
+
+    @staticmethod
+    def _identity_debug(row, minimum, target):
+        row = row if isinstance(row, dict) else {}
+        parts = [
+            f"usable={int(row.get('usable') or 0)}/{minimum}",
+            f"target={target}",
+        ]
+        for key in ("total", "healthy", "unhealthy", "pending", "minting", "min_size", "target_size", "auto"):
+            if key in row and row.get(key) is not None:
+                parts.append(f"{key}={row.get(key)}")
+        return " | ".join(parts)
 
     def _unwrap(self, response):
         request_id = response.headers.get("X-Request-ID")
@@ -626,6 +679,7 @@ class DtkClient:
             except DtkApiError as exc:
                 failure = exc
                 last = exc
+                await self._record_dtk_error(exc, f"{operation} request attempt {attempt + 1}/{attempts}")
                 if exc.kind == "access_denied":
                     self.gate.blocked_reason = "DTK API authentication/scope failure; fix the local API key."
                 if exc.dtk_code in IDENTITY_RECOVERY_CODES:
@@ -636,8 +690,9 @@ class DtkClient:
                         # keep firing TikTok requests with an unhealthy pool.
                         raise
                     except DtkApiError as repair_exc:
+                        await self._record_dtk_error(repair_exc, "identity self-heal")
                         s.console(
-                            f"[DTK] Identity self-heal could not complete ({repair_exc.dtk_code}); "
+                            f"[DTK DEBUG] Identity self-heal could not complete ({repair_exc.dtk_code}); "
                             "the normal request retry policy will continue."
                         )
                 if not exc.retryable or attempt + 1 >= attempts:
@@ -645,15 +700,17 @@ class DtkClient:
                 delay = float(exc.retry_after or min(30, 2 ** attempt))
                 s.console(f"[DTK RETRY {attempt + 1}/{attempts - 1}] {exc.dtk_code}; waiting {delay:.1f}s.")
                 await self.gate.wait(delay)
-            except (self.httpx.ConnectError, self.httpx.ConnectTimeout) as exc:
+            except (self.httpx.ConnectError, self.httpx.ConnectTimeout):
                 failure = s.ScannerApiError("DTK local API connection failed.", kind="network_error", retryable=True)
                 last = failure
+                await self._record_dtk_error(failure, f"{operation} local API connection")
                 if attempt + 1 >= attempts:
                     raise failure from None
                 await self.gate.wait(min(10, 2 ** attempt))
             except (self.httpx.TimeoutException, TimeoutError):
                 failure = s.ScannerApiError("DTK local API timed out.", kind="response_timeout", retryable=True)
                 last = failure
+                await self._record_dtk_error(failure, f"{operation} local API timeout")
                 if attempt + 1 >= attempts:
                     raise failure from None
                 await self.gate.wait(min(10, 2 ** attempt))
@@ -715,8 +772,8 @@ class DtkClient:
         queued = len(task_ids) if task_ids else count
         self.identity_repair_last_mint = time.monotonic()
         s.console(
-            f"[DTK] Queued {queued} TikTok guest identit{'y' if queued == 1 else 'ies'} "
-            f"({reason})."
+            f"[DTK DEBUG] Queued {queued} TikTok guest identit{'y' if queued == 1 else 'ies'} "
+            f"({reason}); DTK browser mint tasks are running."
         )
         # Mint jobs are asynchronous. The pool itself is the source of truth, so
         # poll usable identities instead of waiting serially on every task result.
@@ -724,16 +781,23 @@ class DtkClient:
 
     async def _wait_for_minimum_identities(self, minimum, *, initial_usable=0):
         deadline = time.monotonic() + self.settings["dtk_identity_wait_seconds"]
+        target = self.settings["dtk_target_identities"]
         best = int(initial_usable or 0)
         next_log = 0.0
+        last_row = {"usable": best}
         while True:
             try:
                 _pool, row = await self._identity_pool_row()
+                last_row = row
                 best = int(row.get("usable") or 0)
                 if best >= minimum:
-                    s.console(f"[DTK] Identity pool ready: {best} usable TikTok identities.")
+                    s.console(
+                        f"[DTK READY] Identity pool ready before scan traffic: "
+                        f"{self._identity_debug(row, minimum, target)}."
+                    )
                     return row
             except DtkApiError as exc:
+                await self._record_dtk_error(exc, "identity preflight pool check")
                 if exc.kind == "access_denied":
                     raise s.ExporterError(
                         "DTK could not verify the TikTok identity pool while waiting for startup."
@@ -745,16 +809,20 @@ class DtkClient:
             if now >= next_log:
                 remaining = max(0, int(deadline - now))
                 s.console(
-                    f"[DTK] Waiting for identity minimum: {best}/{minimum} usable "
-                    f"({remaining}s startup budget remaining)."
+                    f"[DTK DEBUG] Identity preflight waiting: "
+                    f"{self._identity_debug(last_row, minimum, target)} | "
+                    f"startup_budget_remaining={remaining}s. "
+                    "TikTok scan requests are still blocked."
                 )
-                next_log = now + 15.0
-            await asyncio.sleep(min(3.0, max(0.1, deadline - now)))
+                next_log = now + 5.0
+            await asyncio.sleep(min(2.0, max(0.1, deadline - now)))
 
-        raise s.ExporterError(
+        error = s.ExporterError(
             f"DTK identity startup blocked: need at least {minimum} usable TikTok identities, "
             f"but only {best} became usable. No TikTok scan requests were started."
         )
+        s.console(f"[DTK ERROR] {error}", error=True)
+        raise error
 
     async def _ensure_identity_pool(self):
         if not self.settings.get("dtk_auto_mint", True):
@@ -762,9 +830,14 @@ class DtkClient:
 
         minimum = self.settings["dtk_min_usable_identities"]
         target = self.settings["dtk_target_identities"]
+        s.console(
+            f"[DTK DEBUG] Starting strict identity preflight: minimum={minimum}, target={target}. "
+            "Normal TikTok scan requests will remain disabled until the minimum is usable."
+        )
         try:
             pool, row = await self._identity_pool_row()
         except DtkApiError as exc:
+            await self._record_dtk_error(exc, "identity preflight initial pool check")
             if exc.kind == "access_denied":
                 raise s.ExporterError(
                     "DTK identity preflight cannot inspect the pool with this API key. "
@@ -793,8 +866,12 @@ class DtkClient:
                 pool, row = await self._identity_pool_row()
 
         usable = int(row.get("usable") or 0)
-        s.console(f"[DTK] TikTok identity pool: {usable} usable; scanner minimum {minimum}; DTK target {target}.")
+        s.console(f"[DTK DEBUG] Identity pool snapshot: {self._identity_debug(row, minimum, target)}.")
         if usable >= minimum:
+            s.console(
+                f"[DTK READY] Existing identity pool already satisfies the minimum: "
+                f"{usable}/{minimum} usable."
+            )
             return
 
         # Startup is strict: do not release the scanner client until the configured
@@ -803,7 +880,11 @@ class DtkClient:
         try:
             await self._request_identity_mint(shortfall, reason=f"startup minimum {minimum}")
         except DtkApiError as exc:
-            s.console(f"[DTK] Immediate startup mint failed ({exc.dtk_code}); waiting for DTK background refill.")
+            await self._record_dtk_error(exc, "startup identity mint")
+            s.console(
+                f"[DTK DEBUG] Immediate startup mint failed ({exc.dtk_code}); "
+                "DTK background refill will still be observed."
+            )
 
         await self._wait_for_minimum_identities(minimum, initial_usable=usable)
 
@@ -837,7 +918,7 @@ class DtkClient:
                 count = 1
 
             s.console(
-                f"[DTK] Identity self-heal triggered by {reason}: "
+                f"[DTK DEBUG] Identity self-heal triggered by {reason}: "
                 f"{usable} usable, minimum {minimum}, target {target}."
             )
             if count:
