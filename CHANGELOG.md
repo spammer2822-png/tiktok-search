@@ -1,3 +1,18 @@
+# 1 October 2026 — DTK-only runtime
+
+- Removed the active Worker, native Direct and Hybrid transports.
+- Added `dtk_backend.py` as the only TikTok network backend.
+- Added automatic Docker Desktop detection/startup on Windows.
+- Added automatic pinned DTK clone/setup/startup when the local API is unavailable.
+- Added automatic DTK browser profile startup and TikTok identity-pool management.
+- Added local API-key loading/redaction. `dtk_api_key.txt` is Git-ignored and never committed.
+- Added DTK profile, followers and following normalization into the existing scanner pipeline.
+- Preserved durable SQLite resume, phase scanning, deduplication, target matching, reports, avatars and statistics.
+- Replaced Hybrid/Direct/Worker runtime metrics with DTK backend metrics.
+- Removed obsolete Hybrid/Direct/rate-limit backend modules and their active regression tests.
+- Added DTK-specific deterministic regression tests.
+- Historical Hybrid benchmark/specification evidence remains as history only and is not executable runtime code.
+
 # 2026-09-27 — consistent report pictures
 
 - Resolve missing avatars from saved discovery records, input data and profile checkpoints.
