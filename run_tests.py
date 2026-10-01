@@ -1,1 +1,25 @@
-"""Run the active DTK-only regression suite."""\nimport os, sys, unittest\nfrom pathlib import Path\nsys.dont_write_bytecode = True\nROOT = Path(__file__).resolve().parent\nos.chdir(ROOT)\nsys.path.insert(0, str(ROOT / "tests"))\nsys.path.insert(0, str(ROOT))\nTESTS = [\n    "test_dtk_backend",\n    "test_async_scanner.AsyncTests",\n    "test_persistent_scanner.DurableTests",\n    "test_speed_update.DataTests",\n    "test_report_avatar_fix",\n]\nif __name__ == "__main__":\n    suite = unittest.defaultTestLoader.loadTestsFromNames(TESTS)\n    result = unittest.TextTestRunner(verbosity=2).run(suite)\n    raise SystemExit(not result.wasSuccessful())\n
+"""Run the active DTK-only regression suite."""
+import os
+import sys
+import unittest
+from pathlib import Path
+
+sys.dont_write_bytecode = True
+
+ROOT = Path(__file__).resolve().parent
+os.chdir(ROOT)
+sys.path.insert(0, str(ROOT / "tests"))
+sys.path.insert(0, str(ROOT))
+
+TESTS = [
+    "test_dtk_backend",
+    "test_async_scanner.AsyncTests",
+    "test_persistent_scanner.DurableTests",
+    "test_speed_update.DataTests",
+    "test_report_avatar_fix",
+]
+
+if __name__ == "__main__":
+    suite = unittest.defaultTestLoader.loadTestsFromNames(TESTS)
+    result = unittest.TextTestRunner(verbosity=2).run(suite)
+    raise SystemExit(not result.wasSuccessful())
