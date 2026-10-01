@@ -79,6 +79,37 @@ class ClientTests(unittest.IsolatedAsyncioTestCase):
         if self.client.client is not None and hasattr(self.client.client, "aclose"):
             await self.client.client.aclose()
 
+    async def test_control_request_normalizes_local_connection_failure(self):
+        async def handle(request):
+            raise httpx.ConnectError("fixture connection refused", request=request)
+        self.client.client = httpx.AsyncClient(
+            transport=httpx.MockTransport(handle),
+            base_url="http://127.0.0.1:8000",
+        )
+        with self.assertRaises(d.DtkApiError) as caught:
+            await self.client._control_request("GET", "/api/v1/admin/identities/pool")
+        self.assertEqual(caught.exception.dtk_code, "INTERNAL")
+        self.assertEqual(caught.exception.details["transport"], "connect")
+
+    async def test_auth_none_rate_limit_is_rendered_as_not_reported(self):
+        async def handle(request):
+            return httpx.Response(200, json={
+                "success": True,
+                "data": {
+                    "user": {"scopes": ["tiktok:read", "identity:manage"]},
+                    "rate_limit_per_min": None,
+                },
+            })
+        self.client.client = httpx.AsyncClient(
+            transport=httpx.MockTransport(handle),
+            base_url="http://127.0.0.1:8000",
+        )
+        with patch.object(s, "console") as emit:
+            await self.client._validate_key()
+        message = emit.call_args.args[0]
+        self.assertIn("not reported", message)
+        self.assertNotIn("None requests/minute", message)
+
     async def test_auth_me_reads_scopes_from_user_payload(self):
         async def handle(request):
             self.assertEqual(request.url.path, "/api/v1/auth/me")
