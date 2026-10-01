@@ -1421,6 +1421,7 @@ def edit_backend_config(config):
         f"Auto-start Docker/DTK: {updated['dtk_auto_start']}\n"
         f"Auto-mint identities: {updated['dtk_auto_mint']}\n"
         f"Identity minimum/target: {updated['dtk_min_usable_identities']}/{updated['dtk_target_identities']}\n"
+        f"Identity create/recovery wait: {updated['dtk_identity_wait_seconds']}s\n"
         f"Page size: {updated['dtk_page_size']}\n"
         f"Max local DTK connections: {updated['dtk_max_connections']}"
     )
@@ -1433,6 +1434,9 @@ def edit_backend_config(config):
         f"DTK pool target [Enter = keep {max(updated['dtk_target_identities'], updated['dtk_min_usable_identities'])}]: ",
         max(updated["dtk_target_identities"], updated["dtk_min_usable_identities"]), integer=True,
         minimum=updated["dtk_min_usable_identities"], maximum=200)
+    updated["dtk_identity_wait_seconds"] = s.ask_number(
+        f"Identity create/recovery wait seconds [Enter = keep {updated['dtk_identity_wait_seconds']}]: ",
+        updated["dtk_identity_wait_seconds"], integer=True, minimum=60, maximum=3600)
     updated["dtk_page_size"] = s.ask_number(
         f"DTK list page size (1-50) [Enter = keep {updated['dtk_page_size']}]: ",
         updated["dtk_page_size"], integer=True, minimum=1, maximum=50)
