@@ -1,53 +1,76 @@
-# Scanner performance update — 26 September 2026
+# DTK-only performance notes — 1 October 2026
 
-See [BENCHMARK_REPORT.md](BENCHMARK_REPORT.md) for this release's measured original/current/new comparisons, scaling results, limitations and regressions. The earlier measurements are preserved in [PERFORMANCE_20260923.md](PERFORMANCE_20260923.md); they are historical, not measurements of this release.
+The scanner no longer sends TikTok requests through the old Worker/native-Direct/Hybrid transport stack. DTK is the only platform backend.
 
-## Request concurrency
+## Concurrency model
 
-`workers` still accepts 1–10,000 and keeps the value you selected. It is a concurrency ceiling, not a requests-per-second target. Missing `max_connections`, or `max_connections: 0`, now uses that worker setting. An explicit `max_connections` from 1 to 10,000 remains an optional additional limit. An existing saved value of 64 is respected; set it to 0 in `scan_config.json` while stopped to use automatic mode. Your supplied scan configuration has no explicit limit and uses automatic mode immediately.
+The scanner may still run many profile jobs concurrently, but local DTK submissions are separately bounded by `dtk_max_connections` (default 64).
 
-The scanner starts at up to 64 admitted requests, doubles the effective limit at intervals of at least one second after sufficient successful responses, and can reach the configured ceiling. Observed repeated failures, severe latency growth, pacing and cooldowns still reduce useful concurrency. A positive request delay remains global across all routes. There is no assumed RAM limit or inferred Webshare plan entitlement. On POSIX, the actual file-descriptor soft limit can lower the ceiling to reserve descriptors for sockets and per-profile SQLite/WAL files; Windows uses the configured ceiling.
+This is deliberate. DTK itself schedules TikTok traffic through its identity pool and endpoint token buckets. More scanner workers do not create more upstream capacity once every healthy identity is occupied.
 
-The console shows configured workers, the connection ceiling and effective admission. A dispatcher grows profile tasks with admission and available jobs instead of constructing one task per account. The durable SQLite queue retains all other accounts. Capacity notifications wake eligible waiters rather than broadcasting to every waiting task on each response. Followers and following pagination still uses exact returned cursors; pages within one list cannot be fetched speculatively.
+The default identity settings are:
 
-## Persistence and CPU/disk utilization
+```text
+minimum usable TikTok identities = 3
+target TikTok identities         = 8
+```
 
-Shared state and immediate target-match files retain one ordered writer. Independent per-profile databases, raw responses and exports use a separate executor. A profile awaits each operation before touching its database again. Cancellation waits for an admitted commit before closing that database, including repeated cancellation requests.
+The scanner aligns DTK's TikTok pool settings at startup when its API key has sufficient scope and requests guest identity mints when the usable pool is below the minimum. DTK remains responsible for health, cooldowns, circuit breaking and replacement.
 
-Optional `io_workers: 0` is automatic (also the default when absent). It starts one profile writer, can grow toward the detected CPU count when queued I/O leaves CPU idle, and reduces competing writers when the Python process is CPU-saturated. Explicit values 1–256 override this automatic selection, bounded by the configured profile workers. This tuning affects disk work only. More writers proved slower for the CPU-heavy local fixture; it does not constrain API concurrency. The process keeps using available network concurrency independently.
+## Local HTTP
 
-FULL synchronous SQLite WAL commits, page+cursor transactions, fsync, atomic replacement and immediate target observations remain. Raw API JSON is compact instead of indented, with the same parsed data and credential cleaning performed once. Normal user-facing configuration/checkpoint JSON remains formatted. Cleaners avoid regular expressions on plain strings; final profile exports use SQLite's JSON operation to add list positions without decoding and re-encoding every saved member in Python.
+`dtk_backend.py` keeps one persistent HTTPX client for DTK with keep-alive connections. It does not launch Docker commands per request and it does not reload the API key per request.
 
-Pending resume checks enumerate existing export names once instead of resolving/stat-ing a nonexistent file for every untouched account. Completed export stamps and all legacy/crash repairs remain. Discovery exports use one SQL query with ordered source aggregation instead of a Python query for each account. Interrupt finalization no longer exports the entire queue twice.
+Health/startup work happens once when the backend context opens.
 
-## Console and statistics
+## Docker startup
 
-Errors, retries, target matches, checkpoint notices and stop reasons remain visible immediately. Ordinary detail is batched once per second: up to 20 recent lines plus an explicit count of additional lines in `run.log`. No full-detail log records are discarded. Live rows include phase, totals, successes, failures, partial/restricted outcomes, pending work, requests, retries, request and account rates, active requests, configured/effective workers, elapsed time and ETA.
+If `/readyz` is already healthy, scanner startup does no Docker work.
 
-`scan_stats.json` is created before work, refreshed about every 15 seconds and finalized on graceful stop. Five-minute detail and append-only `scan_stats_history.jsonl` remain. Request counters include Worker API attempts; avatars and proxy validation are excluded. Saved overall progress includes earlier executions; session metrics cover the current execution. ETA still requires adequate recent successful-profile evidence and is null on stops.
+Otherwise the scanner:
 
-## Stop, retry and resume
+1. starts Docker Desktop when needed;
+2. locates or clones DTK;
+3. prepares DTK's local environment;
+4. starts the existing Compose stack;
+5. builds images only when normal startup cannot use existing images;
+6. waits for readiness before scanning.
 
-The first Worker HTTP 429 still closes admission synchronously at the response-header hook, cancels unnecessary in-flight HTTP tasks, prevents new sends and stops without retrying or rotating proxies. Already transmitted requests cannot be recalled. Completed responses may still commit. Pending/interrupted accounts remain recoverable in the same search folder.
+This avoids rebuilding the browser image on ordinary runs.
 
-The first Ctrl+C or SIGTERM requests graceful cancellation. Additional presses during saving/report generation no longer interrupt cleanup. A forced process kill cannot run cleanup, but committed SQLite data remains resumable. Keep the whole search folder, including SQLite and WAL files.
+## Pagination
 
-The existing retry-failed option still requeues `network_timeout`, `network_error`, `partial` and legacy `response_timeout`, preserves prior results in retry history, keeps completed profiles complete and reuses saved list cursors. All existing special 404, transient 5xx, proxy classification, credential handling and aggregate pacing rules remain.
+Followers and following remain sequential per account because each next cursor is opaque and only known after the previous page. Different profiles can progress concurrently.
 
-## Offline report
+Default DTK relationship page size is 35 and remains configurable. The upstream Playground/API caps the count at 50.
 
-The report still includes every saved row, old and new, with the same controls, fields, sources, relationship certainty and local avatars. Database readers now close connections deterministically. Bulk discovery lookup and a page-file inventory avoid repeated missing-file checks and Python SQL calls.
+## Persistence
 
-The embedded row representation stores shared defaults once and indexed differences for each row. The included Worker and cooperative fallback reconstruct the same objects; this is lossless storage, not omitted records. Existing report HTML files remain self-contained and unchanged until the next atomic regeneration. New reports require no additional JSON files or network access. Only the selected 20–500 rows enter the DOM.
+The existing performance work outside the removed transport remains:
 
-## References checked
+- SQLite WAL state
+- page + cursor atomic commits
+- bounded independent disk writers
+- compact raw JSON
+- incremental reports
+- throttled terminal output with full detail in logs
+- exact resume without replaying completed pages
+- deduplication by stable numeric identity when available
 
-- [HTTPX async clients](https://www.python-httpx.org/async/)
-- [HTTPX resource limits](https://www.python-httpx.org/advanced/resource-limits/)
-- [HTTPX proxy authentication](https://www.python-httpx.org/advanced/proxies/)
-- [HTTPX timeouts](https://www.python-httpx.org/advanced/timeouts/)
-- [Webshare proxy connections](https://apidocs.webshare.io/proxy-connection)
-- [Webshare concurrency](https://help.webshare.io/en/articles/8375281-what-is-concurrency)
-- [Python 3.11 cancellation](https://docs.python.org/3.11/library/asyncio-task.html)
+## API-side throttling
 
-No new runtime dependency was added. Results measured on the local test machine are not a promise of a particular live Worker or Webshare request rate.
+DTK can return stable conditions such as:
+
+- `RATE_LIMITED`
+- `QUEUE_FULL`
+- `IDENTITY_POOL_EXHAUSTED`
+- `ENDPOINT_CIRCUIT_OPEN`
+- `UPSTREAM_RISK_CONTROL`
+
+The scanner respects retry timing rather than immediately resubmitting thousands of requests. If throughput is low because the identity pool is exhausted, raising Python worker count is not the cure. Humanity has tried shouting at queues before; the queue remains unimpressed.
+
+## Historical measurements
+
+Files under `hybrid_measurements/`, `verification_runs/`, and older performance documents describe earlier Worker/Direct/Hybrid builds. They are preserved for provenance and comparison, not as measurements of the DTK-only runtime.
+
+No live requests-per-second claim is made for this DTK-only build until measured with the integrated scanner on the target machine.
