@@ -1,0 +1,6 @@
+DTK-only release snapshot trigger
+package_parent=8a7e572a26b88edfe1529c243ef467715e00f979
+code_regression_head=50eb52b8066e9669275ab51babc390fab56a7d43
+code_regression_matrix=windows-3.11,windows-3.12,ubuntu-3.11,ubuntu-3.12
+code_regression_result=success
+contains_real_dtk_api_key=false
