@@ -243,7 +243,8 @@ def console(message: str = "", *, error: bool = False) -> None:
         safe_message = REDACTOR.text(message)
         important = error or any(tag in safe_message for tag in (
             '[LIVE]', 'SCAN STATS', '[TARGET FOUND]', 'RATE LIMIT', '[SHUTDOWN]',
-            '[COMPLETE]', '[REPORT', '[RETRY', '[ERROR', '[PARTIAL]', '[CHECKPOINT]', '[HTTP_ERROR]', '[RESUME]'))
+            '[COMPLETE]', '[REPORT', '[RETRY', '[ERROR', '[PARTIAL]', '[CHECKPOINT]', '[HTTP_ERROR]', '[RESUME]',
+            '[DTK DEBUG]', '[DTK ERROR]', '[DTK READY]'))
         important = important or ('PHASE ' in safe_message and ('Starting' in safe_message or ' COMPLETE' in safe_message)) or safe_message.startswith(('[ASYNC] Configured', '[BOOTSTRAP COMPLETE]'))
         now = time.monotonic()
         if _LIVE_LOGGING and not important:
@@ -2080,6 +2081,13 @@ async def _run_scan(
     async with create_client(gate, pool, raw_directory=raw_directory,
                                settings=state_recorder.config if isinstance(state_recorder, DurableScanState) else None,
                                avatar_directory=output_directory) as client:
+        # DtkClient.__aenter__ does not return until the strict identity
+        # preflight has reached the configured minimum. Only now may the
+        # ordinary scan reporter show request/account throughput.
+        if gate.stats:
+            gate.stats.scan_requests_enabled = True
+            gate.stats.scan_started_at = gate.stats.iso(gate.stats.wall())
+        console("[DTK READY] Identity preflight complete; starting TikTok scan requests.")
         while True:
             if getattr(client, 'avatars', None) is not None:
                 client.start_avatar_backfill(output_directory)
