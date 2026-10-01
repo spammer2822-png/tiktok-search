@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "review_date": "2026-09-30",
-  "overall_status": "FAILED",
-  "overall_reason": "Offline final verification and performance review remain in progress; live acceptance remains BLOCKED BY ENVIRONMENT.",
+  "review_date": "2026-10-01",
+  "overall_status": "BLOCKED BY ENVIRONMENT",
+  "overall_reason": "All locally/offline-verifiable implementation, regression, profiling, benchmark, report and shutdown requirements are complete. Exactly three live-dependent checklist items remain BLOCKED BY ENVIRONMENT because authorized live TikTok/Direct identity/proxy/deployment inputs were not supplied; LIVE_VERIFICATION.md contains the required procedure.",
   "status_definitions": {
     "COMPLETED": "Implemented and verified for the explicitly stated scope; no implied live certification.",
     "FAILED": "Unfinished requirement or a failing check; implementation and evidence distinguish pending verification from a code failure.",
@@ -359,9 +359,9 @@
       "end_line": 802,
       "title": "Benchmark Before and After",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review.",
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded.",
       "requirements_text": "# Benchmark Before and After\n\nBefore making changes, benchmark my existing scanner.\n\nThen benchmark:\n\n```text\nWorker only\nDirect only\nHybrid\n```\n\nunder identical conditions.\n\nTest:\n\n```text\n100 workers\n500 workers\n1000 workers\n2500 workers\n5000 workers\n```\n\nMeasure:\n\n```text\nsuccessful requests/sec\nrecords/sec\naccounts/sec\nfollowers/sec\nfollowing/sec\naverage latency\np95 latency\nerror rate\nrisk-control rate\nCPU\nRAM\nnetwork use\n```\n\n---\n"
     },
     {
@@ -371,9 +371,9 @@
       "end_line": 833,
       "title": "10,000 Follower Test",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review.",
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded.",
       "requirements_text": "# 10,000 Follower Test\n\nPerform a dedicated test equivalent to:\n\n```text\n10,000 followers\n```\n\nCompare:\n\n```text\nWorker only\nDirect only\nHybrid\n```\n\nRecord:\n\n```text\ntotal completion time\nnumber of requests\nusers/page\nsuccessful RPS\nfollowers/sec\nretries\nfailures\nrisk-control responses\n```\n\n---\n"
     },
     {
@@ -383,9 +383,9 @@
       "end_line": 849,
       "title": "Large Scan Testing",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review.",
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded.",
       "requirements_text": "# Large Scan Testing\n\nAlso stress test:\n\n```text\n100 accounts\n1,000 accounts\n10,000 accounts\n```\n\nUse mixed profile sizes.\n\nEnsure one slow/private/failing profile never blocks unrelated accounts.\n\n---\n"
     },
     {
@@ -419,9 +419,9 @@
       "end_line": 1153,
       "title": "Performance Profiling",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review.",
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded.",
       "requirements_text": "# Performance Profiling\n\nProfile the completed program rather than guessing.\n\nMeasure where time is actually spent.\n\nProfile:\n\n```text\nCPU time per function\nevent-loop delays\nrequest latency\nconnection-pool waits\nsemaphore waits\nqueue waits\nlock waits\ndatabase latency\nJSON parsing time\nserialization time\nlogging time\nreport-generation time\nproxy selection time\nsigning time\n```\n\nLocate the slowest hot paths and optimize them individually.\n\nRepeat profiling after changes.\n\nDo not stop after one optimization pass.\n\nUse an iterative process:\n\n```text\nbenchmark\n→ profile\n→ identify bottleneck\n→ optimize\n→ benchmark again\n→ profile again\n→ repeat\n```\n\nContinue until additional changes provide little meaningful improvement or would harm correctness/reliability.\n\n---\n"
     },
     {
@@ -455,9 +455,9 @@
       "end_line": 1287,
       "title": "Final Before vs After Benchmark",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review.",
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded.",
       "requirements_text": "# Final Before vs After Benchmark\n\nAt the very end, after ALL functionality and optimization work is complete, perform another full benchmark.\n\nCompare:\n\n```text\nORIGINAL SCANNER\nvs\nFIRST HYBRID IMPLEMENTATION\nvs\nFINAL FULLY OPTIMIZED HYBRID IMPLEMENTATION\n```\n\nMeasure everything independently:\n\n```text\nsuccessful requests/sec\nattempted requests/sec\nprofiles/sec\naccounts/sec\nfollowers/sec\nfollowing/sec\nsuccessful records/sec\naverage latency\nmedian latency\np95 latency\np99 latency\nconnection-pool wait time\nqueue wait time\ndatabase write time\nJSON parsing time\nCPU usage\nRAM usage\nnetwork throughput\nerror rate\ntimeout rate\nrisk-control rate\n10,000 follower completion time\nlarge scan completion time\n```\n\nCalculate the measured speed improvement for each major area.\n\nFor example:\n\n```text\nProfile lookup: X.X× faster\nFollower collection: X.X× faster\nFollowing collection: X.X× faster\nDatabase writes: X.X× faster\nResume loading: X.X× faster\nJSON parsing: X.X× faster\nHTML generation: X.X× faster\nOverall scan: X.X× faster\n```\n\nDo not invent numbers.\n\nOnly report speed improvements that were actually measured.\n\nIf something became slower, explicitly identify it and fix it where possible.\n\n---\n"
     },
     {
@@ -707,9 +707,9 @@
       "end_line": 570,
       "title": "MAXIMUM PC-BOUND THROUGHPUT — NO ARTIFICIAL PERFORMANCE CAPS",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review.",
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded.",
       "requirements_text": "# MAXIMUM PC-BOUND THROUGHPUT — NO ARTIFICIAL PERFORMANCE CAPS\n\nThe entire scanner must be engineered so that **every stage runs as fast as the computer, network, proxy pool, backend, and upstream service can actually sustain**.\n\nDo NOT impose arbitrary conservative caps, sleeps, rate limits, queue ceilings, serialization points, artificial delays, or low concurrency defaults merely because high throughput might use a lot of CPU, RAM, bandwidth, sockets, or file I/O.\n\nThe objective is to use the available hardware aggressively and efficiently.\n\nThe scanner should attempt to use as much of the computer's real available performance as is useful for the workload.\n\nThis requirement applies to ALL of the following:\n\n```text\nrequest creation\nrequest dispatch\nHTTP transmission\nresponse receiving\nTikTok data scraping\nresponse parsing\nJSON parsing\ndata normalization\ndata transformation\ndeduplication\ntarget matching\npagination handling\ncursor handling\nretry scheduling\nproxy selection\nbackend selection\ndata aggregation\ndatabase writes\ndatabase reads\nstate persistence\nstatistics updates\nlog writing\nconsole output\nHTML/report data preparation\navatar processing\nfinal result writing\nshutdown flushing\nresume loading\n```\n\nEvery one of these paths must be reviewed for unnecessary waiting, serialization, blocking, locking, copying, conversion, flushing, or repeated work.\n"
     },
     {
@@ -767,9 +767,9 @@
       "end_line": 738,
       "title": "Maximum Request Throughput",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review.",
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded.",
       "requirements_text": "## Maximum Request Throughput\n\nRequest dispatch must be extremely fast.\n\nOptimize:\n\n```text\nqueue dequeue cost\nbackend selection\nproxy selection\nrequest construction\nheader construction\nURL construction\nJSON/body construction\nHTTP client reuse\nsocket reuse\nDNS reuse\nTLS session reuse\nresponse reading\nerror classification\nresult handoff\n```\n\nAvoid unnecessary object creation and deep copies in the request hot path.\n\nThe request pipeline should contain only work that must happen before the request can proceed.\n"
     },
     {
@@ -779,9 +779,9 @@
       "end_line": 766,
       "title": "Maximum Scraping and Parsing Throughput",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review.",
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded.",
       "requirements_text": "## Maximum Scraping and Parsing Throughput\n\nTikTok response processing must also be optimized aggressively.\n\nProfile:\n\n```text\nJSON decoding\nfield extraction\nnormalization\nvalidation\nPydantic/model construction\ndictionary creation\nlist copying\nstring conversion\nID conversion\navatar URL extraction\nfollower/following normalization\n```\n\nAvoid expensive validation/model layers in the hot path when equivalent safe lightweight parsing can provide the same correctness.\n\nIf a heavier parser is needed for validation/debugging, consider a fast production path and a strict validation/testing path.\n\nDo not parse the same payload multiple times.\n\nDo not serialize data to JSON and immediately parse it back unless genuinely required.\n"
     },
     {
@@ -791,9 +791,9 @@
       "end_line": 787,
       "title": "Maximum Data Handling Throughput",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review.",
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded.",
       "requirements_text": "## Maximum Data Handling Throughput\n\nInternal data movement should avoid unnecessary copies.\n\nPrefer:\n\n```text\nreferences\nefficient immutable/shared structures where safe\nsets/dicts for O(1) lookup\npreallocated/batched containers where useful\nincremental aggregation\nstreaming processing\n```\n\nAvoid repeatedly rebuilding giant lists or dictionaries.\n\nAvoid repeatedly scanning all previous results to answer incremental questions.\n\nMaintain indexes/counters as data arrives.\n"
     },
     {
@@ -899,9 +899,9 @@
       "end_line": 1015,
       "title": "Performance Should Be Limited by Reality, Not Arbitrary Constants",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review.",
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded.",
       "requirements_text": "## Performance Should Be Limited by Reality, Not Arbitrary Constants\n\nThe eventual limiting factor should be something real, such as:\n\n```text\nselected worker count\navailable connection capacity\nproxy capacity\nnetwork bandwidth\nCPU\nRAM\ndisk throughput\nbackend response time\nupstream response time\nexternal rate limiting\nTikTok risk-control\n```\n\nIt should NOT be an unexplained internal constant left over from a conservative implementation.\n\nWhenever throughput plateaus, identify and report the actual reason.\n"
     },
     {
@@ -911,9 +911,9 @@
       "end_line": 1039,
       "title": "Profiling Requirement",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review.",
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded.",
       "requirements_text": "## Profiling Requirement\n\nUnder high load, explicitly determine what percentage of time is spent in:\n\n```text\nnetwork waiting\nconnection-pool waiting\nqueue waiting\nproxy selection\nbackend routing\nTikTok signing\nJSON parsing\nnormalization\ndatabase writing\ndatabase locking\nfile writing\nlogging\nstatistics\nHTML/report generation\nPython CPU execution\n```\n\nOptimize the largest contributors first.\n"
     },
     {
@@ -923,9 +923,9 @@
       "end_line": 1077,
       "title": "High-Worker Benchmark Requirement",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review.",
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded.",
       "requirements_text": "## High-Worker Benchmark Requirement\n\nFor:\n\n```text\n100 workers\n500 workers\n1000 workers\n2500 workers\n5000 workers\n```\n\nrecord:\n\n```text\nactual active workers\npeak active connections\naverage active connections\nconnection-pool wait time\nqueue wait time\nsuccessful RPS\nattempted RPS\nfollowers/sec\nfollowing/sec\nprofiles/sec\nCPU utilization\nRAM utilization\nnetwork throughput\ndisk throughput\nevent-loop lag\n```\n\nDetermine whether increasing workers actually improves successful throughput.\n\nDo NOT reduce workers automatically merely because resource usage rises.\n\nOnly treat a higher worker count as ineffective when benchmarks show that another resource has become the true bottleneck.\n"
     },
     {
@@ -935,9 +935,9 @@
       "end_line": 1113,
       "title": "Final Performance Goal",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review.",
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded.",
       "requirements_text": "## Final Performance Goal\n\nThe implementation should be engineered toward:\n\n```text\nas fast as the PC can genuinely sustain\nas fast as the network can genuinely sustain\nas fast as the proxy/backend paths can genuinely sustain\nas fast as TikTok can return valid data\n```\n\nwith correctness preserved.\n\nThe scanner should not intentionally leave major amounts of CPU, network, connection, or I/O capacity unused because of arbitrary internal limits.\n\nAt the final review, specifically confirm:\n\n```text\n[ ] No hidden requests/sec cap remains\n[ ] No hidden accounts/sec cap remains\n[ ] No hidden follower/following throughput cap remains\n[ ] No hidden fixed worker ceiling remains\n[ ] Connection limits scale with or are configurable from worker count\n[ ] Connection-pool wait is measured\n[ ] Network hot path is fully optimized\n[ ] Parsing hot path is fully optimized\n[ ] Data handling hot path is fully optimized\n[ ] Database/state writing is fully optimized\n[ ] Logging/printing is non-blocking or efficiently buffered\n[ ] Statistics remain fast under very large scans\n[ ] Async workers are not wasted on timers/cooldowns\n[ ] Actual bottlenecks are measured and documented\n[ ] Final throughput is limited by real system/backend constraints rather than arbitrary code limits\n```\n\n"
     },
     {
@@ -947,9 +947,9 @@
       "end_line": 1309,
       "title": "FINAL MANDATORY COMPLETION CHECKLIST",
       "group": "final",
-      "status": "FAILED",
-      "implementation": "complete; fresh regression verification in progress",
-      "evidence": "Prior four-platform gate 36759162542 passed. Later Windows 3.11 repeat exposed coarse pacing-clock early admission; runtime fix e6e64a7 and early-wakeup regression now run in 36760769078. Final acceptance also awaits completed performance audit and explicit live blockers.",
+      "status": "BLOCKED BY ENVIRONMENT",
+      "implementation": "all locally verifiable checklist items complete; live-dependent subordinate items blocked",
+      "evidence": "181 of 184 exact checklist items are COMPLETED with current-runtime evidence. CHECK-016, CHECK-017 and CHECK-184 remain BLOCKED BY ENVIRONMENT under the specification's completion rule; LIVE_VERIFICATION.md gives the exact live procedure. Fresh continuation regression run 36854871750 is green on Ubuntu Python 3.11/3.12 (225 tests each) and Windows Python 3.11/3.12 (219 tests each, one POSIX-only skip). Fresh shutdown/resume run 36854871728 also passed all original/first/final single and repeated interruption cases. Scanner runtime source is unchanged by the continuation CI-publication fix.",
       "requirements_text": "# FINAL MANDATORY COMPLETION CHECKLIST\n\nDo not consider the project complete until **every applicable item below has been explicitly verified**.\n\nMark each item as completed only after it has actually been implemented, tested, reviewed, or measured.\n\n```text\n[ ] Previous prompt fully completed\n[ ] Previous uploaded .MD fully completed\n[ ] Original Evil0ctal repository baseline tested before modification\n[ ] Exact Evil0ctal commit/version recorded\n[ ] Original Evil0ctal unit tests run\n[ ] Original Evil0ctal integration tests run where available\n[ ] Original Evil0ctal TikTok/parser/scheduler tests run\n[ ] Pre-existing Evil0ctal failures documented separately\n[ ] Environment/network limitations documented honestly\n[ ] Baseline Evil0ctal benchmark saved\n\n[ ] TikTok profile lookup verified\n[ ] TikTok followers verified\n[ ] TikTok following verified\n[ ] secUid handling verified\n[ ] numeric uid handling verified\n[ ] cursor/minCursor handling verified\n[ ] hasMore handling verified\n[ ] multi-page pagination verified\n[ ] no duplicate users across pagination\n[ ] no skipped users caused by pagination\n[ ] avatar parsing verified\n[ ] verified status handling verified\n[ ] private/public status handling verified where available\n\n[ ] Worker-only backend works\n[ ] Direct-only backend works\n[ ] Hybrid backend works\n[ ] Dynamic backend routing works\n[ ] Backend scoring works\n[ ] Backend assignment is concurrency-safe\n[ ] Cursor-chain ownership works\n[ ] Cursor failover works safely\n[ ] Incompatible cursor fallback/restart works\n[ ] Restarted chains deduplicate correctly\n\n[ ] FindTik first HTTP 429 immediately disables FindTik for current scan\n[ ] No new FindTik requests start after FindTik is disabled\n[ ] Queued FindTik requests are cancelled/migrated safely\n[ ] Direct backend continues after FindTik 429\n[ ] FindTik jobs are migrated to Direct where compatible\n[ ] FindTik stays disabled for remainder of current scan\n\n[ ] Direct HTTP 429 immediately pauses Direct traffic\n[ ] Direct cooldown works\n[ ] Retry-After is respected when available\n[ ] Direct cooldown does not occupy thousands of workers\n[ ] Direct recovery probe works\n[ ] Direct successful recovery resumes scan gradually\n[ ] Direct second 429 after cooldown triggers graceful scanner shutdown\n[ ] All state is saved before shutdown\n[ ] Resume after rate-limit shutdown works correctly\n\n[ ] 100-worker test completed\n[ ] 500-worker test completed\n[ ] 1000-worker test completed\n[ ] 2500-worker test completed\n[ ] 5000-worker test completed\n\n[ ] 10,000-follower benchmark completed where environment permits\n[ ] Worker-only 10k test measured\n[ ] Direct-only 10k test measured\n[ ] Hybrid 10k test measured\n[ ] Requests/page measured\n[ ] Followers/sec measured\n[ ] Successful RPS measured\n[ ] Completion time measured\n\n[ ] 100-account stress test completed\n[ ] 1,000-account stress test completed where practical\n[ ] 10,000-account stress test completed where practical\n[ ] Slow proxy test completed\n[ ] Dead proxy test completed\n[ ] TLS failure test completed\n[ ] Timeout test completed\n[ ] HTTP 5xx test completed\n[ ] HTTP 429 test completed\n[ ] TikTok risk-control test completed\n[ ] Private account test completed\n[ ] Deleted/invalid account test completed\n[ ] Ctrl+C under heavy load tested\n[ ] Resume after interrupted scan tested\n\n[ ] No deadlocks detected\n[ ] No task leaks detected\n[ ] No connection leaks detected\n[ ] No file-handle leaks detected\n[ ] No corrupted state detected\n[ ] No duplicate final accounts/users detected\n[ ] No lost queued jobs detected\n[ ] No broken pagination detected\n[ ] No request leakage after backend disable/pause\n\n[ ] Persistent HTTP clients reused\n[ ] Connection pooling verified\n[ ] Keep-alive verified\n[ ] DNS/TLS reuse reviewed\n[ ] Proxy-session reuse reviewed\n[ ] Unnecessary client/session creation removed\n[ ] Blocking network calls removed from async hot paths\n[ ] Unnecessary sleeps removed/replaced\n[ ] Retry waiting moved off active worker capacity where appropriate\n\n[ ] SQLite/database hot path reviewed\n[ ] Batched writes implemented where safe\n[ ] Transaction/commit frequency reviewed\n[ ] N+1 database operations reviewed\n[ ] Database indexes reviewed\n[ ] Crash-safe resume preserved\n\n[ ] JSON parsing profiled\n[ ] JSON serialization profiled\n[ ] Unnecessary deep copies removed\n[ ] Large object allocations reviewed\n[ ] Deduplication structures reviewed\n[ ] Target matching reviewed for hot-path efficiency\n\n[ ] Logging hot path reviewed\n[ ] Console output rate-limited/batched\n[ ] Noncritical logging moved off request hot path where safe\n[ ] Statistics use incremental counters where possible\n[ ] Rolling metrics do not repeatedly rescan huge datasets\n\n[ ] HTML report generation profiled\n[ ] Large report performance tested\n[ ] Overview avatars verified\n[ ] Errors avatars verified\n[ ] All Accounts avatars verified\n[ ] Skipped Accounts avatars verified\n[ ] Target Matches avatars verified\n[ ] Search/filter/sort performance tested\n[ ] DOM size/lazy rendering reviewed\n\n[ ] CPU profiling completed\n[ ] Event-loop latency profiled\n[ ] Queue wait time profiled\n[ ] Semaphore wait time profiled\n[ ] Lock wait time profiled\n[ ] Connection-pool wait time profiled\n[ ] Database latency profiled\n[ ] JSON parse/serialize time profiled\n[ ] Logging time profiled\n[ ] Report-generation time profiled\n[ ] TikTok signing time profiled\n[ ] Proxy selection time profiled\n\n[ ] Entire codebase reviewed after first implementation\n[ ] Entire codebase reviewed again after optimization\n[ ] Every major synchronous bottleneck reviewed\n[ ] Async correctness reviewed\n[ ] Race conditions reviewed\n[ ] Shared-state locking reviewed\n[ ] Final regression pass completed\n\n[ ] ORIGINAL SCANNER benchmark recorded\n[ ] FIRST HYBRID IMPLEMENTATION benchmark recorded\n[ ] FINAL OPTIMIZED HYBRID benchmark recorded\n[ ] Worker-only benchmark recorded\n[ ] Direct-only benchmark recorded\n[ ] Hybrid benchmark recorded\n[ ] Successful RPS compared\n[ ] Accounts/sec compared\n[ ] Followers/sec compared\n[ ] Following/sec compared\n[ ] Successful records/sec compared\n[ ] Average latency compared\n[ ] Median latency compared\n[ ] p95 latency compared\n[ ] p99 latency compared\n[ ] CPU usage compared\n[ ] RAM usage compared\n[ ] Network usage compared\n[ ] Error/risk-control rates compared\n\n[ ] Measured speed improvement calculated for each major subsystem\n[ ] Any regressions explicitly identified\n[ ] Any remaining bottlenecks explicitly documented\n[ ] No unmeasured performance claims made\n\n[ ] Final code runs successfully\n[ ] Final configuration is documented\n[ ] Final dependencies are documented\n[ ] Final scanner can resume safely\n[ ] Final reports generate successfully\n[ ] Final logs/statistics persist successfully\n[ ] Final graceful shutdown works\n[ ] Final implementation satisfies every previous requirement\n```\n"
     },
     {
@@ -1022,9 +1022,9 @@
       "line": 1101,
       "text": "Connection-pool wait is measured",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-007",
@@ -1032,9 +1032,9 @@
       "line": 1102,
       "text": "Network hot path is fully optimized",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-008",
@@ -1042,9 +1042,9 @@
       "line": 1103,
       "text": "Parsing hot path is fully optimized",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-009",
@@ -1052,9 +1052,9 @@
       "line": 1104,
       "text": "Data handling hot path is fully optimized",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-010",
@@ -1062,9 +1062,9 @@
       "line": 1105,
       "text": "Database/state writing is fully optimized",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-011",
@@ -1082,9 +1082,9 @@
       "line": 1107,
       "text": "Statistics remain fast under very large scans",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-013",
@@ -1102,9 +1102,9 @@
       "line": 1109,
       "text": "Actual bottlenecks are measured and documented",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-015",
@@ -1112,9 +1112,9 @@
       "line": 1110,
       "text": "Final throughput is limited by real system/backend constraints rather than arbitrary code limits",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-016",
@@ -1602,9 +1602,9 @@
       "line": 1174,
       "text": "100-worker test completed",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-065",
@@ -1612,9 +1612,9 @@
       "line": 1175,
       "text": "500-worker test completed",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-066",
@@ -1622,9 +1622,9 @@
       "line": 1176,
       "text": "1000-worker test completed",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-067",
@@ -1632,9 +1632,9 @@
       "line": 1177,
       "text": "2500-worker test completed",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-068",
@@ -1642,9 +1642,9 @@
       "line": 1178,
       "text": "5000-worker test completed",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-069",
@@ -1652,9 +1652,9 @@
       "line": 1180,
       "text": "10,000-follower benchmark completed where environment permits",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-070",
@@ -1662,9 +1662,9 @@
       "line": 1181,
       "text": "Worker-only 10k test measured",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-071",
@@ -1672,9 +1672,9 @@
       "line": 1182,
       "text": "Direct-only 10k test measured",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-072",
@@ -1682,9 +1682,9 @@
       "line": 1183,
       "text": "Hybrid 10k test measured",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-073",
@@ -1692,9 +1692,9 @@
       "line": 1184,
       "text": "Requests/page measured",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-074",
@@ -1702,9 +1702,9 @@
       "line": 1185,
       "text": "Followers/sec measured",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-075",
@@ -1712,9 +1712,9 @@
       "line": 1186,
       "text": "Successful RPS measured",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-076",
@@ -1722,9 +1722,9 @@
       "line": 1187,
       "text": "Completion time measured",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-077",
@@ -1732,9 +1732,9 @@
       "line": 1189,
       "text": "100-account stress test completed",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-078",
@@ -1742,9 +1742,9 @@
       "line": 1190,
       "text": "1,000-account stress test completed where practical",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-079",
@@ -1752,9 +1752,9 @@
       "line": 1191,
       "text": "10,000-account stress test completed where practical",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-080",
@@ -2112,9 +2112,9 @@
       "line": 1231,
       "text": "JSON parsing profiled",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "CPU/profiling verification 36852148287 completed at runtime 1e069ffb57fdf09bf6575d02576dbc5828cc2d21, including per-thread CPU profiles, event-loop/queue/lock/pool/persistence/signing/parse/log/report observability. The 35-case network matrix and 56-case matched scan matrix provide connection, latency, throughput, CPU/RAM and I/O measurements. Overlapping stage timings are not misreported as additive CPU shares."
     },
     {
       "id": "CHECK-116",
@@ -2122,9 +2122,9 @@
       "line": 1232,
       "text": "JSON serialization profiled",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "CPU/profiling verification 36852148287 completed at runtime 1e069ffb57fdf09bf6575d02576dbc5828cc2d21, including per-thread CPU profiles, event-loop/queue/lock/pool/persistence/signing/parse/log/report observability. The 35-case network matrix and 56-case matched scan matrix provide connection, latency, throughput, CPU/RAM and I/O measurements. Overlapping stage timings are not misreported as additive CPU shares."
     },
     {
       "id": "CHECK-117",
@@ -2312,9 +2312,9 @@
       "line": 1254,
       "text": "CPU profiling completed",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "CPU/profiling verification 36852148287 completed at runtime 1e069ffb57fdf09bf6575d02576dbc5828cc2d21, including per-thread CPU profiles, event-loop/queue/lock/pool/persistence/signing/parse/log/report observability. The 35-case network matrix and 56-case matched scan matrix provide connection, latency, throughput, CPU/RAM and I/O measurements. Overlapping stage timings are not misreported as additive CPU shares."
     },
     {
       "id": "CHECK-136",
@@ -2322,9 +2322,9 @@
       "line": 1255,
       "text": "Event-loop latency profiled",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "CPU/profiling verification 36852148287 completed at runtime 1e069ffb57fdf09bf6575d02576dbc5828cc2d21, including per-thread CPU profiles, event-loop/queue/lock/pool/persistence/signing/parse/log/report observability. The 35-case network matrix and 56-case matched scan matrix provide connection, latency, throughput, CPU/RAM and I/O measurements. Overlapping stage timings are not misreported as additive CPU shares."
     },
     {
       "id": "CHECK-137",
@@ -2332,9 +2332,9 @@
       "line": 1256,
       "text": "Queue wait time profiled",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "CPU/profiling verification 36852148287 completed at runtime 1e069ffb57fdf09bf6575d02576dbc5828cc2d21, including per-thread CPU profiles, event-loop/queue/lock/pool/persistence/signing/parse/log/report observability. The 35-case network matrix and 56-case matched scan matrix provide connection, latency, throughput, CPU/RAM and I/O measurements. Overlapping stage timings are not misreported as additive CPU shares."
     },
     {
       "id": "CHECK-138",
@@ -2342,9 +2342,9 @@
       "line": 1257,
       "text": "Semaphore wait time profiled",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "CPU/profiling verification 36852148287 completed at runtime 1e069ffb57fdf09bf6575d02576dbc5828cc2d21, including per-thread CPU profiles, event-loop/queue/lock/pool/persistence/signing/parse/log/report observability. The 35-case network matrix and 56-case matched scan matrix provide connection, latency, throughput, CPU/RAM and I/O measurements. Overlapping stage timings are not misreported as additive CPU shares."
     },
     {
       "id": "CHECK-139",
@@ -2352,9 +2352,9 @@
       "line": 1258,
       "text": "Lock wait time profiled",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "CPU/profiling verification 36852148287 completed at runtime 1e069ffb57fdf09bf6575d02576dbc5828cc2d21, including per-thread CPU profiles, event-loop/queue/lock/pool/persistence/signing/parse/log/report observability. The 35-case network matrix and 56-case matched scan matrix provide connection, latency, throughput, CPU/RAM and I/O measurements. Overlapping stage timings are not misreported as additive CPU shares."
     },
     {
       "id": "CHECK-140",
@@ -2362,9 +2362,9 @@
       "line": 1259,
       "text": "Connection-pool wait time profiled",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "CPU/profiling verification 36852148287 completed at runtime 1e069ffb57fdf09bf6575d02576dbc5828cc2d21, including per-thread CPU profiles, event-loop/queue/lock/pool/persistence/signing/parse/log/report observability. The 35-case network matrix and 56-case matched scan matrix provide connection, latency, throughput, CPU/RAM and I/O measurements. Overlapping stage timings are not misreported as additive CPU shares."
     },
     {
       "id": "CHECK-141",
@@ -2372,9 +2372,9 @@
       "line": 1260,
       "text": "Database latency profiled",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "CPU/profiling verification 36852148287 completed at runtime 1e069ffb57fdf09bf6575d02576dbc5828cc2d21, including per-thread CPU profiles, event-loop/queue/lock/pool/persistence/signing/parse/log/report observability. The 35-case network matrix and 56-case matched scan matrix provide connection, latency, throughput, CPU/RAM and I/O measurements. Overlapping stage timings are not misreported as additive CPU shares."
     },
     {
       "id": "CHECK-142",
@@ -2382,9 +2382,9 @@
       "line": 1261,
       "text": "JSON parse/serialize time profiled",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "CPU/profiling verification 36852148287 completed at runtime 1e069ffb57fdf09bf6575d02576dbc5828cc2d21, including per-thread CPU profiles, event-loop/queue/lock/pool/persistence/signing/parse/log/report observability. The 35-case network matrix and 56-case matched scan matrix provide connection, latency, throughput, CPU/RAM and I/O measurements. Overlapping stage timings are not misreported as additive CPU shares."
     },
     {
       "id": "CHECK-143",
@@ -2392,9 +2392,9 @@
       "line": 1262,
       "text": "Logging time profiled",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "CPU/profiling verification 36852148287 completed at runtime 1e069ffb57fdf09bf6575d02576dbc5828cc2d21, including per-thread CPU profiles, event-loop/queue/lock/pool/persistence/signing/parse/log/report observability. The 35-case network matrix and 56-case matched scan matrix provide connection, latency, throughput, CPU/RAM and I/O measurements. Overlapping stage timings are not misreported as additive CPU shares."
     },
     {
       "id": "CHECK-144",
@@ -2402,9 +2402,9 @@
       "line": 1263,
       "text": "Report-generation time profiled",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "CPU/profiling verification 36852148287 completed at runtime 1e069ffb57fdf09bf6575d02576dbc5828cc2d21, including per-thread CPU profiles, event-loop/queue/lock/pool/persistence/signing/parse/log/report observability. The 35-case network matrix and 56-case matched scan matrix provide connection, latency, throughput, CPU/RAM and I/O measurements. Overlapping stage timings are not misreported as additive CPU shares."
     },
     {
       "id": "CHECK-145",
@@ -2412,9 +2412,9 @@
       "line": 1264,
       "text": "TikTok signing time profiled",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "CPU/profiling verification 36852148287 completed at runtime 1e069ffb57fdf09bf6575d02576dbc5828cc2d21, including per-thread CPU profiles, event-loop/queue/lock/pool/persistence/signing/parse/log/report observability. The 35-case network matrix and 56-case matched scan matrix provide connection, latency, throughput, CPU/RAM and I/O measurements. Overlapping stage timings are not misreported as additive CPU shares."
     },
     {
       "id": "CHECK-146",
@@ -2422,9 +2422,9 @@
       "line": 1265,
       "text": "Proxy selection time profiled",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "CPU/profiling verification 36852148287 completed at runtime 1e069ffb57fdf09bf6575d02576dbc5828cc2d21, including per-thread CPU profiles, event-loop/queue/lock/pool/persistence/signing/parse/log/report observability. The 35-case network matrix and 56-case matched scan matrix provide connection, latency, throughput, CPU/RAM and I/O measurements. Overlapping stage timings are not misreported as additive CPU shares."
     },
     {
       "id": "CHECK-147",
@@ -2492,9 +2492,9 @@
       "line": 1273,
       "text": "Final regression pass completed",
       "group": "final",
-      "status": "FAILED",
-      "implementation": "complete; fresh regression verification in progress",
-      "evidence": "Prior four-platform gate 36759162542 passed. Later Windows 3.11 repeat exposed coarse pacing-clock early admission; runtime fix e6e64a7 and early-wakeup regression now run in 36760769078. Final acceptance also awaits completed performance audit and explicit live blockers."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Fresh continuation regression run 36854871750 is green on Ubuntu Python 3.11/3.12 (225 tests each) and Windows Python 3.11/3.12 (219 tests each, one POSIX-only skip). Fresh shutdown/resume run 36854871728 also passed all original/first/final single and repeated interruption cases. Scanner runtime source is unchanged by the continuation CI-publication fix."
     },
     {
       "id": "CHECK-154",
@@ -2502,9 +2502,9 @@
       "line": 1275,
       "text": "ORIGINAL SCANNER benchmark recorded",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-155",
@@ -2512,9 +2512,9 @@
       "line": 1276,
       "text": "FIRST HYBRID IMPLEMENTATION benchmark recorded",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-156",
@@ -2522,9 +2522,9 @@
       "line": 1277,
       "text": "FINAL OPTIMIZED HYBRID benchmark recorded",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-157",
@@ -2532,9 +2532,9 @@
       "line": 1278,
       "text": "Worker-only benchmark recorded",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-158",
@@ -2542,9 +2542,9 @@
       "line": 1279,
       "text": "Direct-only benchmark recorded",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-159",
@@ -2552,9 +2552,9 @@
       "line": 1280,
       "text": "Hybrid benchmark recorded",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-160",
@@ -2562,9 +2562,9 @@
       "line": 1281,
       "text": "Successful RPS compared",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-161",
@@ -2572,9 +2572,9 @@
       "line": 1282,
       "text": "Accounts/sec compared",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-162",
@@ -2582,9 +2582,9 @@
       "line": 1283,
       "text": "Followers/sec compared",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-163",
@@ -2592,9 +2592,9 @@
       "line": 1284,
       "text": "Following/sec compared",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-164",
@@ -2602,9 +2602,9 @@
       "line": 1285,
       "text": "Successful records/sec compared",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-165",
@@ -2612,9 +2612,9 @@
       "line": 1286,
       "text": "Average latency compared",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-166",
@@ -2622,9 +2622,9 @@
       "line": 1287,
       "text": "Median latency compared",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-167",
@@ -2632,9 +2632,9 @@
       "line": 1288,
       "text": "p95 latency compared",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-168",
@@ -2642,9 +2642,9 @@
       "line": 1289,
       "text": "p99 latency compared",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-169",
@@ -2652,9 +2652,9 @@
       "line": 1290,
       "text": "CPU usage compared",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-170",
@@ -2662,9 +2662,9 @@
       "line": 1291,
       "text": "RAM usage compared",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-171",
@@ -2672,9 +2672,9 @@
       "line": 1292,
       "text": "Network usage compared",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-172",
@@ -2682,9 +2682,9 @@
       "line": 1293,
       "text": "Error/risk-control rates compared",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-173",
@@ -2692,9 +2692,9 @@
       "line": 1295,
       "text": "Measured speed improvement calculated for each major subsystem",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-174",
@@ -2702,9 +2702,9 @@
       "line": 1296,
       "text": "Any regressions explicitly identified",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-175",
@@ -2712,9 +2712,9 @@
       "line": 1297,
       "text": "Any remaining bottlenecks explicitly documented",
       "group": "performance",
-      "status": "FAILED",
-      "implementation": "complete; verification in progress",
-      "evidence": "Full production-dispatcher benchmark v2, 56 scan cases, components and CPU profiles continue in 36759496281. Corrected 15-case real loopback TLS matrix completed in 36759670077. All six original/first/final real SIGINT/resume cases completed in 36760498050. Matched ratios, regressions and subsystem breakdown still require final review."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Current-runtime matched scan verification 36852148338 completed successfully at 1e069ffb57fdf09bf6575d02576dbc5828cc2d21: all 56 production-dispatcher cases plus original/first/final component and CPU-profile cases returned successfully. BENCHMARK_REPORT.md/FULL_CODE_REVIEW.md retain measured slowdowns as well as improvements; no live TikTok claim is inferred. Current runtime source c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd is covered by completed matched scan run 36852148338, 35-case real loopback TLS network run 36852148287, completed CPU profiling in 36852148287, completed 180k browser/avatar verification in 36852148287 and fresh 36854983351, plus six-case shutdown/resume run 36854871728. FULL_CODE_REVIEW.md and BENCHMARK_REPORT.md document bottlenecks, tradeoffs and regressions; live-only performance remains explicitly excluded."
     },
     {
       "id": "CHECK-176",
@@ -2732,9 +2732,9 @@
       "line": 1300,
       "text": "Final code runs successfully",
       "group": "final",
-      "status": "FAILED",
-      "implementation": "complete; fresh regression verification in progress",
-      "evidence": "Prior four-platform gate 36759162542 passed. Later Windows 3.11 repeat exposed coarse pacing-clock early admission; runtime fix e6e64a7 and early-wakeup regression now run in 36760769078. Final acceptance also awaits completed performance audit and explicit live blockers."
+      "status": "COMPLETED",
+      "implementation": "complete; verified offline",
+      "evidence": "Fresh continuation regression run 36854871750 is green on Ubuntu Python 3.11/3.12 (225 tests each) and Windows Python 3.11/3.12 (219 tests each, one POSIX-only skip). Fresh shutdown/resume run 36854871728 also passed all original/first/final single and repeated interruption cases. Scanner runtime source is unchanged by the continuation CI-publication fix."
     },
     {
       "id": "CHECK-178",
