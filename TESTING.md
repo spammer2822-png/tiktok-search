@@ -11,9 +11,9 @@ Python 3.11 is also supported; use py -3.11 in the same commands. On Linux run p
 
 ## Current and historical gates
 
-- Runtime f2991c2: **224 tests passed locally on Python 3.12**, including the new terminal-checkpoint and Worker retry-budget regressions. Exact output: verification_runs/20261001_local/tests_312.log.
-- Final Windows/Linux 3.11/3.12 CI: run **36822278401**, pending reconciliation. Windows excludes six POSIX process-signal tests and skips the repeated POSIX SIGINT harness. Native Windows handle ownership, disk cleanup, scheduling and socket/proxy checks are included.
-- Previous complete green gate: verification_runs/36761511342/regressions, **222 tests on Linux** and **216 on Windows (one skipped)**. Do not conflate that count with the two subsequently added tests.
+- Fresh continuation gate: GitHub Actions run **36854871750** on `work/final-verification-20261001` passed on all four supported CI combinations. Ubuntu ran **225 tests** on Python 3.11 and **225 tests** on Python 3.12, both `OK`. Windows ran **219 tests** on Python 3.11 and **219 tests** on Python 3.12, both `OK (skipped=1)`; the skip is the POSIX-only signal harness. This branch changes verification publication/documentation only; scanner runtime code remains the recovered final runtime.
+- Latest pre-continuation runtime gate: main run **36852148172** completed successfully for runtime commit `1e069ffb57fdf09bf6575d02576dbc5828cc2d21`.
+- Previous complete green gate: verification_runs/36761511342/regressions, **222 tests on Linux** and **216 on Windows (one skipped)**. It remains historical evidence from before the later regression additions.
 - Unmodified upstream repeat: **2,529 unit/replay and 528 integration passes**, with PostgreSQL 17/TimescaleDB and Redis 8. See hybrid_baseline/ci_verified_20260930.json. Historical setup/DNS failures remain in the original logs.
 
 ## Behavioral coverage
