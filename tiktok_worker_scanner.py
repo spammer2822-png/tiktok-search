@@ -1,99 +1,41 @@
-r"""TikTok relationship scanner: async DTK-only backend with automatic local Docker/identity management.
+r"""TikTok relationship scanner core for the DTK-only build.
 
 Python 3.11+ setup (Windows CMD):
     py -3.11 -m pip install -r requirements.txt
-    py -3.11 tiktok_worker_scanner.py
+    py -3.11 main.py
 
-Startup first lists unfinished search folders. Select one to load its own
-scan_config.json, inspect saved settings and either resume unchanged or edit
-safe settings. A new scan asks for source, target, size limits, normal/double
-phase mode, workers (1-10000), request delays and proxy selection, then confirms.
-Saved configuration, not current Python/environment defaults, controls resume.
+The scanner owns durable discovery, phase 1/phase 2 scheduling, SQLite page
+checkpoints, exact resume, duplicate prevention, target matching, reports,
+statistics, avatar caching, retry bookkeeping, and graceful shutdown.
 
-Default paths:
-    Input: C:\Users\vailo\Downloads\kt_expose_public_profiles_cleaned.json
-    Proxies: C:\Users\vailo\Downloads\webshare_proxy.txt
-    Searches: C:\Users\vailo\Downloads\TiktokSearch_Logs
-New folders use the target username, then _2, _3, etc. Atomic mkdir and a
-per-search process lock protect concurrent searches. Resume never creates a
-new folder or mixes another search's results. Older folders inside the search
-root can be resumed after a one-time explicit review of missing configuration.
+TikTok network access is provided only by the local DTK / Evil0ctal
+Douyin_TikTok_Download_API integration in dtk_backend.py. The scanner no longer
+contains Worker, native Direct, Hybrid routing, or scanner-side TikTok proxy
+transport. DTK owns TikTok signing, guest identities, browser fingerprints,
+identity health, upstream rate/risk handling, and any egress policy.
 
-Normal scans inspect only the starting dataset. Double-phase scans inspect
-that dataset, then exactly ONE level of newly discovered public accounts.
-Phase 2 never schedules a Phase 3. Numeric user IDs deduplicate jobs whenever
-available; usernames are the fallback. All queues and phase transitions are
-durable SQLite transactions. Both phases share the same clients and pacer.
+A username bootstrap follows exact DTK cursors and saves a deduplicated public
+starting_dataset.json. Normal scans inspect only the starting dataset.
+Double-phase scans inspect that dataset and then exactly one level of newly
+discovered public accounts. Phase 2 never schedules a Phase 3.
 
-A username bootstrap follows the exact saved cursors and saves a deduplicated,
-public-only starting_dataset.json. Only members explicitly marked public are
-retained. The member API does not supply follower/following counts: those fields
-are null until a profile lookup supplies them; they are never fabricated.
-Size limits (0 = unlimited) run after profile lookup and before list requests.
-Formatted K/M/B counts use labelled estimates; unknown counts with an enabled
-limit cause skipped_unknown_size. Exact values equal to a limit are allowed.
-
-Each search contains:
-    scan_config.json                      small authoritative settings
-    starting_dataset.json                 self-contained input snapshot
-    session.json, scan_state.json         identity/progress mirrors
-    state.sqlite3                         durable jobs, discoveries, phases
-    sucess_find.json                      immediately saved target matches
-    results.json, failures.json, skipped_accounts.json
-    phase2_queue.json, discovered_profiles.json
-    run.log, errors.log                   redacted append-only logs
-    *_followers_and_following.json        per-profile exports
-    pages/, bootstrap/, raw_api/, skipped/, tmp/
-    report_assets/avatars/                validated offline avatar thumbnails
-SQLite WAL + FULL synchronization commits each page with its next cursor.
-Retain -wal/-shm files while running. Ctrl+C/SIGTERM stop cleanly; forced kills
-recover committed results and interrupted claims on the next execution.
-Completed, private, HTTP-error and size-skipped attempts are terminal. On resume,
-the explicit Retry failed profiles choice can requeue network errors, timeouts
-and partial profiles without discarding saved pages. Interrupted/pending work
-always resumes. A finished
-scan means all selected-phase jobs were processed; individual exports still
-report their own completeness. Cursor failures never trigger invented cursors.
-
-TIKTOK_INPUT_JSON / TIKTOK_EXPORT_DIR / TIKTOK_PROXY_FILE customize new-scan
-path suggestions. TIKTOK_PROXY_ONLY and TIKTOK_KEEP_RAW provide initial network
-option defaults. Workers and delays are selected in the console and saved.
-Legacy worker/delay environment variables do not override saved configuration.
-Changing limits, workers or delays affects future work only. Target/source are
-fixed for an existing search; changing either requires a new search.
+Each search folder contains its authoritative scan_config.json, SQLite state,
+JSON exports, statistics/history, logs, report assets, HTML report, and recovery
+files. SQLite WAL + FULL synchronization commits each relationship page with its
+next cursor. Ctrl+C/SIGTERM preserves committed progress; interrupted/pending
+work resumes from the same folder.
 
 Global pacing is between request starts; 0-0 means no intentional spacing.
-In-flight requests use a connection budget derived from workers unless explicitly
-configured, with measured latency/error adaptation. Workers specify concurrency,
-not RPS. In hybrid mode a Worker HTTP 429 disables Worker for this execution and
-migrates compatible work to Direct. Direct gets one central cooldown and gradual
-recovery opportunity; another 429 stops safely. Worker-only mode retains its
-immediate global 429 stop. Access denial stops the affected backend. Proxy rotation is
-only for genuine connection failures, never to bypass access/rate controls.
-Proxy credentials remain in the external file, never in scan_config or logs.
-Direct mode uses signed TikTok API requests with isolated optional session cookies.
-API-supplied avatar CDN URLs may be downloaded into this run's local cache.
+Workers specify scanner concurrency, not an upstream request-rate promise. DTK
+submission concurrency is bounded independently by its configured local
+connection ceiling and DTK's own scheduler.
 
-HTTP(S) targets normally use an http:// Webshare proxy with CONNECT. Optional
-https:// entries require a proxy that itself supports TLS; a TLS target does
-not imply a TLS proxy. SOCKS5 entries require the httpx[socks] extra.
+API keys and identity secrets are redacted and never written to reports or
+normal logs. The DTK API key is loaded by dtk_backend.py from DTK_API_KEY, an
+ignored local dtk_api_key.txt, or a one-time hidden interactive prompt.
 
-An optional pre-start check verifies every loaded proxy using Webshare's HTTPS
-IP diagnostic. Skipping it retains lazy health checks on actual requests. Read timeouts cannot identify whether the proxy or Worker stalled, so
-these retain the same route. Explicit connect/auth failures affect pool health.
-Validation shows only proxy host/port; runtime uses opaque labels. Credentials
-are never logged. Offline HTML reports are built from saved files on completion
-and graceful shutdown, without any network requests or JSON download controls.
-Copy report_assets alongside the HTML when moving a report. Missing images use
-initials. Image downloads share the scanner pacer and proxy pool; they never
-trigger Worker access/rate-limit bypasses or automatic alternate API endpoints.
-
-Natural endpoint exhaustion is usable even if advertised counts disagree.
-Explicitly hidden lists stay unavailable, with unknown relationship directions.
-Such profiles are terminal when the other lists finish. Username bootstrap may
-use available completed lists alongside explicit restrictions. HTTP 404 retries
-the exact request once; backend-specific 429/access-denial admission is enforced.
-Progress counts all terminal outcomes and separately reports private skips.
+The historical filename tiktok_worker_scanner.py is retained for compatibility;
+there is no Worker API runtime in this build.
 """
 
 from __future__ import annotations
@@ -1047,7 +989,7 @@ class AsyncRequestGate:
         if self.stats:
             self.stats.stop('stopped_rate_limited', self.rate_limit_reason)
         if first:
-            heading = 'HTTP 429 RATE LIMIT DETECTED' if reason.startswith('HTTP 429') else 'WORKER RATE LIMIT DETECTED'
+            heading = 'HTTP 429 RATE LIMIT DETECTED' if reason.startswith('HTTP 429') else 'API RATE LIMIT DETECTED'
             console('\n' + heading + '\nAll new API requests have been stopped.\n'
                     'Saving progress, pending profiles, failed profiles, retry state and statistics.\n'
                     'The scan can be resumed later.', error=True)
@@ -1331,7 +1273,7 @@ async def export_one_list(
         result.stop_reason = "resuming"
     if list_name == "following" and profile.following_visible is False:
         result.stop_reason = "list_restricted"
-        result.error = "Worker profile explicitly reports see_following=No."
+        result.error = "Profile metadata reports that the following list is not visible."
         result.visibility_reason = result.error
         result.see_following = "No"
         finish_list_result(result, profile)
@@ -1628,8 +1570,7 @@ def write_final_json(
         with temporary_path.open("w", encoding="utf-8", newline="\n") as stream:
             stream.write("{\n")
             write_json_property(stream, "schema_version", 4)
-            direct_used = profile.metadata.get('backend') == 'direct' or any(r.backend == 'direct' for r in results.values())
-            write_json_property(stream, "source", "tiktok_hybrid_api" if direct_used else "fintok_worker_api")
+            write_json_property(stream, "source", "tiktok_dtk_api")
             write_json_property(stream, "started_at_utc", started_at)
             write_json_property(stream, "completed_at_utc", utc_iso())
             write_json_property(stream, "requested_lists", selected_lists)
@@ -1692,7 +1633,7 @@ def inspect_reusable_export(
         return None
     if not isinstance(document, dict):
         return None
-    if document.get("schema_version") != 4 or document.get("source") not in {"fintok_worker_api", "tiktok_hybrid_api"}:
+    if document.get("schema_version") != 4 or document.get("source") not in {"tiktok_dtk_api", "fintok_worker_api", "tiktok_hybrid_api"}:
         return None
     profile = document.get("profile")
     if not isinstance(profile, dict):
