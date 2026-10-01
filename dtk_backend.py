@@ -378,15 +378,15 @@ def _avatar_url(author):
 
 def _profile_from_author(author, username):
     if not isinstance(author, dict):
-        raise s.InvalidWorkerResponse("DTK profile data must be an object.")
+        raise s.InvalidBackendResponse("DTK profile data must be an object.")
     unique = author.get("unique_id")
     if not isinstance(unique, str) or not unique:
         unique = username
     if unique.casefold() != username.casefold():
-        raise s.InvalidWorkerResponse("DTK returned a different username than requested.")
+        raise s.InvalidBackendResponse("DTK returned a different username than requested.")
     uid = author.get("uid")
     if isinstance(uid, bool) or not isinstance(uid, (str, int)):
-        raise s.InvalidWorkerResponse("DTK profile uid is missing.")
+        raise s.InvalidBackendResponse("DTK profile uid is missing.")
     uid = str(uid)
     stats = author.get("stats") if isinstance(author.get("stats"), dict) else {}
     raw = author.get("raw") if isinstance(author.get("raw"), dict) else {}
@@ -789,10 +789,10 @@ class DtkClient:
             params["cursor"] = cursor
         data = await self._call(f"/api/v1/tiktok/user/{list_name}", params, list_name)
         if not isinstance(data, dict):
-            raise s.InvalidWorkerResponse(f"DTK {list_name} response must be an object.")
+            raise s.InvalidBackendResponse(f"DTK {list_name} response must be an object.")
         items = data.get("items")
         if not isinstance(items, list):
-            raise s.InvalidWorkerResponse(f"DTK {list_name} response is missing items.")
+            raise s.InvalidBackendResponse(f"DTK {list_name} response is missing items.")
         batch = s.BatchResponse(
             records=[_member_from_author(item) for item in items],
             has_more=bool(data.get("has_more")),
