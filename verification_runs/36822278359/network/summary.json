@@ -53,6 +53,12 @@
       "mode": "direct",
       "workers": 500,
       "returncode": 0
+    },
+    {
+      "variant": "final",
+      "mode": "direct",
+      "workers": 1000,
+      "returncode": 0
     }
   ]
 }
