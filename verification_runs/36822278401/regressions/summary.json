@@ -1,0 +1,31 @@
+{
+  "run_id": 36822278401,
+  "source": "f2991c23800fa0d645cb512d2a20eb3ffba75d76",
+  "jobs": [
+    {
+      "platform_python": "windows_312",
+      "job_id": 110240230966,
+      "result": "OK (skipped=1)\r",
+      "tests": "Ran 218 tests in 194.265s"
+    },
+    {
+      "platform_python": "ubuntu_311",
+      "job_id": 110240231150,
+      "result": "OK",
+      "tests": "Ran 224 tests in 59.723s"
+    },
+    {
+      "platform_python": "ubuntu_312",
+      "job_id": 110240231193,
+      "result": "OK",
+      "tests": "Ran 224 tests in 32.467s"
+    },
+    {
+      "platform_python": "windows_311",
+      "job_id": 110240231201,
+      "result": "OK (skipped=1)\r",
+      "tests": "Ran 218 tests in 209.385s"
+    }
+  ],
+  "scope": "Native Windows/Linux Python 3.11/3.12, offline regressions and real loopback TLS/proxy. Windows skips POSIX signals."
+}

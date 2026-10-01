@@ -23,7 +23,7 @@ def flatten(value, prefix=''):
 def write_csv(path, rows):
     fields = list(dict.fromkeys(key for row in rows for key in row))
     with path.open('w', encoding='utf-8', newline='') as stream:
-        writer = csv.DictWriter(stream, fieldnames=fields)
+        writer = csv.DictWriter(stream, fieldnames=fields, lineterminator='\n')
         writer.writeheader()
         writer.writerows(rows)
 
