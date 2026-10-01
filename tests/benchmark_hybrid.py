@@ -39,11 +39,14 @@ def main():
     parser.add_argument('--profile', action='store_true')
     parser.add_argument('--source', type=Path)
     parser.add_argument('--original', action='store_true')
+    parser.add_argument('--io-workers', type=int)
     args = parser.parse_args()
     args.result.parent.mkdir(parents=True, exist_ok=True)
     root = Path(tempfile.mkdtemp(prefix='hybrid_bench_', dir=args.result.parent))
     cfg = s.default_scan_config()
     cfg.update(backend_mode=args.backend, workers=args.workers, target_username='benchmark_target', keep_raw=True)
+    if args.io_workers is not None:
+        cfg['io_workers'] = args.io_workers
     s.KEEP_RAW_MEMBER_DATA = True
     state = s.DurableScanState(root, {'input_imported': True, 'created_at_utc': s.utc_iso()}, root, cfg)
     state.add_jobs((s.ProfileJob(f'bench{i}', f'https://www.tiktok.com/@bench{i}', ('fixture',), str(7100000000000000000+i))
@@ -136,7 +139,7 @@ def main():
         import cProfile
         profiler = cProfile.Profile(); profiler.enable()
     started, cpu = time.perf_counter(), time.process_time()
-    with (root/'console.log').open('w') as log, contextlib.redirect_stdout(log), s.RunLog(root):
+    with (root/'console.log').open('w') as log, contextlib.redirect_stdout(log), s.RunLog(root) as run_log:
         result = asyncio.run(run())
         seconds = time.perf_counter()-started
         assert result[2] is None, result[2]
@@ -147,6 +150,7 @@ def main():
         then = time.perf_counter(); state.recover(recorder); resume_seconds = time.perf_counter()-then
     saved_stats = json.loads((root/"scan_stats.json").read_text())
     state.close()
+    pipeline_seconds = time.perf_counter()-started
     if profiler:
         profiler.disable(); profiler.dump_stats(str(args.result.with_suffix('.pstats')))
     quant = lambda values, q: sorted(values)[min(len(values)-1, int(len(values)*q))] if values else 0
@@ -165,6 +169,8 @@ def main():
                report_bytes=report.stat().st_size if report else 0,
                backend_metrics=metrics[0].snapshot() if metrics else {}, persistence_timings=saved_stats.get("persistence_timings", {}), errors=0, retries=0)
     doc.update(source_file_sha256=hashlib.sha256(Path(s.__file__).read_bytes()).hexdigest(),
+               pipeline_total_seconds=pipeline_seconds, io_workers=cfg.get('io_workers', 0),
+               background_log_write_seconds=getattr(run_log, 'write_seconds', None),
                platform=platform.platform(), cpu_count=os.cpu_count(), measured_at_utc=s.utc_iso(),
                attempted_rps=requests/seconds, profiles_per_second=operations['profile']/seconds,
                successful_records_per_second=(args.accounts+2*sum(total(i) for i in range(args.accounts)))/seconds,

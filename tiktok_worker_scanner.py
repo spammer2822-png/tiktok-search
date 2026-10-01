@@ -2248,6 +2248,12 @@ async def export_one_list(
         result.backend_failure = getattr(exc, 'backend_failure', result.backend_failure)
         result.http_code = exc.code if isinstance(exc.code, int) else None
         result.retry_count += getattr(exc, "retry_count", 0)
+    else:
+        if result.endpoint_exhausted:
+            # commit_page already finalized and durably saved this exact result.
+            # Finishing again only changes its timestamp and forces another
+            # SQLite transaction, serialization and executor round trip.
+            return result
     finish_list_result(result, profile)
     await disk_call(store.save_checkpoint, list_name, {"result": asdict(result), "next_cursor": cursor,
                                      "duplicate_only_pages": duplicate_only_pages})

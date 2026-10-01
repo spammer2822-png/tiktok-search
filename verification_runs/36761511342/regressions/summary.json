@@ -1,0 +1,44 @@
+{
+  "runtime_commit": "80925a694c0750c9c19419d28bf76fa8a1261ba1",
+  "run_id": 36761511342,
+  "status": "COMPLETED",
+  "scope": "Offline regression suite including real loopback TLS/CONNECT; no live TikTok claim",
+  "results": [
+    {
+      "job": 110044966974,
+      "name": "scanner (ubuntu-latest, 3.12)",
+      "conclusion": "success",
+      "tests": 222,
+      "seconds": 43.473,
+      "skipped": 0,
+      "log": "verification_runs/36761511342/regressions/110044966974.log"
+    },
+    {
+      "job": 110044967277,
+      "name": "scanner (ubuntu-latest, 3.11)",
+      "conclusion": "success",
+      "tests": 222,
+      "seconds": 38.373,
+      "skipped": 0,
+      "log": "verification_runs/36761511342/regressions/110044967277.log"
+    },
+    {
+      "job": 110044967352,
+      "name": "scanner (windows-latest, 3.11)",
+      "conclusion": "success",
+      "tests": 216,
+      "seconds": 232.064,
+      "skipped": 1,
+      "log": "verification_runs/36761511342/regressions/110044967352.log"
+    },
+    {
+      "job": 110044967450,
+      "name": "scanner (windows-latest, 3.12)",
+      "conclusion": "success",
+      "tests": 216,
+      "seconds": 216.19,
+      "skipped": 1,
+      "log": "verification_runs/36761511342/regressions/110044967450.log"
+    }
+  ]
+}

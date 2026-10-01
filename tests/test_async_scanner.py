@@ -89,6 +89,21 @@ class AsyncTests(unittest.IsolatedAsyncioTestCase):
   c,_=self.setup_http(handler,ceiling=1)
   async with c:await asyncio.gather(*(c.request_json('profile',{'username':'roblox'}) for _ in range(3)))
   self.assertEqual(peak,1)
+ async def test_terminal_page_preserves_the_committed_result(self):
+  p=profile(followers='1');c=AsyncFakeClient(p,{'followers':[page([member('member1')])]})
+  committed=[]
+  database=self.root/'terminal.sqlite3'
+  with s.UserStore(database) as store:
+   async def discovered(name,records):
+    committed.append(store.checkpoint(name))
+    await asyncio.sleep(.002)
+   result=await s.export_one_list(c,store,p,'followers',target_username='absent',
+      on_discovery=discovered,stop_event=asyncio.Event())
+   self.assertTrue(result.complete)
+   self.assertEqual(s.asdict(result),committed[0]['result'])
+  with s.UserStore(database) as reopened:
+   self.assertEqual(reopened.checkpoint('followers'),committed[0])
+   self.assertEqual(reopened.count('followers'),1)
  async def test_delayed_client_preparation_cannot_bunch_request_starts(self):
   starts=[];prepared=0;ready=asyncio.Event()
   async def handler(route,request):
