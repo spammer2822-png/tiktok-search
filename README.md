@@ -127,7 +127,7 @@ The scanner sends the DTK API key only to the configured DTK API origin. It does
 
 ## Important throughput note
 
-Increasing scanner workers does not magically make TikTok accept the same number of simultaneous requests. DTK deliberately schedules through usable browser identities and endpoint-specific token buckets. If DTK reports `IDENTITY_POOL_EXHAUSTED`, `QUEUE_FULL`, `RATE_LIMITED`, or risk control, the scanner respects DTK's retry information rather than hammering localhost harder, because apparently computers also benefit from not being shouted at.
+Increasing scanner workers does not magically make TikTok accept the same number of simultaneous requests. DTK deliberately schedules through usable browser identities and endpoint-specific token buckets. If DTK reports `IDENTITY_POOL_EXHAUSTED`, `QUEUE_FULL`, `RATE_LIMITED`, or risk control, the scanner respects DTK's retry information instead of flooding the local API with immediate retries.
 
 ## Main project files
 
@@ -139,7 +139,7 @@ Increasing scanner workers does not magically make TikTok accept the same number
 - `scan_runtime.py` — runtime/disk scheduling.
 - `avatar_cache.py` — bounded offline avatar cache.
 - `report_generator.py`, `report_template.html`, `report_worker.js` — report system.
-- `run_tests.py`, `tests/test_dtk_backend.py` — current DTK regression suite.
+- `run_tests.py`, `tests/test_dtk_backend.py`, `tests/test_dtk_pipeline.py` — current DTK-only regression suite.
 
 ## Verification status
 
