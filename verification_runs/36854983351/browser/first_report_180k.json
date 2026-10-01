@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "mode": "report",
+  "version": "scanner-verification-1mch3xx0",
+  "python": "3.12.14",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "workers": 2500,
+  "accounts": 180000,
+  "pages_per_direction": 12,
+  "members_per_page": 20,
+  "raw_enabled": true,
+  "latency_model_seconds": 0.02,
+  "proxy_routes": 0,
+  "network": "HTTPX MockTransport; no TCP/TLS/service measurements",
+  "startup_seconds": 0.1017441529999985,
+  "fixture_seconds": 11.129469632000024,
+  "resume_seconds": 0.4029797870000209,
+  "checkpoint_mean_seconds": 0.008838135150001846,
+  "summary_mean_seconds": 0.0059073143400001984,
+  "retry_candidates": 3600,
+  "failed_lookup_seconds": 0.00023507000000222433,
+  "html_generation_seconds": 15.380227082000005,
+  "html_bytes": 19323743,
+  "report_path": "/home/runner/work/_temp/scanner-verification-1mch3xx0/results/report_k22y9bnt/report_report_k22y9bnt.html",
+  "total_seconds": 27.726798172000002,
+  "cpu_seconds": 27.422352558,
+  "cpu_percent_one_core": 98.90198063219773,
+  "peak_rss_mib": 471.171875,
+  "call_inclusive_seconds": {
+    "atomic_save": 0.058934376999985716,
+    "summary": 0.731272578999949,
+    "checkpoint": 0.19495243000000073,
+    "recover": 0.40297643100001324
+  },
+  "call_counts": {
+    "atomic_save": 68,
+    "summary": 123,
+    "checkpoint": 22,
+    "recover": 1
+  }
+}
