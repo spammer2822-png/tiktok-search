@@ -1,0 +1,17 @@
+{
+  "scope": "Instrumented per-thread CPU clock, separate from unprofiled throughput",
+  "wall_seconds": 160.080347545,
+  "process_cpu_seconds": 160.13685792500002,
+  "profiled_exclusive_cpu_seconds": 160.0704970320002,
+  "threads": [
+    "scan-writer_0",
+    "scan-profile-io_0",
+    "scan-profile-io_1",
+    "scan-profile-io_2",
+    "scan-log-writer",
+    "main"
+  ],
+  "functions": 2194,
+  "exclusive_percentage_sum": 99.99999999999964,
+  "warning": "Profiler overhead is included. Cumulative times overlap; use exclusive times for shares."
+}
