@@ -119,7 +119,7 @@ def migrate_config(config):
     return migrated
 
 
-class DtkApiError(s.WorkerApiError):
+class DtkApiError(s.ScannerApiError):
     def __init__(self, code, message="", *, status=None, retry_after=None, request_id=None, details=None):
         kind_map = {
             "RATE_LIMITED": "rate_limited",
@@ -619,13 +619,13 @@ class DtkClient:
                 s.console(f"[DTK RETRY {attempt + 1}/{attempts - 1}] {exc.dtk_code}; waiting {delay:.1f}s.")
                 await self.gate.wait(delay)
             except (self.httpx.ConnectError, self.httpx.ConnectTimeout) as exc:
-                failure = s.WorkerApiError("DTK local API connection failed.", kind="network_error", retryable=True)
+                failure = s.ScannerApiError("DTK local API connection failed.", kind="network_error", retryable=True)
                 last = failure
                 if attempt + 1 >= attempts:
                     raise failure from None
                 await self.gate.wait(min(10, 2 ** attempt))
             except (self.httpx.TimeoutException, TimeoutError):
-                failure = s.WorkerApiError("DTK local API timed out.", kind="response_timeout", retryable=True)
+                failure = s.ScannerApiError("DTK local API timed out.", kind="response_timeout", retryable=True)
                 last = failure
                 if attempt + 1 >= attempts:
                     raise failure from None
