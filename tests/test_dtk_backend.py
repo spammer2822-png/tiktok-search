@@ -11,6 +11,7 @@ import httpx
 
 import dtk_backend as d
 import tiktok_worker_scanner as s
+from scan_statistics import ScanStatistics
 
 
 def author(name="person1", uid="7100000000000000001", sec_uid="MS4wLjABAAAAfixture"):
@@ -193,6 +194,48 @@ class ClientTests(unittest.IsolatedAsyncioTestCase):
             data = await self.client._call("/api/v1/tiktok/user", {"url": "x"}, "profile")
         self.assertEqual(data["unique_id"], "person1")
         self.client._repair_identity_pool.assert_awaited_once_with("IDENTITY_POOL_EXHAUSTED")
+
+    async def test_dtk_errors_are_saved_to_structured_log(self):
+        with tempfile.TemporaryDirectory() as temp:
+            self.client.output_directory = Path(temp)
+            exc = d.DtkApiError(
+                "IDENTITY_POOL_EXHAUSTED",
+                "fixture identity failure",
+                status=503,
+                retry_after=2,
+                request_id="fixture-request",
+            )
+            with patch.object(s, "console") as emit:
+                await self.client._record_dtk_error(exc, "identity preflight")
+            path = Path(temp) / "dtk_errors.jsonl"
+            self.assertTrue(path.is_file())
+            payload = __import__("json").loads(path.read_text(encoding="utf-8").strip())
+            self.assertEqual(payload["context"], "identity preflight")
+            self.assertEqual(payload["code"], "IDENTITY_POOL_EXHAUSTED")
+            self.assertEqual(payload["request_id"], "fixture-request")
+            emit.assert_called_once()
+            self.assertTrue(emit.call_args.kwargs["error"])
+
+    def test_scan_statistics_start_hidden_until_dtk_preflight_finishes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            stats = ScanStatistics(Path(temp), 2000)
+            summary = {
+                "remaining_profiles": 10,
+                "current_phase": 1,
+                "total_profiles": 10,
+                "processed_profiles": 0,
+                "discovered_profiles": 0,
+                "completed_overall": 0,
+                "failed_profiles": 0,
+                "statuses": {"pending": 10},
+            }
+            before = stats.snapshot(summary)
+            self.assertFalse(before["scan_requests_enabled"])
+            stats.scan_requests_enabled = True
+            stats.scan_started_at = "fixture"
+            after = stats.snapshot(summary)
+            self.assertTrue(after["scan_requests_enabled"])
+            self.assertEqual(after["scan_started_at"], "fixture")
 
     async def test_profile_and_lists_use_only_dtk_routes(self):
         self.client._call = AsyncMock(return_value=author())
