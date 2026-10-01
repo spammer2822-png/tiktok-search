@@ -89,6 +89,17 @@ class AsyncTests(unittest.IsolatedAsyncioTestCase):
   c,_=self.setup_http(handler,ceiling=1)
   async with c:await asyncio.gather(*(c.request_json('profile',{'username':'roblox'}) for _ in range(3)))
   self.assertEqual(peak,1)
+ async def test_worker_only_preserves_saved_retry_budget(self):
+  requests=[]
+  async def handler(route,request):
+   requests.append(request)
+   return httpx.Response(503)
+  c,_=self.setup_http(handler,configs=[])
+  c.settings.update(s.default_scan_config(),retry_attempts=2,worker_retry_attempts=5)
+  async with c,apatch(c.gate,'wait',return_value=None):
+   with self.assertRaises(s.WorkerApiError):
+    await c.request_json('profile',{'username':'roblox'})
+  self.assertEqual(len(requests),2)
  async def test_terminal_page_preserves_the_committed_result(self):
   p=profile(followers='1');c=AsyncFakeClient(p,{'followers':[page([member('member1')])]})
   committed=[]

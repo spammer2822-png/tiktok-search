@@ -1679,7 +1679,9 @@ class WorkerApiClient:
         route: ProxyState | None = None
         choose_route = True
         last_failure: WorkerApiError | None = None
-        attempts = self.settings.get("worker_retry_attempts", self.settings.get("retry_attempts", FETCH_ATTEMPTS))
+        # Worker-only retains the saved legacy retry budget. The hybrid adapter
+        # owns worker_retry_attempts separately; its defaults must not override it.
+        attempts = self.settings.get("retry_attempts", FETCH_ATTEMPTS)
         retried_404 = False
         normal_failures = 0
         label = context or (f"@{params.get('username')} profile lookup" if operation == "profile" else operation.upper())

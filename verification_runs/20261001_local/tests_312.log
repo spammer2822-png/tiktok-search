@@ -1,0 +1,389 @@
+test_150_queued_worker_requests_migrate_without_leakage (test_rate_limit_control.RateLimitTests.test_150_queued_worker_requests_migrate_without_leakage) ... [PROXY] No usable proxies remain; using direct connection.
+[429] Worker disabled for this execution. Remaining compatible work moves to Direct.
+ok
+test_2500_active_worker_requests_cancel_and_migrate (test_rate_limit_control.RateLimitTests.test_2500_active_worker_requests_cancel_and_migrate) ... Executing <Task pending name='Task-463' coro=<RateLimitTests.test_2500_active_worker_requests_cancel_and_migrate() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/tests/test_rate_limit_control.py:62> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:712> cb=[_run_until_complete_cb() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:181] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:100> took 0.261 seconds
+[PROXY] No usable proxies remain; using direct connection.
+Executing <Task pending name='coalesced-profile' coro=<HybridClient.lookup_profile.<locals>.lookup() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/hybrid_backend.py:466> wait_for=<Future pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:448> cb=[shield.<locals>._inner_done_callback() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:905] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> took 0.145 seconds
+Executing <Task pending name='worker-api-request' coro=<ApiBackend.request_json.<locals>.send() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/hybrid_backend.py:260> wait_for=<Future pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:448> cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> took 0.176 seconds
+Executing <Task pending name='worker-api-request' coro=<ApiBackend.request_json.<locals>.send() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/hybrid_backend.py:260> wait_for=<Future pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:448> cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> took 0.237 seconds
+[429] Worker disabled for this execution. Remaining compatible work moves to Direct.
+ok
+test_bootstrap_client_boundary_retains_disable_but_new_execution_resets (test_rate_limit_control.RateLimitTests.test_bootstrap_client_boundary_retains_disable_but_new_execution_resets) ... [PROXY] No usable proxies remain; using direct connection.
+[429] Worker disabled for this execution. Remaining compatible work moves to Direct.
+[PROXY] No usable proxies remain; using direct connection.
+Executing <Task pending name='Task-10481' coro=<to_thread() running at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/threads.py:25> wait_for=<Future pending cb=[_chain_future.<locals>._call_check_cancel() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/futures.py:389, Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:448> cb=[shield.<locals>._inner_done_callback() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:905] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> took 0.109 seconds
+ok
+test_cancel_during_cooldown_leaves_no_timers_or_permits (test_rate_limit_control.RateLimitTests.test_cancel_during_cooldown_leaves_no_timers_or_permits) ... [PROXY] No usable proxies remain; using direct connection.
+[ASYNC] Active request limit adjusted to 1 (ceiling 100).
+[429] Direct paused for 60.00s. One recovery probe will follow.
+ok
+test_direct_cooldown_single_timer_probe_and_gradual_recovery (test_rate_limit_control.RateLimitTests.test_direct_cooldown_single_timer_probe_and_gradual_recovery) ... [PROXY] No usable proxies remain; using direct connection.
+[ASYNC] Active request limit adjusted to 1 (ceiling 100).
+[429] Direct paused for 0.12s. One recovery probe will follow.
+[429] Direct recovery succeeded; increasing concurrency with valid responses.
+[ASYNC] Active request limit adjusted to 2 (ceiling 100).
+[ASYNC] Active request limit adjusted to 4 (ceiling 100).
+[ASYNC] Active request limit adjusted to 8 (ceiling 100).
+[ASYNC] Active request limit adjusted to 16 (ceiling 100).
+[ASYNC] Active request limit adjusted to 32 (ceiling 100).
+[ASYNC] Active request limit adjusted to 64 (ceiling 100).
+[ASYNC] Active request limit adjusted to 100 (ceiling 100).
+ok
+test_full_scan_stop_and_resume_keeps_pages_jobs_and_matches (test_rate_limit_control.RateLimitTests.test_full_scan_stop_and_resume_keeps_pages_jobs_and_matches) ... ok
+test_repeated_direct_429_stops_without_releasing_queue (test_rate_limit_control.RateLimitTests.test_repeated_direct_429_stops_without_releasing_queue) ... [PROXY] No usable proxies remain; using direct connection.
+[429] Worker disabled for this execution. Remaining compatible work moves to Direct.
+[ASYNC] Active request limit adjusted to 1 (ceiling 100).
+[429] Direct paused for 0.01s. One recovery probe will follow.
+
+HTTP 429 RATE LIMIT DETECTED
+All new API requests have been stopped.
+Saving progress, pending profiles, failed profiles, retry state and statistics.
+The scan can be resumed later.
+ok
+test_worker_429_in_both_cursor_directions_preserves_dedup_and_target (test_rate_limit_control.RateLimitTests.test_worker_429_in_both_cursor_directions_preserves_dedup_and_target) ... [PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWERS] Page 1: received 2, +2 unique, total 2, has_more=True
+[429] Worker disabled for this execution. Remaining compatible work moves to Direct.
+[@person1] [FOLLOWERS] Page 2: received 2, +1 unique, total 3, has_more=False
+[PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWING] Page 1: received 2, +2 unique, total 2, has_more=True
+[429] Worker disabled for this execution. Remaining compatible work moves to Direct.
+[@person1] [FOLLOWING] Page 2: received 2, +1 unique, total 3, has_more=False
+ok
+test_cancel_during_store_open_closes_handle_with_and_without_disk_lane (test_hybrid_audit.AuditTests.test_cancel_during_store_open_closes_handle_with_and_without_disk_lane) ... ok
+test_committed_direct_export_recovers_before_queue_record (test_hybrid_audit.AuditTests.test_committed_direct_export_recovers_before_queue_record) ... ok
+test_cooldown_and_recovery_survive_client_boundary (test_hybrid_audit.AuditTests.test_cooldown_and_recovery_survive_client_boundary) ... [PROXY] No usable proxies remain; using direct connection.
+[ASYNC] Active request limit adjusted to 1 (ceiling 100).
+[429] Direct paused for 0.10s. One recovery probe will follow.
+[PROXY] No usable proxies remain; using direct connection.
+[429] Direct recovery succeeded; increasing concurrency with valid responses.
+[ASYNC] Active request limit adjusted to 1 (ceiling 2500).
+ok
+test_http_200_rate_limit_text_does_not_disable_or_stop (test_hybrid_audit.AuditTests.test_http_200_rate_limit_text_does_not_disable_or_stop) ... [PROXY] No usable proxies remain; using direct connection.
+ok
+test_invalid_members_do_not_inflate_successful_records (test_hybrid_audit.AuditTests.test_invalid_members_do_not_inflate_successful_records) ... [PROXY] No usable proxies remain; using direct connection.
+ok
+test_latency_spike_reduces_direct_even_without_errors (test_hybrid_audit.AuditTests.test_latency_spike_reduces_direct_even_without_errors) ... [ASYNC] Active request limit adjusted to 50 (ceiling 100).
+[ASYNC] Active request limit adjusted to 100 (ceiling 100).
+ok
+test_live_console_includes_both_backends_and_total (test_hybrid_audit.AuditTests.test_live_console_includes_both_backends_and_total) ... ok
+test_lower_yield_with_more_attempts_reduces_direct (test_hybrid_audit.AuditTests.test_lower_yield_with_more_attempts_reduces_direct) ... [ASYNC] Active request limit adjusted to 50 (ceiling 100).
+ok
+test_proxy_metrics_rate_activity_and_errors (test_hybrid_audit.AuditTests.test_proxy_metrics_rate_activity_and_errors) ... ok
+test_resume_preview_closes_database_on_success_and_error (test_hybrid_audit.AuditTests.test_resume_preview_closes_database_on_success_and_error) ... ok
+test_worker_continues_during_direct_cooldown (test_hybrid_audit.AuditTests.test_worker_continues_during_direct_cooldown) ... [PROXY] No usable proxies remain; using direct connection.
+[ASYNC] Active request limit adjusted to 1 (ceiling 100).
+[429] Direct paused for 60.00s. One recovery probe will follow.
+ok
+test_cookie_credentials_never_reach_worker (test_hybrid_backend.HybridTests.test_cookie_credentials_never_reach_worker) ... [PROXY] No usable proxies remain; using direct connection.
+ok
+test_direct_risk_does_not_stop_worker (test_hybrid_backend.HybridTests.test_direct_risk_does_not_stop_worker) ... [PROXY] No usable proxies remain; using direct connection.
+ok
+test_failed_replacement_keeps_zero_checkpoint (test_hybrid_backend.HybridTests.test_failed_replacement_keeps_zero_checkpoint) ... [PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWERS] Page 1: received 2, +2 unique, total 2, has_more=True
+ok
+test_followers_and_following_use_owned_exact_cursors (test_hybrid_backend.HybridTests.test_followers_and_following_use_owned_exact_cursors) ... [PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWERS] Page 1: received 2, +2 unique, total 2, has_more=True
+[@person1] [FOLLOWERS] Page 2: received 2, +1 unique, total 3, has_more=False
+[PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWING] Page 1: received 2, +2 unique, total 2, has_more=True
+[@person1] [FOLLOWING] Page 2: received 2, +1 unique, total 3, has_more=False
+ok
+test_incompatible_failover_restarts_preserves_members_matches (test_hybrid_backend.HybridTests.test_incompatible_failover_restarts_preserves_members_matches) ... [PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWERS] Page 1: received 2, +2 unique, total 2, has_more=True
+[@person1] [FOLLOWERS] Page 2: received 3, +2 unique, total 4, has_more=False
+ok
+test_profile_coalescing_and_separate_caches (test_hybrid_backend.HybridTests.test_profile_coalescing_and_separate_caches) ... [PROXY] No usable proxies remain; using direct connection.
+ok
+test_restriction_does_not_switch_backend_or_proxy (test_hybrid_backend.HybridTests.test_restriction_does_not_switch_backend_or_proxy) ... [PROXY] No usable proxies remain; using direct connection.
+ok
+test_backend_score_prefers_successful_records (test_hybrid_backend.ProtocolTests.test_backend_score_prefers_successful_records) ... ok
+test_config_rejects_guessed_worker_count (test_hybrid_backend.ProtocolTests.test_config_rejects_guessed_worker_count) ... ok
+test_partial_missing_and_empty_pages (test_hybrid_backend.ProtocolTests.test_partial_missing_and_empty_pages) ... ok
+test_profile_and_members_keep_private_ids_counts (test_hybrid_backend.ProtocolTests.test_profile_and_members_keep_private_ids_counts) ... ok
+test_risk_is_distinct_from_http_429_and_business_errors (test_hybrid_backend.ProtocolTests.test_risk_is_distinct_from_http_429_and_business_errors) ... ok
+test_signing_binds_wire_query_and_opaque_cursor (test_hybrid_backend.ProtocolTests.test_signing_binds_wire_query_and_opaque_cursor) ... ok
+test_unknown_count_not_invented (test_hybrid_backend.ProtocolTests.test_unknown_count_not_invented) ... ok
+test_unknown_privacy_never_assumed_public (test_hybrid_backend.ProtocolTests.test_unknown_privacy_never_assumed_public) ... ok
+test_coalesced_cancel_does_not_cancel_another_waiter (test_hybrid_review.ReviewTests.test_coalesced_cancel_does_not_cancel_another_waiter) ... [PROXY] No usable proxies remain; using direct connection.
+ok
+test_cookie_credentials_never_reach_worker (test_hybrid_review.ReviewTests.test_cookie_credentials_never_reach_worker) ... [PROXY] No usable proxies remain; using direct connection.
+ok
+test_direct_risk_does_not_stop_worker (test_hybrid_review.ReviewTests.test_direct_risk_does_not_stop_worker) ... [PROXY] No usable proxies remain; using direct connection.
+ok
+test_failed_replacement_keeps_zero_checkpoint (test_hybrid_review.ReviewTests.test_failed_replacement_keeps_zero_checkpoint) ... [PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWERS] Page 1: received 2, +2 unique, total 2, has_more=True
+ok
+test_followers_and_following_use_owned_exact_cursors (test_hybrid_review.ReviewTests.test_followers_and_following_use_owned_exact_cursors) ... [PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWERS] Page 1: received 2, +2 unique, total 2, has_more=True
+[@person1] [FOLLOWERS] Page 2: received 2, +1 unique, total 3, has_more=False
+[PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWING] Page 1: received 2, +2 unique, total 2, has_more=True
+[@person1] [FOLLOWING] Page 2: received 2, +1 unique, total 3, has_more=False
+ok
+test_incompatible_failover_restarts_preserves_members_matches (test_hybrid_review.ReviewTests.test_incompatible_failover_restarts_preserves_members_matches) ... [PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWERS] Page 1: received 2, +2 unique, total 2, has_more=True
+[@person1] [FOLLOWERS] Page 2: received 3, +2 unique, total 4, has_more=False
+ok
+test_partial_page_saves_valid_matches (test_hybrid_review.ReviewTests.test_partial_page_saves_valid_matches) ... [PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWERS] Page 1: received 3, +2 unique, total 2, has_more=False
+ok
+test_private_profile_avatar_is_cached (test_hybrid_review.ReviewTests.test_private_profile_avatar_is_cached) ... [PROXY] No usable proxies remain; using direct connection.
+ok
+test_profile_coalescing_and_separate_caches (test_hybrid_review.ReviewTests.test_profile_coalescing_and_separate_caches) ... [PROXY] No usable proxies remain; using direct connection.
+ok
+test_proxy_capacity_cancel_does_not_release_unowned_permit (test_hybrid_review.ReviewTests.test_proxy_capacity_cancel_does_not_release_unowned_permit) ... [PROXY] proxy-001 connected; 1/1 confirmed so far.
+ok
+test_restriction_does_not_switch_backend_or_proxy (test_hybrid_review.ReviewTests.test_restriction_does_not_switch_backend_or_proxy) ... [PROXY] No usable proxies remain; using direct connection.
+ok
+test_switch_to_worker_mode_restarts_direct_cursor (test_hybrid_review.ReviewTests.test_switch_to_worker_mode_restarts_direct_cursor) ... [PROXY] No usable proxies remain; using direct connection.
+[@person1] [FOLLOWERS] Page 2: received 2, +1 unique, total 2, has_more=False
+ok
+test_uid_match_survives_renamed_username_on_resume (test_hybrid_review.ReviewTests.test_uid_match_survives_renamed_username_on_resume) ... ok
+test_real_407_then_direct_fallback (test_hybrid_review.WireReuseTests.test_real_407_then_direct_fallback) ... ok
+test_real_connect_auth_isolated_from_https_origin (test_hybrid_review.WireReuseTests.test_real_connect_auth_isolated_from_https_origin) ... ok
+test_real_tls_connect_is_reused (test_hybrid_review.WireReuseTests.test_real_tls_connect_is_reused) ... ok
+test_real_two_proxies_concurrently (test_hybrid_review.WireReuseTests.test_real_two_proxies_concurrently) ... Executing <Task pending name='Task-12021' coro=<ProxyWireTests.asyncSetUp() running at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/tests/test_proxy_wire.py:22> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:712> cb=[_run_until_complete_cb() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:181] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:100> took 0.101 seconds
+ok
+test_background_backfill_runs_before_scan_completion_and_closes (test_report_avatar_fix.ReportAvatarFixTests.test_background_backfill_runs_before_scan_completion_and_closes) ... [PROXY] No usable proxies remain; using direct connection.
+ok
+test_background_cancellation_finishes_before_cache_close (test_report_avatar_fix.ReportAvatarFixTests.test_background_cancellation_finishes_before_cache_close) ... ok
+test_global_stop_prevents_background_image_dispatch (test_report_avatar_fix.ReportAvatarFixTests.test_global_stop_prevents_background_image_dispatch) ... ok
+test_pending_error_and_partial_avatars_repair_without_rescan (test_report_avatar_fix.ReportAvatarFixTests.test_pending_error_and_partial_avatars_repair_without_rescan) ... ok
+test_saved_input_avatars_survive_identity_only_queue (test_report_avatar_fix.ReportAvatarFixTests.test_saved_input_avatars_survive_identity_only_queue) ... ok
+test_encoded_export_matches_decoded_unicode_and_duplicate_identity (test_speed_update.DataTests.test_encoded_export_matches_decoded_unicode_and_duplicate_identity) ... ok
+test_pending_resume_skips_nonexistent_exports_but_recovers_real_ones (test_speed_update.DataTests.test_pending_resume_skips_nonexistent_exports_but_recovers_real_ones) ... ok
+test_redaction_fast_paths (test_speed_update.DataTests.test_redaction_fast_paths) ... ok
+test_report_delta_roundtrip_and_closed_database (test_speed_update.DataTests.test_report_delta_roundtrip_and_closed_database) ... ok
+test_workers_not_capped_at_64 (test_speed_update.DataTests.test_workers_not_capped_at_64) ... ok
+test_dns_tls_and_disconnect_retry_then_exhaustion (test_speed_update.OwnershipTests.test_dns_tls_and_disconnect_retry_then_exhaustion) ... ok
+test_independent_io_overlaps_and_repeated_cancel_waits_for_commit (test_speed_update.OwnershipTests.test_independent_io_overlaps_and_repeated_cancel_waits_for_commit) ... ok
+test_repeated_sigint_main_saves_one_report (test_speed_update.RepeatedSignalTests.test_repeated_sigint_main_saves_one_report) ... ok
+test_connection_budget_and_legacy_config (test_optimization.MetricsTests.test_connection_budget_and_legacy_config) ... ok
+test_history_append_resume_and_torn_tail_repair (test_optimization.MetricsTests.test_history_append_resume_and_torn_tail_repair) ... ok
+test_report_markers_in_metadata_do_not_break_generation (test_optimization.MetricsTests.test_report_markers_in_metadata_do_not_break_generation) ... ok
+test_rolling_window_eta_unique_profiles_and_request_counts (test_optimization.MetricsTests.test_rolling_window_eta_unique_profiles_and_request_counts) ... ok
+test_10000_workers_429_preserves_pending_stats_and_completed_data (test_optimization.RuntimeTests.test_10000_workers_429_preserves_pending_stats_and_completed_data) ... ok
+test_429_headers_stop_before_reading_slow_body (test_optimization.RuntimeTests.test_429_headers_stop_before_reading_slow_body) ... ok
+test_client_pool_count_bounded_with_many_proxy_routes (test_optimization.RuntimeTests.test_client_pool_count_bounded_with_many_proxy_routes) ... ok
+test_periodic_stats_write_and_five_minute_history (test_optimization.RuntimeTests.test_periodic_stats_write_and_five_minute_history) ... ok
+test_retry_partial_preserves_cursor_complete_list_and_match (test_optimization.RuntimeTests.test_retry_partial_preserves_cursor_complete_list_and_match) ... ok
+test_retry_queue_wakes_without_resending_after_stop (test_optimization.RuntimeTests.test_retry_queue_wakes_without_resending_after_stop) ... ok
+test_writer_backpressure_cancellation_and_event_loop (test_optimization.RuntimeTests.test_writer_backpressure_cancellation_and_event_loop) ... ok
+test_forcekill_after_requeue_and_claim_is_recoverable (test_optimization.RetryCrashTests.test_forcekill_after_requeue_and_claim_is_recoverable) ... ok
+test_resume_yes_only_retries_selected_statuses (test_optimization.ResumeSelectionTests.test_resume_yes_only_retries_selected_statuses) ... ok
+test_resume_no_keeps_failed_results_untouched (test_optimization.ResumeSelectionTests.test_resume_no_keeps_failed_results_untouched) ... ok
+test_bootstrap_429_exits_as_rate_limit_and_preserves_cursor (test_optimization.ResumeSelectionTests.test_bootstrap_429_exits_as_rate_limit_and_preserves_cursor) ... ok
+test_bootstrap_public_only_uid_dedup_metadata (test_configured_scanner.ConfigurationTests.test_bootstrap_public_only_uid_dedup_metadata) ... ok
+test_both_limits_exact_boundary_zero_and_unknown (test_configured_scanner.ConfigurationTests.test_both_limits_exact_boundary_zero_and_unknown) ... ok
+test_config_validation_python311_and_saved_limits (test_configured_scanner.ConfigurationTests.test_config_validation_python311_and_saved_limits) ... ok
+test_double_phase_exactly_one_expansion_custom_target (test_configured_scanner.ConfigurationTests.test_double_phase_exactly_one_expansion_custom_target) ... ok
+test_edit_keep_values_and_validation_reprompts (test_configured_scanner.ConfigurationTests.test_edit_keep_values_and_validation_reprompts) ... ok
+test_invalid_saved_config_no_fallback_or_new_folder (test_configured_scanner.ConfigurationTests.test_invalid_saved_config_no_fallback_or_new_folder) ... ok
+test_new_startup_order_snapshot_and_custom_target (test_configured_scanner.ConfigurationTests.test_new_startup_order_snapshot_and_custom_target) ... ok
+test_normal_mode_never_expands (test_configured_scanner.ConfigurationTests.test_normal_mode_never_expands) ... ok
+test_private_seed_returns_to_source_selection (test_configured_scanner.ConfigurationTests.test_private_seed_returns_to_source_selection) ... ok
+test_resume_back_does_not_create_folder (test_configured_scanner.ConfigurationTests.test_resume_back_does_not_create_folder) ... ok
+test_resume_edit_saves_workers_delay_same_folder (test_configured_scanner.ConfigurationTests.test_resume_edit_saves_workers_delay_same_folder) ... ok
+test_resume_phase_two_does_not_repeat_phase_one (test_configured_scanner.ConfigurationTests.test_resume_phase_two_does_not_repeat_phase_one) ... 
+==================================================
+PHASE 1 COMPLETE
+Original profiles checked: 1
+Unique public Phase 2 profiles: 1
+Already processed/duplicate: 0
+Private profiles ignored: 0
+Size-limit skipped: 0
+==================================================
+[PHASE 2] Starting Phase 2...
+[PHASE 2] [PROGRESS 0/1]
+ok
+test_saved_config_beats_environment_and_python_defaults (test_configured_scanner.ConfigurationTests.test_saved_config_beats_environment_and_python_defaults) ... ok
+test_size_limits_skip_pages_and_save_details (test_configured_scanner.ConfigurationTests.test_size_limits_skip_pages_and_save_details) ... ok
+test_terminal_outcomes_preserved_with_changed_limits (test_configured_scanner.ConfigurationTests.test_terminal_outcomes_preserved_with_changed_limits) ... ok
+test_uid_register_prevents_concurrent_alias_page_scans (test_configured_scanner.ConfigurationTests.test_uid_register_prevents_concurrent_alias_page_scans) ... ok
+test_429_retry_after_does_not_restart_stopped_scan (test_async_scanner.AsyncTests.test_429_retry_after_does_not_restart_stopped_scan) ... ok
+test_429_stops_all_routes_without_retry (test_async_scanner.AsyncTests.test_429_stops_all_routes_without_retry) ... ok
+test_auth_is_proxy_only_and_clients_reused (test_async_scanner.AsyncTests.test_auth_is_proxy_only_and_clients_reused) ... ok
+test_bad_auth_fails_over_without_leaking (test_async_scanner.AsyncTests.test_bad_auth_fails_over_without_leaking) ... ok
+test_cancel_mid_list_writes_partial (test_async_scanner.AsyncTests.test_cancel_mid_list_writes_partial) ... ok
+test_cancel_orchestrator_waits_for_partial_writes (test_async_scanner.AsyncTests.test_cancel_orchestrator_waits_for_partial_writes) ... ok
+test_concurrent_shared_files_and_restart (test_async_scanner.AsyncTests.test_concurrent_shared_files_and_restart) ... ok
+test_connect_timeout_rotates_but_response_timeout_does_not (test_async_scanner.AsyncTests.test_connect_timeout_rotates_but_response_timeout_does_not) ... ok
+test_dead_proxy_direct_fallback (test_async_scanner.AsyncTests.test_dead_proxy_direct_fallback) ... ok
+test_delayed_client_preparation_cannot_bunch_request_starts (test_async_scanner.AsyncTests.test_delayed_client_preparation_cannot_bunch_request_starts) ... ok
+test_duplicate_only_stall (test_async_scanner.AsyncTests.test_duplicate_only_stall) ... ok
+test_invalid_json_not_proxy_failure (test_async_scanner.AsyncTests.test_invalid_json_not_proxy_failure) ... ok
+test_list_one_page_and_empty (test_async_scanner.AsyncTests.test_list_one_page_and_empty) ... ok
+test_loop_missing_empty_stall (test_async_scanner.AsyncTests.test_loop_missing_empty_stall) ... ok
+test_multiple_proxies_overlap_with_aggregate_pacing (test_async_scanner.AsyncTests.test_multiple_proxies_overlap_with_aggregate_pacing) ... ok
+test_no_proxy_file_direct (test_async_scanner.AsyncTests.test_no_proxy_file_direct) ... ok
+test_one_request_concurrency (test_async_scanner.AsyncTests.test_one_request_concurrency) ... ok
+test_pacing_rechecks_deadline_after_early_timer_wakeup (test_async_scanner.AsyncTests.test_pacing_rechecks_deadline_after_early_timer_wakeup) ... ok
+test_partial_restarts_and_preserves_success (test_async_scanner.AsyncTests.test_partial_restarts_and_preserves_success) ... ok
+test_private_profile_skips_lists (test_async_scanner.AsyncTests.test_private_profile_skips_lists) ... ok
+test_proxy403_no_direct_fallback (test_async_scanner.AsyncTests.test_proxy403_no_direct_fallback) ... ok
+test_proxy_only_never_falls_back (test_async_scanner.AsyncTests.test_proxy_only_never_falls_back) ... ok
+test_redaction_raw_payload_and_diagnostics (test_async_scanner.AsyncTests.test_redaction_raw_payload_and_diagnostics) ... ok
+test_resume_no_network_and_original_schema (test_async_scanner.AsyncTests.test_resume_no_network_and_original_schema) ... ok
+test_retry_5xx_all_required_codes (test_async_scanner.AsyncTests.test_retry_5xx_all_required_codes) ... ok
+test_sequential_pages_target_later_and_dedupe (test_async_scanner.AsyncTests.test_sequential_pages_target_later_and_dedupe) ... ok
+test_target_preserved_on_later_failure (test_async_scanner.AsyncTests.test_target_preserved_on_later_failure) ... ok
+test_terminal_page_preserves_the_committed_result (test_async_scanner.AsyncTests.test_terminal_page_preserves_the_committed_result) ... ok
+test_unknown_profile_is_not_private (test_async_scanner.AsyncTests.test_unknown_profile_is_not_private) ... ok
+test_worker403_blocks_all_without_proxy_penalty (test_async_scanner.AsyncTests.test_worker403_blocks_all_without_proxy_penalty) ... ok
+test_worker_error200_access_denied_blocks_all (test_async_scanner.AsyncTests.test_worker_error200_access_denied_blocks_all) ... ok
+test_worker_only_preserves_saved_retry_budget (test_async_scanner.AsyncTests.test_worker_only_preserves_saved_retry_budget) ... Executing <Task finished name='worker-api-request' coro=<WorkerApiClient.request_json.<locals>.send_request() done, defined at /workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/tiktok_worker_scanner.py:1715> result=<Response [50... Unavailable]> created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py:420> took 3.004 seconds
+ok
+test_40_webshare_entries_parsed_without_exposure (test_async_scanner.ConfigTests.test_40_webshare_entries_parsed_without_exposure) ... ok
+test_auto_grows_for_latency_and_shrinks_for_rate_limits (test_async_scanner.ConfigTests.test_auto_grows_for_latency_and_shrinks_for_rate_limits) ... ok
+test_colon_password_and_exact_auth (test_async_scanner.ConfigTests.test_colon_password_and_exact_auth) ... ok
+test_credential_redaction_encoded_and_basic (test_async_scanner.ConfigTests.test_credential_redaction_encoded_and_basic) ... ok
+test_default_and_explicit_workers (test_async_scanner.ConfigTests.test_default_and_explicit_workers) ... ok
+test_exact_schemas (test_async_scanner.ConfigTests.test_exact_schemas) ... ok
+test_invalid_entries_never_echo_secrets (test_async_scanner.ConfigTests.test_invalid_entries_never_echo_secrets) ... ok
+test_ipv6_and_ip_authorization (test_async_scanner.ConfigTests.test_ipv6_and_ip_authorization) ... ok
+test_missing_empty_invalid_proxy_files (test_async_scanner.ConfigTests.test_missing_empty_invalid_proxy_files) ... ok
+test_missing_pagination_not_empty_success (test_async_scanner.ConfigTests.test_missing_pagination_not_empty_success) ... ok
+test_proxy_cooldown_recovery (test_async_scanner.ConfigTests.test_proxy_cooldown_recovery) ... ok
+test_relationship_mapping (test_async_scanner.ConfigTests.test_relationship_mapping) ... ok
+test_urls_reserved_chars_and_socks (test_async_scanner.ConfigTests.test_urls_reserved_chars_and_socks) ... ok
+test_real_407_then_direct_fallback (test_proxy_wire.ProxyWireTests.test_real_407_then_direct_fallback) ... ok
+test_real_connect_auth_isolated_from_https_origin (test_proxy_wire.ProxyWireTests.test_real_connect_auth_isolated_from_https_origin) ... ok
+test_real_two_proxies_concurrently (test_proxy_wire.ProxyWireTests.test_real_two_proxies_concurrently) ... ok
+test_40_profiles_restart_at_5_without_completed_network (test_persistent_scanner.DurableTests.test_40_profiles_restart_at_5_without_completed_network) ... ok
+test_bootstrap_dedupe_and_cached_dataset (test_persistent_scanner.DurableTests.test_bootstrap_dedupe_and_cached_dataset) ... ok
+test_claim_is_atomic_and_no_duplicate_jobs (test_persistent_scanner.DurableTests.test_claim_is_atomic_and_no_duplicate_jobs) ... ok
+test_complete_page_checkpoint_recovers_target_side_effect (test_persistent_scanner.DurableTests.test_complete_page_checkpoint_recovers_target_side_effect) ... ok
+test_completed_export_saved_before_state_checkpoint (test_persistent_scanner.DurableTests.test_completed_export_saved_before_state_checkpoint) ... ok
+test_default_proxy_path_and_malformed_lines (test_persistent_scanner.DurableTests.test_default_proxy_path_and_malformed_lines) ... ok
+test_discoveries_saved_not_recursively_queued (test_persistent_scanner.DurableTests.test_discoveries_saved_not_recursively_queued) ... ok
+test_failed_and_private_are_terminal_after_restart (test_persistent_scanner.DurableTests.test_failed_and_private_are_terminal_after_restart) ... ok
+test_in_progress_recovery_and_corrupt_export (test_persistent_scanner.DurableTests.test_in_progress_recovery_and_corrupt_export) ... ok
+test_new_session_reuses_previous_exports (test_persistent_scanner.DurableTests.test_new_session_reuses_previous_exports) ... ok
+test_page_transaction_failure_rolls_back_members_and_cursor (test_persistent_scanner.DurableTests.test_page_transaction_failure_rolls_back_members_and_cursor) ... ok
+test_partial_pages_resume_opaque_cursor (test_persistent_scanner.DurableTests.test_partial_pages_resume_opaque_cursor) ... ok
+test_python311_syntax (test_persistent_scanner.DurableTests.test_python311_syntax) ... ok
+test_resume_proxy_to_direct_without_reset (test_persistent_scanner.DurableTests.test_resume_proxy_to_direct_without_reset) ... ok
+test_run_scan_uses_persistent_claims (test_persistent_scanner.DurableTests.test_run_scan_uses_persistent_claims) ... ok
+test_forcekill_after_result_before_checkpoint (test_persistent_scanner.ProcessTests.test_forcekill_after_result_before_checkpoint) ... ok
+test_forcekill_before_response_retries_job (test_persistent_scanner.ProcessTests.test_forcekill_before_response_retries_job) ... ok
+test_forcekill_bootstrap_restarts_at_saved_next_cursor (test_persistent_scanner.ProcessTests.test_forcekill_bootstrap_restarts_at_saved_next_cursor) ... [@seed] [RESUME] Using saved profile and page checkpoints.
+[BOOTSTRAP FOLLOWERS] Collected 2 accounts | Advertised: 2 (snapshot) | Page 2 | has_more=False
+[@seed] [FOLLOWERS] Page 2: received 1, +1 unique, total 2, has_more=False
+[BOOTSTRAP FOLLOWING] Collected 0 accounts | Advertised: 0 (snapshot) | Page 1 | has_more=False
+[@seed] [FOLLOWING] Page 1: received 0, +0 unique, total 0, has_more=False
+[BOOTSTRAP] Followers usable: 2; advertised=2; complete_exact.
+[BOOTSTRAP] Following usable: 0; advertised=0; complete_exact.
+[BOOTSTRAP COMPLETE]
+[BOOTSTRAP] Starting main scan with 2 public, deduplicated profiles...
+[DISCOVERED] Saved the public-only starting dataset: /tmp/tmpfmgj2_bm/starting_dataset.json
+ok
+test_forcekill_four_workers_three_completed_one_active (test_persistent_scanner.ProcessTests.test_forcekill_four_workers_three_completed_one_active) ... ok
+test_sigterm_main_flushes_claim_and_exits (test_persistent_scanner.ProcessTests.test_sigterm_main_flushes_claim_and_exits) ... ok
+test_invalid_records_not_hidden_by_count_mismatch (test_prior_features.PriorTests.test_invalid_records_not_hidden_by_count_mismatch) ... ok
+test_migrate_count_checkpoint_no_network (test_prior_features.PriorTests.test_migrate_count_checkpoint_no_network) ... ok
+test_one_proxy_and_skip_validation (test_prior_features.PriorTests.test_one_proxy_and_skip_validation) ... [PROXY] Loaded 1 entries: 1 direct endpoints, 0 Webshare gateways; ignored 0 invalid / 0 duplicate entries.
+[PROXY] Connectivity is checked on real requests; untested entries are not declared healthy.
+
+[1] Check all proxies before starting/resuming
+[2] Skip check/use current configuration
+ok
+test_report_safe_offline_atomic_metadata (test_prior_features.PriorTests.test_report_safe_offline_atomic_metadata) ... ok
+test_validate_every_proxy_once_auth_dead_timeout_and_redaction (test_prior_features.PriorTests.test_validate_every_proxy_once_auth_dead_timeout_and_redaction) ... ok
+test_seven_count_cases_reach_main_scan (test_prior_features.CountBootstrapTests.test_seven_count_cases_reach_main_scan) ... ok
+test_real_kyriakakii_398_main_scan_and_resume (test_latest_requirements.BootstrapFlowTests.test_real_kyriakakii_398_main_scan_and_resume) ... ok
+test_empty_followers_restricted_following_clean_completion (test_latest_requirements.BootstrapFlowTests.test_empty_followers_restricted_following_clean_completion) ... ok
+test_private_not_found_http_error_progress_all_count (test_latest_requirements.BootstrapFlowTests.test_private_not_found_http_error_progress_all_count) ... ok
+test_all_source_outcomes_and_queue_import (test_latest_requirements.BootstrapAcceptanceTests.test_all_source_outcomes_and_queue_import) ... ok
+test_profile_404_recovers_or_exactly_two_requests (test_latest_requirements.RetryTests.test_profile_404_recovers_or_exactly_two_requests) ... ok
+test_list_404_recover_both_lists_and_saved_cursor_on_failure (test_latest_requirements.RetryTests.test_list_404_recover_both_lists_and_saved_cursor_on_failure) ... ok
+test_404_after_hundreds_of_committed_pages (test_latest_requirements.RetryTests.test_404_after_hundreds_of_committed_pages) ... ok
+test_131_of_398_queue_reconciliation (test_latest_requirements.RestrictedStateTests.test_131_of_398_queue_reconciliation) ... ok
+test_restricted_plus_genuine_failure_is_not_terminal_restricted (test_latest_requirements.RestrictedStateTests.test_restricted_plus_genuine_failure_is_not_terminal_restricted) ... ok
+test_terminal_restriction_resume_and_old_partial_migration (test_latest_requirements.RestrictedStateTests.test_terminal_restriction_resume_and_old_partial_migration) ... ok
+test_actual_entry_completes_scan_and_report (test_release_checks.FinalChecks.test_actual_entry_completes_scan_and_report) ... ok
+test_actual_main_entry (test_release_checks.FinalChecks.test_actual_main_entry) ... ok
+test_no_usable_proxy_explicit_direct_retest_and_back (test_release_checks.FinalChecks.test_no_usable_proxy_explicit_direct_retest_and_back) ... ok
+test_python311_syntax_all_runtime_files (test_release_checks.FinalChecks.test_python311_syntax_all_runtime_files) ... ok
+test_report_resume_keeps_metadata_and_existing_fields (test_release_checks.FinalChecks.test_report_resume_keeps_metadata_and_existing_fields) ... [TARGET FOUND] @wanted follows @a; written immediately to sucess_find.json
+ok
+test_validation_is_last_step_pool_excludes_bad_proxy (test_release_checks.FinalSetupTests.test_validation_is_last_step_pool_excludes_bad_proxy) ... ok
+test_404_twice_main_no_list_requests (test_release_checks.FinalSetupTests.test_404_twice_main_no_list_requests) ... ok
+test_profile_404_recovers_main_continues (test_release_checks.FinalSetupTests.test_profile_404_recovers_main_continues) ... ok
+test_target_alias_duplicate_keeps_observation_on_resume (test_release_checks.ExtraRecoveryChecks.test_target_alias_duplicate_keeps_observation_on_resume) ... ok
+test_ctrl_c_writes_report_and_preserves_pending_claim (test_release_checks.SignalChecks.test_ctrl_c_writes_report_and_preserves_pending_claim) ... ok
+test_default_parent_and_short_windows_safe_names (test_run_folders.FolderTests.test_default_parent_and_short_windows_safe_names) ... ok
+test_existing_files_and_folders_are_never_overwritten (test_run_folders.FolderTests.test_existing_files_and_folders_are_never_overwritten) ... ok
+test_multiple_processes_get_unique_sequential_folders (test_run_folders.FolderTests.test_multiple_processes_get_unique_sequential_folders) ... ok
+test_nonpersistent_profile_temporary_files_stay_in_search (test_run_folders.FolderTests.test_nonpersistent_profile_temporary_files_stay_in_search) ... ok
+test_run_and_error_logs_redact_credentials_and_append (test_run_folders.FolderTests.test_run_and_error_logs_redact_credentials_and_append) ... ok
+test_asset_metadata_and_paths_contain_no_proxy_credentials (test_avatar_update.AvatarTests.test_asset_metadata_and_paths_contain_no_proxy_credentials) ... ok
+test_avatar_proxy_auth_failure_can_use_healthy_route_or_direct (test_avatar_update.AvatarTests.test_avatar_proxy_auth_failure_can_use_healthy_route_or_direct) ... [PROXY] proxy-001: proxy_authentication_failure; disabled for this run.
+[PROXY] No usable proxies remain; using direct connection.
+[PROXY] proxy-001: proxy_authentication_failure; disabled for this run.
+[PROXY] proxy-002 connected; 1/2 confirmed so far.
+ok
+test_avatar_requests_share_global_spacing_and_healthy_proxy_pool (test_avatar_update.AvatarTests.test_avatar_requests_share_global_spacing_and_healthy_proxy_pool) ... [PROXY] proxy-001 connected; 1/2 confirmed so far.
+[PROXY] proxy-002 connected; 2/2 confirmed so far.
+ok
+test_cached_reuse_and_new_instance_resume (test_avatar_update.AvatarTests.test_cached_reuse_and_new_instance_resume) ... ok
+test_cdn_http_errors_never_rotate_or_become_worker_restrictions (test_avatar_update.AvatarTests.test_cdn_http_errors_never_rotate_or_become_worker_restrictions) ... [PROXY] proxy-001 connected; 1/2 confirmed so far.
+ok
+test_concurrent_duplicates_deduplicate_url_and_uid (test_avatar_update.AvatarTests.test_concurrent_duplicates_deduplicate_url_and_uid) ... ok
+test_different_users_images_and_unusual_names (test_avatar_update.AvatarTests.test_different_users_images_and_unusual_names) ... ok
+test_download_limits_and_bad_encoding (test_avatar_update.AvatarTests.test_download_limits_and_bad_encoding) ... [PROXY] No usable proxies remain; using direct connection.
+[PROXY] No usable proxies remain; using direct connection.
+[PROXY] No usable proxies remain; using direct connection.
+ok
+test_embedded_image_validation_and_legacy_record (test_avatar_update.AvatarTests.test_embedded_image_validation_and_legacy_record) ... ok
+test_failed_source_not_redownloaded_until_later_run (test_avatar_update.AvatarTests.test_failed_source_not_redownloaded_until_later_run) ... ok
+test_http_failure_timeout_malformed_and_unavailable_network (test_avatar_update.AvatarTests.test_http_failure_timeout_malformed_and_unavailable_network) ... [PROXY] No usable proxies remain; using direct connection.
+[PROXY] No usable proxies remain; using direct connection.
+[PROXY] No usable proxies remain; using direct connection.
+[PROXY] No usable proxies remain; using direct connection.
+[PROXY] No usable proxies remain; using direct connection.
+[PROXY] No usable proxies remain; using direct connection.
+[PROXY] No usable proxies remain; using direct connection.
+ok
+test_image_write_failure_is_nonfatal_and_atomic (test_avatar_update.AvatarTests.test_image_write_failure_is_nonfatal_and_atomic) ... ok
+test_interrupted_download_no_final_file_then_resume (test_avatar_update.AvatarTests.test_interrupted_download_no_final_file_then_resume) ... [PROXY] No usable proxies remain; using direct connection.
+ok
+test_member_avatar_fallback_preserves_report_for_skipped_profile (test_avatar_update.AvatarTests.test_member_avatar_fallback_preserves_report_for_skipped_profile) ... ok
+test_missing_assets_and_corrupt_index_do_not_break_report (test_avatar_update.AvatarTests.test_missing_assets_and_corrupt_index_do_not_break_report) ... ok
+test_missing_empty_and_forbidden_urls_do_not_request (test_avatar_update.AvatarTests.test_missing_empty_and_forbidden_urls_do_not_request) ... ok
+test_partial_temp_and_corrupt_file_are_never_used (test_avatar_update.AvatarTests.test_partial_temp_and_corrupt_file_are_never_used) ... ok
+test_repeated_network_timeouts_stop_optional_cdn_traffic (test_avatar_update.AvatarTests.test_repeated_network_timeouts_stop_optional_cdn_traffic) ... [PROXY] No usable proxies remain; using direct connection.
+ok
+test_report_valid_missing_old_and_escaped_avatar_data (test_avatar_update.AvatarTests.test_report_valid_missing_old_and_escaped_avatar_data) ... ok
+test_valid_avatar_is_small_valid_relative_jpeg (test_avatar_update.AvatarTests.test_valid_avatar_is_small_valid_relative_jpeg) ... ok
+test_404_does_not_disable_transient_retries (test_avatar_update.ReviewFixTests.test_404_does_not_disable_transient_retries) ... [PROXY] proxy-001 connected; 1/1 confirmed so far.
+[404 RETRY 1/1] @roblox profile lookup - retrying
+[RETRY 1/3] temporary_server_failure; waiting 4.2s.
+[404 RETRY] Request recovered successfully.
+[PROXY] proxy-001 connected; 1/1 confirmed so far.
+[404 RETRY 1/1] @roblox profile lookup - retrying
+[RETRY 1/3] response_timeout; waiting 4.7s.
+[404 RETRY] Request recovered successfully.
+ok
+test_configurable_worker_and_legacy_config (test_avatar_update.ReviewFixTests.test_configurable_worker_and_legacy_config) ... [PROXY] No usable proxies remain; using direct connection.
+ok
+test_credentials_cannot_spoof_proxy_status_or_error_tokens (test_avatar_update.ReviewFixTests.test_credentials_cannot_spoof_proxy_status_or_error_tokens) ... ok
+test_duplicate_early_return_recovers_committed_target_idempotently (test_avatar_update.ReviewFixTests.test_duplicate_early_return_recovers_committed_target_idempotently) ... [@alias] [RESUME] Using saved profile and page checkpoints.
+[TARGET FOUND] @wanted follows @alias; written immediately to sucess_find.json
+[@alias] [RESUME] Using saved profile and page checkpoints.
+ok
+test_normal_retry_budget_still_bounded_after_404 (test_avatar_update.ReviewFixTests.test_normal_retry_budget_still_bounded_after_404) ... [PROXY] No usable proxies remain; using direct connection.
+[404 RETRY 1/1] @a profile lookup - retrying
+[RETRY 1/1] temporary_server_failure; waiting 4.3s.
+ok
+test_old_terminal_duplicate_repaired_at_startup (test_avatar_update.ReviewFixTests.test_old_terminal_duplicate_repaired_at_startup) ... [TARGET FOUND] @wanted follows @alias; written immediately to sucess_find.json
+ok
+test_phase_two_discovery_count_not_copied (test_avatar_update.ReviewFixTests.test_phase_two_discovery_count_not_copied) ... ok
+test_response_and_persistence_keep_credential_substrings (test_avatar_update.ReviewFixTests.test_response_and_persistence_keep_credential_substrings) ... [PROXY] proxy-001 connected; 1/1 confirmed so far.
+ok
+test_main_caches_public_private_and_skipped_avatars (test_avatar_update.AvatarIntegrationTests.test_main_caches_public_private_and_skipped_avatars) ... ok
+test_resume_backfills_old_records_and_reuses_saved_cache (test_avatar_update.AvatarIntegrationTests.test_resume_backfills_old_records_and_reuses_saved_cache) ... ok
+
+----------------------------------------------------------------------
+Ran 224 tests in 30.595s
+
+OK
