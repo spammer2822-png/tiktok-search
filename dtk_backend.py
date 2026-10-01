@@ -68,6 +68,16 @@ NON_RETRYABLE_CODES = {
     "NOT_CONFIGURED",
 }
 
+# Errors that indicate DTK's current TikTok identity/session pool needs attention.
+# Recovery is serialized and rate-limited so a burst of failed requests cannot
+# accidentally launch a browser-mint stampede.
+IDENTITY_RECOVERY_CODES = {
+    "IDENTITY_POOL_EXHAUSTED",
+    "UPSTREAM_RISK_CONTROL",
+    "SIGNING_FAILED",
+}
+IDENTITY_REPAIR_COOLDOWN_SECONDS = 15.0
+
 
 def _bool(value, name):
     if type(value) is not bool:
@@ -469,6 +479,8 @@ class DtkClient:
         self.avatar_client = None
         self.avatar_backfill_task = None
         self.avatar_backfill_requested = False
+        self.identity_repair_lock = asyncio.Lock()
+        self.identity_repair_last_mint = 0.0
         if avatar_directory is not None:
             from avatar_cache import AvatarCache
             self.avatars = AvatarCache(
@@ -616,6 +628,18 @@ class DtkClient:
                 last = exc
                 if exc.kind == "access_denied":
                     self.gate.blocked_reason = "DTK API authentication/scope failure; fix the local API key."
+                if exc.dtk_code in IDENTITY_RECOVERY_CODES:
+                    try:
+                        await self._repair_identity_pool(exc.dtk_code)
+                    except s.ExporterError:
+                        # If DTK cannot restore the configured minimum, do not
+                        # keep firing TikTok requests with an unhealthy pool.
+                        raise
+                    except DtkApiError as repair_exc:
+                        s.console(
+                            f"[DTK] Identity self-heal could not complete ({repair_exc.dtk_code}); "
+                            "the normal request retry policy will continue."
+                        )
                 if not exc.retryable or attempt + 1 >= attempts:
                     raise
                 delay = float(exc.retry_after or min(30, 2 ** attempt))
@@ -662,27 +686,96 @@ class DtkClient:
         response = await self.client.put(path, json={"value": value})
         return self._unwrap(response)
 
-    async def _ensure_identity_pool(self):
-        if not self.settings.get("dtk_auto_mint", True):
-            return
-        minimum = self.settings["dtk_min_usable_identities"]
-        target = self.settings["dtk_target_identities"]
-        try:
-            pool = await self._admin_get("/api/v1/admin/identities/pool")
-        except DtkApiError as exc:
-            if exc.kind == "access_denied":
-                s.console("[DTK] API key cannot inspect/manage identities; relying on DTK's existing automatic pool.")
-                return
-            raise
+    async def _identity_pool_row(self):
+        pool = await self._admin_get("/api/v1/admin/identities/pool")
         platforms = pool.get("platforms") if isinstance(pool, dict) else None
         row = next((x for x in platforms or [] if x.get("platform") == "tiktok"), None)
         if not row:
             raise s.ExporterError("DTK identity pool did not report TikTok.")
+        return pool, row
+
+    def _can_manage_identities(self):
+        return bool({"identity:manage", "admin"} & getattr(self, "key_scopes", set()))
+
+    async def _request_identity_mint(self, count, *, reason):
+        if count <= 0:
+            return 0
+        if not self._can_manage_identities():
+            raise s.ExporterError(
+                "DTK needs more TikTok identities, but this API key cannot mint them "
+                "(identity:manage or admin scope required)."
+            )
+        count = min(10, max(1, int(count)))
+        response = await self.client.post(
+            "/api/v1/admin/identities/mint",
+            json={"platform": "tiktok", "count": count},
+        )
+        data = self._unwrap(response)
+        task_ids = list(data.get("task_ids") or []) if isinstance(data, dict) else []
+        queued = len(task_ids) if task_ids else count
+        self.identity_repair_last_mint = time.monotonic()
+        s.console(
+            f"[DTK] Queued {queued} TikTok guest identit{'y' if queued == 1 else 'ies'} "
+            f"({reason})."
+        )
+        # Mint jobs are asynchronous. The pool itself is the source of truth, so
+        # poll usable identities instead of waiting serially on every task result.
+        return queued
+
+    async def _wait_for_minimum_identities(self, minimum, *, initial_usable=0):
+        deadline = time.monotonic() + self.settings["dtk_identity_wait_seconds"]
+        best = int(initial_usable or 0)
+        next_log = 0.0
+        while True:
+            try:
+                _pool, row = await self._identity_pool_row()
+                best = int(row.get("usable") or 0)
+                if best >= minimum:
+                    s.console(f"[DTK] Identity pool ready: {best} usable TikTok identities.")
+                    return row
+            except DtkApiError as exc:
+                if exc.kind == "access_denied":
+                    raise s.ExporterError(
+                        "DTK could not verify the TikTok identity pool while waiting for startup."
+                    ) from None
+
+            now = time.monotonic()
+            if now >= deadline:
+                break
+            if now >= next_log:
+                remaining = max(0, int(deadline - now))
+                s.console(
+                    f"[DTK] Waiting for identity minimum: {best}/{minimum} usable "
+                    f"({remaining}s startup budget remaining)."
+                )
+                next_log = now + 15.0
+            await asyncio.sleep(min(3.0, max(0.1, deadline - now)))
+
+        raise s.ExporterError(
+            f"DTK identity startup blocked: need at least {minimum} usable TikTok identities, "
+            f"but only {best} became usable. No TikTok scan requests were started."
+        )
+
+    async def _ensure_identity_pool(self):
+        if not self.settings.get("dtk_auto_mint", True):
+            return
+
+        minimum = self.settings["dtk_min_usable_identities"]
+        target = self.settings["dtk_target_identities"]
+        try:
+            pool, row = await self._identity_pool_row()
+        except DtkApiError as exc:
+            if exc.kind == "access_denied":
+                raise s.ExporterError(
+                    "DTK identity preflight cannot inspect the pool with this API key. "
+                    "Identity management access is required when automatic identity maintenance is enabled."
+                ) from None
+            raise
 
         # This scanner is TikTok-only. Keep DTK's background filler aligned with
         # the scanner's configured pool marks and stop it wasting browser mints on Douyin.
-        can_manage = bool({"identity:manage", "admin"} & getattr(self, "key_scopes", set()))
-        if can_manage:
+        if self._can_manage_identities():
+            platforms = pool.get("platforms") if isinstance(pool, dict) else []
             desired = (
                 ("pool.tiktok.min_size", minimum, row.get("min_size")),
                 ("pool.tiktok.target_size", target, row.get("target_size")),
@@ -697,53 +790,61 @@ class DtkClient:
                 except DtkApiError:
                     pass
             if row.get("min_size") != minimum or row.get("target_size") != target or not row.get("auto", True):
-                pool = await self._admin_get("/api/v1/admin/identities/pool")
-                platforms = pool.get("platforms") if isinstance(pool, dict) else []
-                row = next((x for x in platforms or [] if x.get("platform") == "tiktok"), row)
+                pool, row = await self._identity_pool_row()
 
         usable = int(row.get("usable") or 0)
         s.console(f"[DTK] TikTok identity pool: {usable} usable; scanner minimum {minimum}; DTK target {target}.")
         if usable >= minimum:
             return
 
-        # Manual kick for startup latency. DTK's own pool filler remains the
-        # long-lived authority and continues replacing unhealthy identities.
-        shortfall = min(10, max(1, minimum - usable))
+        # Startup is strict: do not release the scanner client until the configured
+        # minimum is actually usable.
+        shortfall = minimum - usable
         try:
-            response = await self.client.post(
-                "/api/v1/admin/identities/mint",
-                json={"platform": "tiktok", "count": shortfall},
-            )
-            data = self._unwrap(response)
-            task_ids = list(data.get("task_ids") or []) if isinstance(data, dict) else []
-            s.console(f"[DTK] Minting {len(task_ids)} TikTok guest identit{'y' if len(task_ids)==1 else 'ies'} automatically ...")
-            if task_ids:
-                await asyncio.gather(
-                    *(self._poll_task(task_id, deadline_seconds=210) for task_id in task_ids),
-                    return_exceptions=True,
-                )
+            await self._request_identity_mint(shortfall, reason=f"startup minimum {minimum}")
         except DtkApiError as exc:
-            s.console(f"[DTK] Immediate mint request did not complete ({exc.dtk_code}); DTK background refill remains enabled.")
+            s.console(f"[DTK] Immediate startup mint failed ({exc.dtk_code}); waiting for DTK background refill.")
 
-        deadline = time.monotonic() + self.settings["dtk_identity_wait_seconds"]
-        best = usable
-        while time.monotonic() < deadline:
-            try:
-                pool = await self._admin_get("/api/v1/admin/identities/pool")
-                platforms = pool.get("platforms") if isinstance(pool, dict) else []
-                row = next((x for x in platforms or [] if x.get("platform") == "tiktok"), None)
-                best = int((row or {}).get("usable") or 0)
-                if best >= minimum:
-                    s.console(f"[DTK] Identity pool ready: {best} usable TikTok identities.")
-                    return
-            except DtkApiError:
-                pass
-            if best > 0 and time.monotonic() + 10 >= deadline:
-                s.console(f"[DTK] Proceeding with {best} usable identity; DTK will continue refilling in the background.")
-                return
-            await asyncio.sleep(5)
-        if best <= 0:
-            raise s.ExporterError("DTK has no usable TikTok identity after automatic mint/refill attempts.")
+        await self._wait_for_minimum_identities(minimum, initial_usable=usable)
+
+    async def _repair_identity_pool(self, reason):
+        if not self.settings.get("dtk_auto_mint", True):
+            return
+        if reason not in IDENTITY_RECOVERY_CODES:
+            return
+
+        async with self.identity_repair_lock:
+            minimum = self.settings["dtk_min_usable_identities"]
+            target = self.settings["dtk_target_identities"]
+            _pool, row = await self._identity_pool_row()
+            usable = int(row.get("usable") or 0)
+
+            now = time.monotonic()
+            below_minimum = usable < minimum
+            cooldown_active = (
+                self.identity_repair_last_mint > 0
+                and now - self.identity_repair_last_mint < IDENTITY_REPAIR_COOLDOWN_SECONDS
+            )
+
+            if below_minimum:
+                count = minimum - usable
+            elif cooldown_active:
+                count = 0
+            else:
+                # DTK abstracts which identity served a failed request. Queue one
+                # replacement rather than trying to guess and mutate a specific row.
+                # The cooldown keeps concurrent failures from multiplying this count.
+                count = 1
+
+            s.console(
+                f"[DTK] Identity self-heal triggered by {reason}: "
+                f"{usable} usable, minimum {minimum}, target {target}."
+            )
+            if count:
+                await self._request_identity_mint(count, reason=f"self-heal after {reason}")
+
+            if below_minimum:
+                await self._wait_for_minimum_identities(minimum, initial_usable=usable)
 
     async def lookup_profile(self, username):
         key = username.casefold()
