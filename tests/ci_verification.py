@@ -15,6 +15,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import traceback
 from zipfile import ZipFile
 
@@ -63,11 +64,13 @@ def publish(message):
     if git('diff', '--cached', '--quiet', check=False).returncode == 0:
         return
     git('commit', '-m', f'Verification {RUN_ID}/{JOB}: {message}')
-    for attempt in range(4):
-        git('pull', '--rebase', 'origin', 'main')
-        if git('push', 'origin', 'HEAD:main', check=False).returncode == 0:
+    target_branch = os.environ.get('GITHUB_REF_NAME') or 'main'
+    for attempt in range(8):
+        git('pull', '--rebase', 'origin', target_branch)
+        if git('push', 'origin', f'HEAD:{target_branch}', check=False).returncode == 0:
             return
-    raise RuntimeError('Evidence commit could not be pushed; retained as CI artifact')
+        time.sleep(min(0.5 * (2 ** attempt), 5.0))
+    raise RuntimeError(f'Evidence commit could not be pushed to {target_branch}; retained as CI artifact')
 
 
 def run(args, name):
