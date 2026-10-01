@@ -2,6 +2,7 @@
 import asyncio
 import os
 import tempfile
+import time
 import unittest
 from types import SimpleNamespace
 from pathlib import Path
@@ -158,25 +159,118 @@ class ClientTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn(("/api/v1/admin/settings/pool.tiktok.target_size", 8), calls)
         self.assertIn(("/api/v1/admin/settings/pool.douyin.min_size", 0), calls)
 
-    async def test_request_identity_mint_returns_and_tracks_task_ids(self):
+    async def test_request_identity_mint_rotates_across_distinct_healthy_proxies(self):
         self.client.key_scopes = {"admin", "identity:manage", "tiktok:read"}
-        self.client.client = AsyncMock()
-        self.client.client.request.return_value = httpx.Response(
-            202,
-            json={
-                "success": True,
-                "data": {"task_ids": ["task-a", "task-b"], "count": 2},
-            },
-        )
+        self.client._mint_proxy_inventory = AsyncMock(return_value={
+            "configured": 3,
+            "healthy": 3,
+            "bound": 0,
+            "cooling": [],
+            "candidates": [
+                {"id": "proxy-a", "healthy": True, "decryptable": True, "country": "GB"},
+                {"id": "proxy-b", "healthy": True, "decryptable": True, "country": "FR"},
+                {"id": "proxy-c", "healthy": True, "decryptable": True, "country": "CA"},
+            ],
+        })
+        calls = []
+
+        async def management(method, path, **kwargs):
+            calls.append((method, path, kwargs))
+            proxy_id = kwargs["json"]["proxy_id"]
+            task_id = {"proxy-a": "task-a", "proxy-b": "task-b"}[proxy_id]
+            return {"task_ids": [task_id], "count": 1}, SimpleNamespace(status_code=202)
+
+        self.client._management_data = AsyncMock(side_effect=management)
         task_ids = await self.client._request_identity_mint(2, reason="fixture")
         self.assertEqual(task_ids, ["task-a", "task-b"])
         self.assertEqual(self.client.identity_task_states["task-a"], "submitted")
-        self.assertEqual(self.client.identity_task_states["task-b"], "submitted")
-        self.client.client.request.assert_awaited_once_with(
-            "POST",
-            "/api/v1/admin/identities/mint",
-            json={"platform": "tiktok", "count": 2},
+        self.assertEqual(self.client.identity_task_proxies["task-a"], "proxy-a")
+        self.assertEqual(self.client.identity_task_proxies["task-b"], "proxy-b")
+        self.assertEqual(calls[0][2]["json"], {"platform": "tiktok", "count": 1, "proxy_id": "proxy-a"})
+        self.assertEqual(calls[1][2]["json"], {"platform": "tiktok", "count": 1, "proxy_id": "proxy-b"})
+
+    async def test_request_identity_mint_uses_direct_only_when_no_proxies_configured(self):
+        self.client.key_scopes = {"admin", "identity:manage", "tiktok:read"}
+        self.client._mint_proxy_inventory = AsyncMock(return_value={
+            "configured": 0,
+            "healthy": 0,
+            "bound": 0,
+            "cooling": [],
+            "candidates": [],
+        })
+        payloads = []
+
+        async def management(method, path, **kwargs):
+            payloads.append(kwargs["json"])
+            task_id = f"task-{len(payloads)}"
+            return {"task_ids": [task_id], "count": 1}, SimpleNamespace(status_code=202)
+
+        self.client._management_data = AsyncMock(side_effect=management)
+        task_ids = await self.client._request_identity_mint(2, reason="direct fixture")
+        self.assertEqual(task_ids, ["task-1", "task-2"])
+        self.assertEqual(payloads, [
+            {"platform": "tiktok", "count": 1},
+            {"platform": "tiktok", "count": 1},
+        ])
+
+    async def test_failed_proxy_mint_is_quarantined_and_mapping_removed(self):
+        self.client.identity_task_proxies["fixture"] = "proxy-bad"
+        self.client.identity_proxy_info["proxy-bad"] = {"id": "proxy-bad", "country": "IN"}
+        self.client._record_dtk_error = AsyncMock()
+        self.client._identity_task_view = AsyncMock(return_value={
+            "state": "failed",
+            "error": {"code": "INTERNAL", "message": "minting produced no identity"},
+        })
+        pending = {"fixture"}
+        with patch.object(s, "console"):
+            succeeded, failed, _retry = await self.client._poll_identity_tasks(pending)
+        self.assertEqual(succeeded, [])
+        self.assertEqual(len(failed), 1)
+        self.assertEqual(pending, set())
+        self.assertIn("proxy-bad", self.client.identity_proxy_cooldown_until)
+        self.assertNotIn("fixture", self.client.identity_task_proxies)
+
+    async def test_configured_but_unavailable_proxies_do_not_fall_back_to_direct(self):
+        self.client.key_scopes = {"admin", "identity:manage", "tiktok:read"}
+        self.client._mint_proxy_inventory = AsyncMock(return_value={
+            "configured": 12,
+            "healthy": 8,
+            "bound": 2,
+            "cooling": [("proxy-a", time.monotonic() + 30)],
+            "candidates": [],
+        })
+        with self.assertRaises(d.DtkApiError) as caught:
+            await self.client._request_identity_mint(1, reason="fixture")
+        self.assertEqual(caught.exception.dtk_code, "QUEUE_FULL")
+        self.assertEqual(caught.exception.details["reason"], "no_eligible_proxy")
+
+    async def test_management_rate_limit_creates_one_shared_retry_after_window(self):
+        calls = 0
+
+        async def handle(request):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                return httpx.Response(
+                    429,
+                    json={
+                        "success": False,
+                        "error": {"code": "RATE_LIMITED", "message": "wait", "retry_after": 7},
+                    },
+                )
+            return httpx.Response(200, json={"success": True, "data": {"ok": True}})
+
+        self.client.client = httpx.AsyncClient(
+            transport=httpx.MockTransport(handle),
+            base_url="http://127.0.0.1:8000",
         )
+        self.client.gate.wait = AsyncMock()
+        with self.assertRaises(d.DtkApiError):
+            await self.client._management_data("GET", "/first")
+        self.assertGreater(self.client.identity_control_blocked_until, time.monotonic())
+        await self.client._management_data("GET", "/second")
+        self.client.gate.wait.assert_awaited()
+        self.assertGreaterEqual(self.client.gate.wait.await_args.args[0], 0)
 
     async def test_auto_mint_disabled_does_not_bypass_hard_minimum(self):
         self.client.settings["dtk_auto_mint"] = False
