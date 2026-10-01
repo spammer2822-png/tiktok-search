@@ -912,8 +912,8 @@ class ScanStateRecorder:
                 return json.load(stream)
 
 
-class WorkerApiError(ExporterError):
-    """A Worker HTTP/API failure, with a checkpoint-friendly category."""
+class ScannerApiError(ExporterError):
+    """A backend/API failure with a checkpoint-friendly category."""
 
     def __init__(self, message: str, *, kind: str = "api_error",
                  retryable: bool = False, code: int | None = None) -> None:
@@ -923,12 +923,12 @@ class WorkerApiError(ExporterError):
         self.code = code
 
 
-class InvalidWorkerResponse(WorkerApiError):
+class InvalidBackendResponse(ScannerApiError):
     def __init__(self, message: str) -> None:
         super().__init__(message, kind="invalid_response")
 
 
-class ScanCancelled(WorkerApiError):
+class ScanCancelled(ScannerApiError):
     def __init__(self) -> None:
         super().__init__("Scan cancelled by the user.", kind="cancelled")
 
@@ -949,158 +949,28 @@ def retry_after_seconds(value: str | None) -> float | None:
     return max(0.0, seconds) if math.isfinite(seconds) else None
 
 
-def api_error(message: Any) -> WorkerApiError:
-    # Only classify explicit human-readable errors. No guessed TikTok codes.
-    text = str(message or "Worker reported an unspecified API error.")[:500]
-    lower = text.casefold()
-    if re.search(r"unauthori[sz]ed|access restricted|access denied|forbidden", lower):
-        return WorkerApiError(text, kind="access_denied")
-    if re.search(r"rate.?limit|too many requests", lower):
-        return WorkerApiError(text, kind="rate_limited", retryable=True)
-    if re.search(r"user(?:name)?[^.]*not found|account[^.]*not found|does not exist", lower):
-        return WorkerApiError(text, kind="not_found")
-    if "invalid username" in lower:
-        return WorkerApiError(text, kind="invalid_username")
-    # A list-level restriction must never be interpreted as profile privacy.
-    if re.search(r"private|not publicly visible|list[^.]*restricted", lower):
-        return WorkerApiError(text, kind="list_restricted")
-    return WorkerApiError(text)
-
-
-def check_worker_error(payload: Any, operation: str) -> dict[str, Any]:
-    if not isinstance(payload, dict):
-        raise InvalidWorkerResponse("Worker JSON root must be an object.")
-    if payload.get("status") == "error" or payload.get("error"):
-        raise api_error(payload.get("message") or payload.get("error"))
-    if operation == "profile":
-        if payload.get("status") != "ok":
-            if payload.get("message"):
-                raise api_error(payload["message"])
-            raise InvalidWorkerResponse("Profile response is missing status='ok'.")
-    elif payload.get("message"):
-        # Both list handlers in the supplied frontend treat message as an error.
-        raise api_error(payload["message"])
-    return payload
-
-
-# Official references checked 2026-09-18 (proxy login, not Webshare API tokens):
-# https://help.webshare.io/en/articles/8596696-how-can-i-download-my-proxy-list
-# https://apidocs.webshare.io/proxy-connection
-# https://help.webshare.io/en/articles/8375281-what-is-concurrency
-# https://help.webshare.io/en/articles/8570214-what-are-the-configuration-errors
-# https://www.python-httpx.org/advanced/proxies/
-# https://www.python-httpx.org/async/
-
-@dataclass(frozen=True)
-class ProxyConfig:
-    host: str
-    port: int
-    username: str | None = field(default=None, repr=False)
-    password: str | None = field(default=None, repr=False)
-    scheme: str = "http"
-
-    @property
-    def endpoint(self) -> str:
-        host = f"[{self.host}]" if ":" in self.host else self.host
-        return f"{self.scheme}://{host}:{self.port}"
-
-    @property
-    def mode(self) -> str:
-        # p.webshare.io is shared by backbone, sticky and rotating products.
-        # Do not invent username suffixes or infer a subscription from an IP.
-        if self.host.casefold() == "p.webshare.io":
-            return "webshare_gateway"
-        return "direct_endpoint"
-
-
-def parse_proxy_line(line: str) -> ProxyConfig:
-    """Webshare export: host:port:username:password; URLs/IP authorization too.
-
-    Split colon exports at most three times: a colon within the password must
-    survive. In URLs, reserved credential characters must be percent-encoded.
-    Invalid-input errors intentionally never contain the original line.
-    """
-    try:
-        text = line.strip()
-        if not text or any(ord(c) < 32 or ord(c) == 127 for c in text):
-            raise ValueError
-        if "://" in text:
-            parsed = urlsplit(text)
-            if parsed.path not in ("", "/") or parsed.query or parsed.fragment:
-                raise ValueError
-            scheme = parsed.scheme.casefold()
-            host, port = parsed.hostname, parsed.port
-            username = unquote(parsed.username) if parsed.username is not None else None
-            password = unquote(parsed.password) if parsed.password is not None else None
-        else:
-            scheme = "http"
-            if text.startswith("["):
-                close = text.index("]")
-                host = text[1:close]
-                if text[close + 1:close + 2] != ":":
-                    raise ValueError
-                parts = text[close + 2:].split(":", 2)
-                port_text, *auth = parts
-            else:
-                parts = text.split(":", 3)
-                host, port_text, *auth = parts
-            port = int(port_text)
-            if len(auth) not in (0, 2):
-                raise ValueError
-            username, password = auth if auth else (None, None)
-        if scheme not in {"http", "https", "socks5", "socks5h"}:
-            raise ValueError
-        if not host or port is None or not 1 <= port <= 65535:
-            raise ValueError
-        if re.search(r"[\s/@?#\\]", host):
-            raise ValueError
-        if ":" in host:
-            ipaddress.IPv6Address(host)
-        elif not re.fullmatch(r"[A-Za-z0-9.-]+", host):
-            raise ValueError
-        if (username is None) != (password is None):
-            raise ValueError
-        if username is not None:
-            if not username or not password or ":" in username:
-                raise ValueError
-            if any(ord(c) < 32 or ord(c) == 127 for c in username + password):
-                raise ValueError
-        return ProxyConfig(host.casefold(), port, username, password, scheme)
-    except (ValueError, TypeError, IndexError):
-        raise ExporterError("Invalid proxy entry (expected host:port:user:password or a proxy URL).") from None
-
-
 class CredentialRedactor:
-    """Separate diagnostic redaction from structure-preserving data cleaning."""
+    """Redact local DTK credentials from logs and diagnostic documents."""
 
-    def __init__(self, configs: Iterable[ProxyConfig] = ()) -> None:
-        secrets = set()
-        for config in configs:
-            for value in (config.username, config.password):
-                if value:
-                    secrets.update((value, quote(value, safe="")))
-            if config.username is not None:
-                combined = f"{config.username}:{config.password}"
-                secrets.add(base64.b64encode(combined.encode()).decode())
-        self.secrets = sorted(secrets, key=len, reverse=True)
+    def __init__(self, secrets: Iterable[str] = ()) -> None:
+        self.secrets = sorted({str(value) for value in secrets if value}, key=len, reverse=True)
 
-    _url = re.compile(r"(?:https?|socks5h?)://[^\s/]*@", re.I)
-    _sensitive = frozenset({"authorization", "proxy_authorization", "password", "proxy_password", "proxy_username", "cookie", "cookies", "set_cookie", "mstoken", "sessionid", "sessionid_ss", "sid_tt", "sid_guard", "x_gnarly", "x_dynosaur"})
+    _sensitive = frozenset({
+        "authorization", "password", "cookie", "cookies", "set_cookie", "mstoken",
+        "sessionid", "sessionid_ss", "sid_tt", "sid_guard", "x_gnarly", "x_dynosaur",
+        "dtk_api_key", "api_key",
+    })
     _diagnostic = frozenset({"debug", "error", "message", "fatal_error", "exception", "traceback"})
 
     def text(self, value: Any) -> str:
         text = str(value)
-        if "://" in text and "@" in text:
-            text = self._url.sub("[REDACTED_PROXY]@", text)
         for secret in self.secrets:
             text = text.replace(secret, "[REDACTED]")
         return text
 
     def clean(self, value: Any) -> Any:
         if isinstance(value, str):
-            # A name or biography can legitimately contain a proxy-login
-            # substring. Only credential-bearing URL syntax is removed here.
-            return self._url.sub("[REDACTED_PROXY]@", value) if "://" in value and "@" in value else value
+            return self.text(value)
         if isinstance(value, dict):
             result = {}
             for key, item in value.items():
@@ -1110,7 +980,7 @@ class CredentialRedactor:
                 elif label in self._diagnostic and isinstance(item, str):
                     result[key] = self.text(item)
                 else:
-                    result[self.clean(key) if isinstance(key, str) and "://" in key else key] = self.clean(item)
+                    result[key] = self.clean(item)
             return result
         if isinstance(value, list):
             return [self.clean(item) for item in value]
@@ -1120,128 +990,11 @@ class CredentialRedactor:
 REDACTOR = CredentialRedactor()
 
 
-def configured_proxy_path() -> Path | None:
-    raw = os.getenv("TIKTOK_PROXY_FILE", "").strip()
-    if raw.casefold() in {"none", "off", "0"}:
-        return None
-    if raw:
-        return Path(raw).expanduser()
-    return WEBSHARE_PROXY_FILE
-
-
-def load_proxy_configs(path: Path | None) -> list[ProxyConfig]:
-    if path is None:
-        console("[PROXY] No proxy file selected; direct connection is available.")
-        return []
-    try:
-        lines = path.read_text(encoding="utf-8-sig").splitlines()
-    except OSError:
-        console(f"[PROXY] Proxy file is missing or unreadable: {path}")
-        return []
-    configs: list[ProxyConfig] = []
-    seen: set[ProxyConfig] = set()
-    invalid = duplicates = 0
-    for line_number, line in enumerate(lines, 1):
-        if not line.strip() or line.lstrip().startswith("#"):
-            continue
-        try:
-            config = parse_proxy_line(line)
-            if "://" not in line and config.username is None:
-                raise ExporterError("Downloaded entries require all four fields.")
-        except ExporterError:
-            invalid += 1
-            console(f"[PROXY] Skipping malformed entry on line {line_number}; expected host:port:username:password or an explicit proxy URL.")
-            continue
-        if config in seen:
-            duplicates += 1
-            continue
-        seen.add(config)
-        configs.append(config)
-    gateways = sum(config.mode == "webshare_gateway" for config in configs)
-    console(f"[PROXY] Loaded {len(configs)} entries: {len(configs) - gateways} direct endpoints, "
-            f"{gateways} Webshare gateways; ignored {invalid} invalid / {duplicates} duplicate entries.")
-    console("[PROXY] Connectivity is checked on real requests; untested entries are not declared healthy.")
-    return configs
-
-
-@dataclass
-class ProxyState:
-    config: ProxyConfig = field(repr=False)
-    label: str = "proxy"
-    success_count: int = 0
-    failure_count: int = 0
-    consecutive_failures: int = 0
-    cooldown_until: float = 0.0
-    last_failure: str | None = None
-    disabled: bool = False
-    in_use: int = 0
-    last_used: float = 0.0
-
-
-class ProxyPool:
-    """State is owned by one asyncio event loop; selection never awaits mid-update."""
-
-    def __init__(self, configs: list[ProxyConfig], *, proxy_only: bool = False) -> None:
-        self.states = [ProxyState(config, f"proxy-{i:03d}") for i, config in enumerate(configs, 1)]
-        self.proxy_only = proxy_only
-        self.fallback_announced = False
-
-    def available(self) -> list[ProxyState]:
-        now = time.monotonic()
-        return [p for p in self.states if not p.disabled and p.cooldown_until <= now]
-
-    def capacity(self) -> int:
-        usable = self.available()
-        # Gateways and a single direct proxy can support simultaneous connections;
-        # this is a scanner-side bound, not an inferred account entitlement.
-        return max(4, len(usable)) if usable else (0 if self.proxy_only else 4)
-
-    def choose(self) -> ProxyState | None:
-        available = self.available()
-        if available:
-            selected = min(available, key=lambda p: (p.in_use, p.last_used))
-            selected.last_used = time.monotonic()
-            self.fallback_announced = False
-            return selected
-        if self.proxy_only:
-            raise WorkerApiError("No usable proxies; proxy-only mode forbids direct fallback.", kind="no_usable_proxy")
-        if not self.fallback_announced:
-            console("[PROXY] No usable proxies remain; using direct connection.")
-            self.fallback_announced = True
-        return None
-
-    def good_response(self, state: ProxyState | None) -> None:
-        if state is None:
-            return
-        first = state.success_count == 0
-        state.success_count += 1
-        state.consecutive_failures = 0
-        state.cooldown_until = 0.0
-        if first:
-            confirmed = sum(p.success_count > 0 and not p.disabled for p in self.states)
-            console(f"[PROXY] {state.label} connected; {confirmed}/{len(self.states)} confirmed so far.")
-
-    def failed(self, state: ProxyState, kind: str) -> None:
-        state.failure_count += 1
-        state.consecutive_failures += 1
-        state.last_failure = kind  # fixed category, never exception text
-        if kind in {"proxy_authentication_failure", "proxy_not_allocated"}:
-            state.disabled = True
-            console(f"[PROXY] {state.label}: {kind}; disabled for this run.")
-        else:
-            delay = min(300.0, 15.0 * 2 ** min(state.consecutive_failures - 1, 5))
-            state.cooldown_until = time.monotonic() + delay
-            console(f"[PROXY] {state.label}: {kind}; cooldown {delay:.0f}s; another connection may be tried.")
+class BackendRuntimeState:
+    """Compatibility carrier for scan summaries; TikTok egress lives entirely in DTK."""
 
     def summary(self) -> dict[str, Any]:
-        return {"loaded": len(self.states), "available": len(self.available()),
-                "confirmed": sum(p.success_count > 0 for p in self.states),
-                "disabled": sum(p.disabled for p in self.states),
-                "proxy_only": self.proxy_only,
-                "connections": [{"label": p.label, "mode": p.config.mode,
-                                 "successes": p.success_count, "failures": p.failure_count,
-                                 "last_failure": p.last_failure, "disabled": p.disabled}
-                                for p in self.states]}
+        return {"backend": "dtk", "scanner_side_proxies": False}
 
 
 class AsyncRequestGate:
@@ -1301,9 +1054,9 @@ class AsyncRequestGate:
 
     def check(self) -> None:
         if self.blocked_reason:
-            raise WorkerApiError(self.blocked_reason, kind="access_denied")
+            raise ScannerApiError(self.blocked_reason, kind="access_denied")
         if self.rate_limit_exhausted:
-            raise WorkerApiError(self.rate_limit_reason or 'Rate limit detected; scan stopped.', kind="rate_limited")
+            raise ScannerApiError(self.rate_limit_reason or 'Rate limit detected; scan stopped.', kind="rate_limited")
         if self.stop_event.is_set():
             raise ScanCancelled()
 
@@ -1386,7 +1139,7 @@ class AsyncRequestGate:
             self.wake_capacity(self.limit-self.active)
             console(f"[ASYNC] Active request limit adjusted to {value} (ceiling {self.ceiling}).")
 
-    def observe(self, latency: float, pool: ProxyPool) -> None:
+    def observe(self, latency: float, pool: Any = None) -> None:
         self.latency = latency if self.latency is None else 0.75 * self.latency + 0.25 * latency
         self.success_samples += 1
         self.baseline_latency = latency if self.baseline_latency is None else min(self.baseline_latency, latency)
@@ -1575,7 +1328,7 @@ async def export_one_list(
         if hasattr(client, 'prepare_chain'):
             cursor = await client.prepare_chain(store, result, cursor)
         if await disk_call(store.cursor_seen, list_name, cursor):
-            raise WorkerApiError("DTK repeated an earlier cursor.", kind="cursor_repeated")
+            raise ScannerApiError("DTK repeated an earlier cursor.", kind="cursor_repeated")
         while True:
             if stop_event.is_set():
                 raise ScanCancelled()
@@ -1616,7 +1369,7 @@ async def export_one_list(
             limited = bool(getattr(getattr(client, 'gate', None), 'rate_limit_exhausted', False))
             result.stop_reason = 'cancelled'
             result.error = 'Request interrupted by the scanner stop.' if limited else 'Scan cancelled by the user.'
-    except WorkerApiError as exc:
+    except ScannerApiError as exc:
         if hasattr(client, 'prepare_chain'):
             committed = await disk_call(store.checkpoint, list_name)
             if committed:
@@ -2302,7 +2055,7 @@ async def worker_loop(
                 result = error_profile_result(job, status="private", started_at_utc=started_at,
                                               error=REDACTOR.text(exc))
                 result.metadata = {"profile":getattr(exc,"profile_metadata",{})}
-            except WorkerApiError as exc:
+            except ScannerApiError as exc:
                 result = error_profile_result(job, status='cancelled' if exc.kind == 'rate_limited' else
                                               'network_timeout' if exc.kind == 'response_timeout' else exc.kind, started_at_utc=started_at,
                                               error=REDACTOR.text(exc))
@@ -2335,7 +2088,7 @@ async def worker_loop(
                 client.gate.stats.account_finished(result)
             phase_label = f"[PHASE {job.phase}] " if durable else ""
             console(f"{phase_label}[PROGRESS {processed:,}/{total:,}] @{job.username}: "
-                    f"{result.status} (async worker {worker_number})")
+                    f"{result.status} (profile task {worker_number})")
         except BaseException:
             control.stop_event.set()
             raise
@@ -2348,14 +2101,14 @@ async def _run_scan(
     jobs: list[ProfileJob], *, output_directory: Path, worker_count: int,
     pacing: tuple[float, float], success_recorder: SuccessRecorder,
     state_recorder: ScanStateRecorder, use_resume: bool,
-    pool: ProxyPool | None = None, initial_concurrency: int | None = None,
+    pool: BackendRuntimeState | None = None, initial_concurrency: int | None = None,
     adaptive: bool = False,
 ) -> tuple[dict[str, Any], dict[str, Any], str | None]:
     job_queue: asyncio.Queue = asyncio.Queue()
     for job in jobs:
         job_queue.put_nowait(job)
     control = SharedScanControl()
-    pool = pool if pool is not None else ProxyPool([])
+    pool = pool if pool is not None else BackendRuntimeState()
     settings = state_recorder.config if isinstance(state_recorder, DurableScanState) else {}
     ceiling = min(runtime_ceiling(worker_count, settings), int(settings.get("dtk_max_connections", 64)))
     gate = AsyncRequestGate(*pacing, control.stop_event, ceiling=ceiling,
@@ -2435,7 +2188,7 @@ async def _run_scan(
                 await asyncio.gather(stopped, return_exceptions=True)
             for outcome in outcomes:
                 if isinstance(outcome, BaseException):
-                    control.stop_with_fatal_error(f"Worker failed ({type(outcome).__name__}); progress preserved.")
+                    control.stop_with_fatal_error(f"Profile worker failed ({type(outcome).__name__}); progress preserved.")
             if control.stop_event.is_set() or not isinstance(state_recorder, DurableScanState):
                 break
             if not await disk_call(state_recorder.advance_phase):
@@ -2443,11 +2196,11 @@ async def _run_scan(
         if not control.stop_event.is_set() and getattr(client, 'avatar_backfill_task', None) is not None:
             await client.avatar_backfill_task
         state_recorder.base["network"] = {
-            "mode": "async_httpx", "auto_workers": True, 'configured_workers': worker_count,
+            "mode": "dtk_local_api", "auto_workers": True, 'configured_workers': worker_count,
             'profile_worker_tasks': profile_workers,
             "concurrency_ceiling": gate.ceiling, "final_active_limit": gate.limit,
             "peak_in_flight": gate.peak_active, "requests_started": gate.started,
-            "proxy_pool": pool.summary(),
+            "backend": pool.summary(),
         }
     all_profiles_complete = await disk_call(state_recorder.all_complete) if isinstance(state_recorder, DurableScanState) else (
         state_recorder.total_profiles == len(state_recorder.current_run)
@@ -3193,8 +2946,7 @@ def default_scan_config(metadata: dict[str, Any] | None = None) -> dict[str, Any
             "follower_skip_limit": 0, "following_skip_limit": 0,
             "scan_mode": "normal", "double_phase_enabled": False,
             "workers": DEFAULT_WORKERS, "max_connections": 0, "request_delay": {"minimum_seconds": 0.0, "maximum_seconds": 0.0},
-            "use_proxies": False, "proxy_file": str(configured_proxy_path() or WEBSHARE_PROXY_FILE),
-            "proxy_only": False, "keep_raw": KEEP_RAW_MEMBER_DATA, "retry_attempts": FETCH_ATTEMPTS,
+            "keep_raw": KEEP_RAW_MEMBER_DATA, "retry_attempts": FETCH_ATTEMPTS,
             "timeouts": {"response": 40.0, "connect": 10.0, "write": 20.0, "pool": 10.0, "total": 55.0},
             "current_phase": int((metadata or {}).get("current_phase", 1)),
             "progress": {"processed": 0, "total": 0}, "created_at_utc": utc_iso(),
@@ -3232,9 +2984,8 @@ def validate_scan_config(config: dict[str, Any]) -> None:
         raise ExporterError("Saved request delays must be finite, nonnegative numbers.")
     if values[0] > values[1]:
         raise ExporterError("Saved minimum delay exceeds maximum delay.")
-    for name in ("use_proxies", "proxy_only", "keep_raw"):
-        if type(config.get(name)) is not bool:
-            raise ExporterError(f"Saved {name} must be a boolean.")
+    if type(config.get("keep_raw")) is not bool:
+        raise ExporterError("Saved keep_raw must be a boolean.")
     timeouts = config.get("timeouts", {})
     for name in ("response", "connect", "write", "pool", "total"):
         value = timeouts.get(name)
@@ -3358,17 +3109,15 @@ def display_config(root: Path, config: dict[str, Any], state: dict[str, Any], he
             f"Output folder:\n{root}\n{'='*50}")
 
 
-_PREPARED_POOLS: dict[str, ProxyPool] = {}
+_PREPARED_BACKENDS: dict[str, BackendRuntimeState] = {}
 _RETRY_FAILED: dict[str, bool] = {}  # One execution only; never sticky in configuration.
 
 
-def prepare_proxy_pool(root: Path, config: dict[str, Any]) -> ProxyPool | None:
+def prepare_backend_state(root: Path, config: dict[str, Any]) -> BackendRuntimeState:
     """DTK owns platform egress and identity/proxy pairing."""
     global REDACTOR
     REDACTOR = CredentialRedactor()
-    config["use_proxies"] = False
-    config["proxy_only"] = False
-    return ProxyPool([])
+    return BackendRuntimeState()
 
 
 def confirmation_menu(root: Path, config: dict[str, Any], state: dict[str, Any], *, resume: bool) -> dict[str, Any] | None:
@@ -3383,11 +3132,7 @@ def confirmation_menu(root: Path, config: dict[str, Any], state: dict[str, Any],
             heading = "UPDATED SCAN CONFIGURATION"
     while True:
         display_config(root, config, state, heading)
-        pool = prepare_proxy_pool(root, config)
-        if pool is None:
-            config = edit_scan_config(config)
-            save_scan_config(root, config)
-            continue
+        pool = prepare_backend_state(root, config)
         console(f"[1] {'Resume' if resume else 'Start'} scan\n[2] Edit scan configuration\n[3] DTK configuration\n[0] Cancel")
         choice = ask_choice("Select an option: ", {"0", "1", "2", "3"})
         if choice == "0": return None
@@ -3395,7 +3140,7 @@ def confirmation_menu(root: Path, config: dict[str, Any], state: dict[str, Any],
             if resume:
                 console('Completed profiles will not be rescanned. Eligible failures retain saved pages, cursors and matches.')
                 _RETRY_FAILED[str(root)] = ask_bool('Retry failed profiles? [Y/N, default N]: ', False)
-            _PREPARED_POOLS[str(root)] = pool
+            _PREPARED_BACKENDS[str(root)] = pool
             return config
         if choice == '3':
             from dtk_backend import edit_backend_config
@@ -3479,7 +3224,6 @@ def choose_startup(base: Path, resources: ExitStack, *, source_selection: bool =
             config = default_scan_config(metadata)
             network = state.get("network", {})
             config["workers"] = network.get("concurrency_ceiling", DEFAULT_WORKERS)
-            config["use_proxies"] = metadata.get("network_mode") == "webshare"
             if (root / SUCCESS_FILE_NAME).is_file():
                 config["success_source"] = load_json_document(root / SUCCESS_FILE_NAME).get("source_input_json")
             config = edit_scan_config(config)
@@ -3553,7 +3297,7 @@ async def bootstrap_dataset(
                                       "list_results":result.list_results, "completed_at_utc":utc_iso()}
         await disk_call(state.snapshot)
         if limited:
-            raise WorkerApiError('HTTP 429 received from API; bootstrap stopped.', kind='rate_limited', code=429)
+            raise ScannerApiError('HTTP 429 received from API; bootstrap stopped.', kind='rate_limited', code=429)
         raise asyncio.CancelledError
     usable = [name for name in SELECTED_LISTS if result.list_results.get(name, {}).get("complete") is True]
     restricted = [name for name in SELECTED_LISTS if explicit_restriction(result.list_results.get(name, {}))]
@@ -3614,7 +3358,7 @@ def load_jobs_allow_empty(path: Path) -> tuple[list[ProfileJob], dict[str, Any]]
 
 async def _execute_session(
     *, root: Path, state: DurableScanState, source_type: str, input_path: Path, seed: str | None,
-    success: SuccessRecorder, pool: ProxyPool, pacing: tuple[float, float],
+    success: SuccessRecorder, pool: BackendRuntimeState, pacing: tuple[float, float],
 ) -> tuple[dict[str, Any], dict[str, Any], str | None]:
     config = state.config
     if not state.metadata.get("input_imported"):
@@ -3696,7 +3440,7 @@ def main() -> int:
             KEEP_RAW_MEMBER_DATA = config["keep_raw"]
             console(f"Search folder: {root}")
             state = DurableScanState(root, metadata, root, config)
-            pool = _PREPARED_POOLS.pop(str(root), None)
+            pool = _PREPARED_BACKENDS.pop(str(root), None)
             if pool is None:
                 raise ExporterError("Network configuration was not prepared before confirmation.")
             metadata["network_mode"] = "dtk_local"
@@ -3730,8 +3474,8 @@ def main() -> int:
                 state.finalize(scan_complete=False, fatal_error="Interrupted by the user.")
             console("[SHUTDOWN] Stopped. Configuration, progress, queues, matches and exact cursors are preserved.")
             return 130
-        except (PublicProfileRequired, WorkerApiError) as exc:
-            rejected = isinstance(exc, PublicProfileRequired) or (isinstance(exc, WorkerApiError) and exc.kind in {"not_found", "invalid_username"})
+        except (PublicProfileRequired, ScannerApiError) as exc:
+            rejected = isinstance(exc, PublicProfileRequired) or (isinstance(exc, ScannerApiError) and exc.kind in {"not_found", "invalid_username"})
             if state is not None:
                 state.metadata["setup_rejected"] = rejected and not state.metadata.get("input_imported")
                 state.finalize(scan_complete=False, fatal_error=REDACTOR.text(exc))
