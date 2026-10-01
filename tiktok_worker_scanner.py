@@ -1,4 +1,4 @@
-r"""TikTok relationship scanner: async Worker/Direct/Hybrid + Webshare proxies.
+r"""TikTok relationship scanner: async DTK-only backend with automatic local Docker/identity management.
 
 Python 3.11+ setup (Windows CMD):
     py -3.11 -m pip install -r requirements.txt
@@ -1763,7 +1763,7 @@ class WorkerApiClient:
                 except asyncio.CancelledError:
                     cancelled = True
                     if self.gate.rate_limit_event.is_set():
-                        failure = WorkerApiError('Request interrupted by the global Worker rate-limit stop.', kind='rate_limited')
+                        failure = WorkerApiError('Request interrupted by the scanner stop.', kind='rate_limited')
                     else:
                         raise
                 except self.httpx.ProxyError as exc:
@@ -2200,7 +2200,7 @@ async def export_one_list(
         if hasattr(client, 'prepare_chain'):
             cursor = await client.prepare_chain(store, result, cursor)
         if await disk_call(store.cursor_seen, list_name, cursor):
-            raise WorkerApiError("Worker repeated an earlier cursor.", kind="cursor_repeated")
+            raise WorkerApiError("DTK repeated an earlier cursor.", kind="cursor_repeated")
         while True:
             if stop_event.is_set():
                 raise ScanCancelled()
@@ -2240,7 +2240,7 @@ async def export_one_list(
         if not result.endpoint_exhausted:
             limited = bool(getattr(getattr(client, 'gate', None), 'rate_limit_exhausted', False))
             result.stop_reason = 'cancelled'
-            result.error = 'Request interrupted by the global Worker rate-limit stop.' if limited else 'Scan cancelled by the user.'
+            result.error = 'Request interrupted by the scanner stop.' if limited else 'Scan cancelled by the user.'
     except WorkerApiError as exc:
         if hasattr(client, 'prepare_chain'):
             committed = await disk_call(store.checkpoint, list_name)
@@ -2329,9 +2329,9 @@ class UserStore:
             elif not following:
                 result.stop_reason, result.error = 'missing_cursor', 'hasMore=true but minCursor is missing.'
             elif following == cursor:
-                result.stop_reason, result.error = 'cursor_stalled', 'Worker cursor did not advance.'
+                result.stop_reason, result.error = 'cursor_stalled', 'DTK cursor did not advance.'
             elif self.cursor_seen(name, following):
-                result.stop_reason, result.error = 'cursor_repeated', 'Worker repeated an earlier cursor.'
+                result.stop_reason, result.error = 'cursor_repeated', 'DTK repeated an earlier cursor.'
             elif duplicate_pages >= 3 and not result.cursor_chain_restarts:
                 result.stop_reason, result.error = 'duplicate_page_stall', 'Three pages contained no new accounts.'
             self.connection.execute('INSERT INTO page_cursors VALUES (?,?)', (name, cursor))
@@ -2921,7 +2921,7 @@ async def worker_loop(
                 if client.gate.stats:
                     client.gate.stats.done.set()
                 result = error_profile_result(job, status="cancelled", started_at_utc=started_at,
-                                              error='Request interrupted by the global Worker rate-limit stop.'
+                                              error='Request interrupted by the scanner stop.'
                                               if client.gate.rate_limit_exhausted else 'Scan cancelled by the user.')
             except PublicProfileRequired as exc:
                 result = error_profile_result(job, status="private", started_at_utc=started_at,
@@ -2982,7 +2982,7 @@ async def _run_scan(
     control = SharedScanControl()
     pool = pool if pool is not None else ProxyPool([])
     settings = state_recorder.config if isinstance(state_recorder, DurableScanState) else {}
-    ceiling = runtime_ceiling(worker_count, settings)
+    ceiling = min(runtime_ceiling(worker_count, settings), int(settings.get("dtk_max_connections", 64)))
     gate = AsyncRequestGate(*pacing, control.stop_event, ceiling=ceiling,
                             initial=min(ceiling, initial_concurrency or ceiling), adaptive=True)
     gate.stats = _STATS.get()
@@ -2994,7 +2994,7 @@ async def _run_scan(
     console(f'[ASYNC] Configured workers: {worker_count}; bounded profile tasks: {profile_workers}; '
             f'connection ceiling: {ceiling}; initial effective concurrency: {gate.limit}.')
     raw_directory = output_directory / "raw_api" if KEEP_RAW_MEMBER_DATA else None
-    from hybrid_backend import create_client
+    from dtk_backend import create_client
     async with create_client(gate, pool, raw_directory=raw_directory,
                                settings=state_recorder.config if isinstance(state_recorder, DurableScanState) else None,
                                avatar_directory=output_directory) as client:
@@ -3251,7 +3251,7 @@ class ScanLock:
 
 def source_identity(source_type: str, value: str, target: str = TARGET_USER) -> dict[str, Any]:
     return {"source_type": source_type, "source": value, "target_user": target.casefold(),
-            "worker_origin": WORKER_ORIGIN, "export_schema": 4, "selected_lists": list(SELECTED_LISTS)}
+            "backend": "dtk", "export_schema": 5, "selected_lists": list(SELECTED_LISTS)}
 
 
 def sanitize_run_name(username: str) -> str:
@@ -3808,10 +3808,9 @@ CONFIG_FILE_NAME = "scan_config.json"
 
 
 def default_scan_config(metadata: dict[str, Any] | None = None) -> dict[str, Any]:
-    from hybrid_backend import DEFAULTS
+    from dtk_backend import DEFAULTS
     identity = (metadata or {}).get("identity", {})
     return {**DEFAULTS, "config_version": 1, "target_username": identity.get("target_user", TARGET_USER),
-            "worker_origin": validate_worker_origin(identity.get("worker_origin") or os.getenv("TIKTOK_WORKER_ORIGIN") or WORKER_ORIGIN),
             "input_source": identity.get("source_type", "json"),
             "starting_username": identity.get("source") if identity.get("source_type") == "username" else None,
             "source_json_path": identity.get("source", str(configured_input_path())) if identity.get("source_type", "json") == "json" else None,
@@ -3830,8 +3829,7 @@ def default_scan_config(metadata: dict[str, Any] | None = None) -> dict[str, Any
 def validate_scan_config(config: dict[str, Any]) -> None:
     if not isinstance(config, dict) or config.get("config_version") != 1:
         raise ExporterError("Unsupported or missing scan configuration version.")
-    validate_worker_origin(config.get("worker_origin", WORKER_ORIGIN))
-    from hybrid_backend import validate as validate_backends
+    from dtk_backend import validate as validate_backends
     validate_backends(config)
     target = parse_username(str(config.get("target_username", ""))).casefold()
     if target != config.get("target_username"):
@@ -4166,10 +4164,9 @@ def choose_startup(base: Path, resources: ExitStack, *, source_selection: bool =
     root = create_search_directory(base, config["target_username"])
     resources.enter_context(ScanLock(root))
     identity = source_identity(config["input_source"], config["starting_username"] or config["source_json_path"], config["target_username"])
-    identity["worker_origin"] = config["worker_origin"]
     metadata = {"session_id": uuid.uuid4().hex, "layout_version": 3, "search_folder": root.name,
                 "identity": identity, "created_at_utc": utc_iso(), "updated_at_utc": utc_iso(),
-                "network_mode": "webshare" if config["use_proxies"] else "direct", "scan_complete": False,
+                "network_mode": "dtk_local", "scan_complete": False,
                 "input_imported": False, "current_phase": 1}
     atomic_write_json(root / "session.json", metadata)
     if source_document is not None:
@@ -4272,7 +4269,7 @@ async def _execute_session(
             gate.stats = _STATS.get()
             if gate.stats:
                 gate.stats.gate = gate
-            from hybrid_backend import create_client
+            from dtk_backend import create_client
             async with create_client(gate, pool, settings=config, raw_directory=root / "raw_api" if config["keep_raw"] else None,
                                        avatar_directory=root) as client:
                 input_path = await bootstrap_dataset(client, str(seed), root=root, state=state, success=success, stop_event=stop_event)
@@ -4325,7 +4322,7 @@ def main() -> int:
     while True:
         REDACTOR = CredentialRedactor()
         _STARTUP_LOG = []
-        console(APP_TITLE + "\nWorker API | saved per-search configuration | one optional expansion phase")
+        console(APP_TITLE + "\nDTK local API only | automatic Docker/identity management | durable resume")
         state: DurableScanState | None = None
         resources = ExitStack()
         root: Path | None = None
@@ -4347,7 +4344,7 @@ def main() -> int:
             pool = _PREPARED_POOLS.pop(str(root), None)
             if pool is None:
                 raise ExporterError("Network configuration was not prepared before confirmation.")
-            metadata["network_mode"] = "webshare" if pool.available() else "direct"
+            metadata["network_mode"] = "dtk_local"
             input_path = root / config["starting_json"]
             success_path = root / SUCCESS_FILE_NAME
             success_source = Path(config.get("success_source") or str(input_path))
