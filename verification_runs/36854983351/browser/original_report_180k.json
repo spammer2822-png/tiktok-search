@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "mode": "report",
+  "version": "scanner-verification-1mch3xx0",
+  "python": "3.12.14",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "workers": 2500,
+  "accounts": 180000,
+  "pages_per_direction": 12,
+  "members_per_page": 20,
+  "raw_enabled": true,
+  "latency_model_seconds": 0.02,
+  "proxy_routes": 0,
+  "network": "HTTPX MockTransport; no TCP/TLS/service measurements",
+  "startup_seconds": 0.10157226900000182,
+  "fixture_seconds": 10.890102631000019,
+  "resume_seconds": 0.3963806750000174,
+  "checkpoint_mean_seconds": 0.008571881850001262,
+  "summary_mean_seconds": 0.0059230548800002225,
+  "retry_candidates": 3600,
+  "failed_lookup_seconds": 0.00022884800000610994,
+  "html_generation_seconds": 15.162807805,
+  "html_bytes": 19323743,
+  "report_path": "/home/runner/work/_temp/scanner-verification-1mch3xx0/results/report_ijf_yyzl/report_report_ijf_yyzl.html",
+  "total_seconds": 27.257298245000015,
+  "cpu_seconds": 26.986569108999998,
+  "cpu_percent_one_core": 99.00676459725909,
+  "peak_rss_mib": 470.87890625,
+  "call_inclusive_seconds": {
+    "atomic_save": 0.055943410999901744,
+    "summary": 0.7305848920000813,
+    "checkpoint": 0.18932039499995312,
+    "recover": 0.3963772479999932
+  },
+  "call_counts": {
+    "atomic_save": 68,
+    "summary": 123,
+    "checkpoint": 22,
+    "recover": 1
+  }
+}
