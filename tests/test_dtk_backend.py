@@ -130,7 +130,7 @@ class ClientTests(unittest.IsolatedAsyncioTestCase):
     async def test_request_identity_mint_returns_and_tracks_task_ids(self):
         self.client.key_scopes = {"admin", "identity:manage", "tiktok:read"}
         self.client.client = AsyncMock()
-        self.client.client.post.return_value = httpx.Response(
+        self.client.client.request.return_value = httpx.Response(
             202,
             json={
                 "success": True,
@@ -141,7 +141,8 @@ class ClientTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(task_ids, ["task-a", "task-b"])
         self.assertEqual(self.client.identity_task_states["task-a"], "submitted")
         self.assertEqual(self.client.identity_task_states["task-b"], "submitted")
-        self.client.client.post.assert_awaited_once_with(
+        self.client.client.request.assert_awaited_once_with(
+            "POST",
             "/api/v1/admin/identities/mint",
             json={"platform": "tiktok", "count": 2},
         )
