@@ -2,6 +2,49 @@
 
 This release preserves the scanner's features and improves the measured local pipeline. The controlled baseline did **not** reproduce a general slowdown of the current ZIP versus the original ZIP: the current code was already faster on that workload. The supplied live run did reveal a hidden 64-connection default, slow concurrency growth, and lengthy shutdown/report work. No claim about the exact cause of remote API latency is made without a comparable live trace.
 
+## Current-runtime acceptance pass — 1 October 2026
+
+The final acceptance pass measures runtime commit `1e069ffb57fdf09bf6575d02576dbc5828cc2d21` with scanner source SHA-256 `c83b9de10f1b9556fa6c368d0d582674202cf734c4631eef16fa36481fa010dd`. The matched scan matrix is run **36852148338**; current network/CPU/browser evidence is run **36852148287**; fresh shutdown/resume is **36854871728**; fresh four-platform regression is **36854871750**. Offline/local evidence is not a live TikTok throughput claim.
+
+### Current 10,000 mixed-account fixture
+
+| Version / mode | Completion s | Successful RPS | Accounts/s | CPU s | Peak RSS MiB |
+|---|---:|---:|---:|---:|---:|
+| Original / Worker | 207.601 | 144.51 | 48.17 | 197.728 | 570.5 |
+| First / Worker | 216.262 | 138.72 | 46.24 | 210.831 | 581.7 |
+| First / Direct | 283.547 | 105.80 | 35.27 | 276.749 | 592.1 |
+| First / Hybrid | 249.522 | 120.23 | 40.08 | 241.091 | 586.5 |
+| Final / Worker | 209.863 | 142.95 | 47.65 | 201.518 | 538.2 |
+| Final / Direct | 270.866 | 110.76 | 36.92 | 271.152 | 560.6 |
+| Final / Hybrid | 243.587 | 123.16 | 41.05 | 244.070 | 625.0 |
+
+This current sample makes the tradeoff explicit: Final Worker is about **1.1% slower** than Original Worker on completion time, while Final Direct is about **4.5% faster** than First Direct and Final Hybrid is about **2.4% faster** than First Hybrid. These are single matched samples on one runner, not universal speed guarantees.
+
+### Current dedicated 10,000-follower + 10,000-following fixture
+
+| Version / mode | Completion s | Requests | Users/follower page | Followers/s |
+|---|---:|---:|---:|---:|
+| Original / Worker | 5.952 | 1,001 | 20.00 | 1680.06 |
+| First / Worker | 6.231 | 1,001 | 20.00 | 1604.94 |
+| First / Direct | 6.460 | 573 | 34.97 | 1547.93 |
+| First / Hybrid | 6.327 | 1,001 | 20.00 | 1580.46 |
+| Final / Worker | 6.629 | 1,001 | 20.00 | 1508.52 |
+| Final / Direct | 6.454 | 573 | 34.97 | 1549.50 |
+| Final / Hybrid | 6.588 | 1,001 | 20.00 | 1517.88 |
+
+Final Worker is **11.4% slower** than Original Worker in this dedicated list fixture. Profiling shows the final path retains additional durable state/discovery and observability work, including 1,001 atomic JSON writes, 1,000 page commits and 1,000 durable discovery updates. Those operations support resume/crash guarantees; they were not removed merely to improve a synthetic benchmark. The report therefore does **not** claim universal speedup.
+
+### Current acceptance coverage
+
+- Matched scan comparison **36852148338** completed all 56 production-dispatcher cases plus original/first/final components and profiles.
+- Real loopback TLS evidence **36852148287** completed all 35 Worker/Direct/Hybrid cases at 100, 500, 1,000, 2,500 and 5,000 configured workers.
+- CPU evidence **36852148287** completed per-thread profiling and observability measurements. Cumulative coroutine/thread timing is not added as if it were exclusive CPU share.
+- Browser evidence **36852148287** and fresh rerun **36854983351** completed 180,000-account Worker/fallback, search/filter/sort/page/mobile and avatar checks with zero external requests or JavaScript errors.
+- Shutdown run **36854871728** completed all six original/first/final single/repeated interruption and same-folder recovery cases.
+- Regression run **36854871750** passed all four Linux/Windows Python 3.11/3.12 jobs.
+
+Measured slowdowns remain part of the evidence. Live compatibility, live upstream RPS, maximum reliable Direct page size and proxy-plan capacity remain blocked by environment and are not inferred from these fixtures.
+
 ## Versions and fairness
 
 - Original: `TikTokScanner.zip`, SHA-256 `f8aeaa0281422f1982292e0ec86fc25657529fdf010acaccdd5aa1c9a6aa665d`.
