@@ -3,6 +3,7 @@ import asyncio
 import os
 import tempfile
 import unittest
+from types import SimpleNamespace
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
@@ -129,7 +130,9 @@ class ClientTests(unittest.IsolatedAsyncioTestCase):
             {"platforms": []},
             {"platform": "tiktok", "usable": 1},
         ))
-        with patch.object(d.time, "monotonic", side_effect=[0.0, 0.0, 2.0]), \
+        ticks = iter([0.0, 0.0, 2.0])
+        fake_time = SimpleNamespace(monotonic=lambda: next(ticks))
+        with patch.object(d, "time", fake_time), \
                 patch.object(d.asyncio, "sleep", new=AsyncMock()):
             with self.assertRaisesRegex(s.ExporterError, "need at least 3 usable"):
                 await self.client._wait_for_minimum_identities(3, initial_usable=1)
