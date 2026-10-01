@@ -21,7 +21,7 @@ from backend_metrics import BackendMetrics
 
 DTK_UPSTREAM = "https://github.com/Evil0ctal/Douyin_TikTok_Download_API.git"
 DTK_PIN = "d8f874cd5b647b0ca087a57b15a458c3864439fa"
-CLOAKBROWSER_COMMIT = "f04c23da285b3b3d3cf10c8f9d282e7adc1d52ce"
+CLOAKBROWSER_COMMIT = "9bc5e374d7fc3a4099360bbd93e570b1e7ec8618"
 
 DEFAULTS = {
     "backend_mode": "dtk",
@@ -312,18 +312,72 @@ def _ensure_dtk_env(repo):
         env_path.write_text(text, encoding="utf-8")
 
 
-def _compose_up(repo):
+def _compose_up(repo, *, force_browser_rebuild=False):
     environment = os.environ.copy()
     environment["CLOAKBROWSER_COMMIT"] = CLOAKBROWSER_COMMIT
-    base = ["docker", "compose", "-p", "dtk", "-f", "docker/compose.yml", "--profile", "browser", "up", "-d"]
-    result = _run(base, cwd=repo, env=environment, timeout=180)
+    compose = ["docker", "compose", "-p", "dtk", "-f", "docker/compose.yml", "--profile", "browser"]
+
+    if force_browser_rebuild:
+        s.console(
+            "[DTK] Browser runtime pin changed; rebuilding browser-rpc with the verified "
+            "CloakBrowser revision before identity minting."
+        )
+        built = _run(compose + ["build", "browser-rpc"], cwd=repo, env=environment, timeout=1200)
+        if built.returncode != 0:
+            tail = "\n".join(built.stdout.splitlines()[-20:])
+            raise s.ExporterError("DTK browser-rpc rebuild failed.\n" + tail)
+
+    base = compose + ["up", "-d"]
+    result = _run(base, cwd=repo, env=environment, timeout=240)
     if result.returncode == 0:
         return
     s.console("[DTK] Existing images were not enough; building the DTK/browser images once ...")
-    result = _run(base + ["--build"], cwd=repo, env=environment, timeout=900)
+    result = _run(base + ["--build"], cwd=repo, env=environment, timeout=1200)
     if result.returncode != 0:
-        tail = "\n".join(result.stdout.splitlines()[-12:])
+        tail = "\n".join(result.stdout.splitlines()[-20:])
         raise s.ExporterError("DTK Docker stack failed to start.\n" + tail)
+
+
+def _running_browser_pin():
+    """Return the browser-rpc backend pin stamped into the running container."""
+    if not _docker_ready():
+        return None
+    try:
+        result = _run(
+            [
+                "docker", "inspect", "--format",
+                "{{range .Config.Env}}{{println .}}{{end}}",
+                "dtk-browser-rpc-1",
+            ],
+            timeout=20,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if result.returncode != 0:
+        return None
+    prefix = "DTK_BROWSER_BACKEND_PIN="
+    for line in result.stdout.splitlines():
+        if line.startswith(prefix):
+            return line[len(prefix):].strip()
+    return None
+
+
+def _ensure_browser_revision(settings):
+    """Rebuild browser-rpc only when the running image is on an older pin."""
+    current = _running_browser_pin()
+    desired_suffix = "@" + CLOAKBROWSER_COMMIT
+    if current and current.endswith(desired_suffix):
+        return
+    if not _docker_ready():
+        return
+    repo = _ensure_repo(settings)
+    _ensure_dtk_env(repo)
+    if current:
+        s.console(
+            f"[DTK] Existing browser-rpc pin {current.rsplit('@', 1)[-1][:12]} is older/different; "
+            f"upgrading to {CLOAKBROWSER_COMMIT[:12]}."
+        )
+    _compose_up(repo, force_browser_rebuild=True)
 
 
 async def _health(base_url, timeout=3.0):
@@ -341,11 +395,21 @@ async def _health(base_url, timeout=3.0):
 
 async def ensure_local_dtk(settings):
     base = str(settings.get("dtk_base_url", DEFAULTS["dtk_base_url"])).rstrip("/")
-    if await _health(base):
+    host = (urlparse(base).hostname or "").casefold()
+    healthy = await _health(base)
+    if healthy:
+        if (
+            settings.get("dtk_auto_start", True)
+            and host in {"127.0.0.1", "localhost", "::1"}
+        ):
+            await asyncio.to_thread(_ensure_browser_revision, settings)
+            # Re-check after a possible browser image recreation. The API itself
+            # normally remains up, but this makes the startup contract explicit.
+            if not await _health(base):
+                raise s.ExporterError("DTK API stopped responding after browser-rpc upgrade.")
         return None
     if not settings.get("dtk_auto_start", True):
         raise s.ExporterError(f"DTK is not reachable at {base}; auto-start is disabled.")
-    host = (urlparse(base).hostname or "").casefold()
     if host not in {"127.0.0.1", "localhost", "::1"}:
         raise s.ExporterError("Auto-start is only supported for a local DTK URL.")
     s.console("[DTK] Local API is offline; starting Docker Desktop and the DTK stack automatically ...")
@@ -353,6 +417,7 @@ async def ensure_local_dtk(settings):
     repo = await asyncio.to_thread(_ensure_repo, settings)
     await asyncio.to_thread(_ensure_dtk_env, repo)
     await asyncio.to_thread(_compose_up, repo)
+    await asyncio.to_thread(_ensure_browser_revision, settings)
     deadline = time.monotonic() + settings.get("dtk_startup_timeout_seconds", 300)
     while time.monotonic() < deadline:
         if await _health(base):
@@ -866,7 +931,7 @@ class DtkClient:
         return bool({"identity:manage", "admin"} & getattr(self, "key_scopes", set()))
 
     async def _mint_proxy_inventory(self):
-        """Healthy proxy candidates, excluding exits already bound to live TikTok identities."""
+        """Healthy proxy candidates not already bound, cooling, or reserved by a mint task."""
         all_proxies = await self._admin_get("/api/v1/admin/proxies")
         identities = await self._admin_get(
             "/api/v1/admin/identities",
@@ -875,8 +940,8 @@ class DtkClient:
         all_proxies = all_proxies if isinstance(all_proxies, list) else []
         identities = identities if isinstance(identities, list) else []
         proxies = [
-            proxy for proxy in all_proxies
-            if isinstance(proxy, dict) and proxy.get("healthy") is True
+            row for row in all_proxies
+            if isinstance(row, dict) and row.get("healthy") is True
         ]
 
         bound = {
@@ -886,19 +951,17 @@ class DtkClient:
             and row.get("proxy_id")
             and str(row.get("state") or "").lower() != "retired"
         }
-        # A proxy assigned to a submitted/queued/running mint is not in the
-        # identities table yet. Reserve it locally so a replacement task cannot
-        # accidentally reuse the same egress before the first task finishes.
         reserved = {
             str(proxy_id)
-            for proxy_id in self.identity_task_proxies.values()
+            for task_id, proxy_id in self.identity_task_proxies.items()
             if proxy_id
+            and self.identity_task_states.get(task_id, "submitted") in {"submitted", "queued", "running"}
         }
         now = time.monotonic()
         candidates = []
         cooling = []
         for proxy in proxies:
-            if not isinstance(proxy, dict) or not proxy.get("id"):
+            if not proxy.get("id"):
                 continue
             proxy_id = str(proxy["id"])
             self.identity_proxy_info[proxy_id] = proxy
@@ -960,18 +1023,14 @@ class DtkClient:
         candidates = list(inventory["candidates"])
         configured = int(inventory["configured"])
 
-        # With configured proxies, explicitly name a different healthy/unbound
-        # proxy for each mint. DTK's automatic picker otherwise always chooses
-        # the oldest free proxy, so a TikTok-specific bad egress can be retried
-        # forever even though dozens of other generic-health probes are green.
         chosen = []
         if configured:
             if not candidates:
                 now = time.monotonic()
                 cooling = list(inventory["cooling"])
                 retry_after = min(
-                    [max(1.0, until - now) for _proxy_id, until in cooling] or
-                    [float(self.settings["dtk_identity_control_poll_seconds"])]
+                    [max(1.0, until - now) for _proxy_id, until in cooling]
+                    or [float(self.settings["dtk_identity_control_poll_seconds"])]
                 )
                 raise DtkApiError(
                     "QUEUE_FULL",
@@ -982,6 +1041,7 @@ class DtkClient:
                         "configured": configured,
                         "healthy": inventory["healthy"],
                         "bound": inventory["bound"],
+                        "reserved": inventory.get("reserved", 0),
                         "cooling": len(cooling),
                     },
                 )
@@ -990,10 +1050,10 @@ class DtkClient:
             chosen = ordered[:count]
             self.identity_proxy_cursor = (offset + len(chosen)) % max(1, len(candidates))
         else:
-            # A deployment with no proxies intentionally uses direct egress.
             chosen = [None] * count
 
         task_ids = []
+        last_submission_error = None
         for proxy in chosen:
             payload = {"platform": "tiktok", "count": 1}
             proxy_id = None
@@ -1019,19 +1079,22 @@ class DtkClient:
                         details={"proxy_id": proxy_id},
                     )
             except DtkApiError as exc:
+                last_submission_error = exc
                 await self._record_dtk_error(
                     exc,
-                    f"identity mint submission"
+                    "identity mint submission"
                     + (f" via proxy {self._proxy_debug_name(proxy_id)}" if proxy_id else " via direct egress"),
                 )
+                # A 429/queue lock is not evidence the egress is bad. Other
+                # submission failures tied to a named proxy are quarantined so
+                # the next attempt rotates away instead of fixating on it.
                 if proxy_id and exc.dtk_code not in {"RATE_LIMITED", "QUEUE_FULL"}:
                     self._cooldown_mint_proxy(proxy_id, f"submission {exc.dtk_code}")
-                # Never orphan tasks already accepted earlier in this batch.
-                # Return those ids so the supervisor can keep tracking them;
-                # the uncovered shortfall will be submitted on the next pass.
-                if task_ids:
+                # Shared Retry-After is already recorded by _management_data.
+                # Once it trips, stop submitting more tasks this cycle.
+                if exc.dtk_code == "RATE_LIMITED":
                     break
-                raise
+                continue
 
             for task_id in ids:
                 self.identity_task_states[task_id] = "submitted"
@@ -1047,6 +1110,15 @@ class DtkClient:
                         f"[DTK DEBUG] Queued TikTok identity mint task {task_id[:8]} through "
                         f"direct egress ({reason})."
                     )
+
+        if not task_ids and last_submission_error is not None:
+            raise last_submission_error
+        if not task_ids:
+            raise DtkApiError(
+                "QUEUE_FULL",
+                "no TikTok identity mint task could be submitted",
+                retry_after=self.settings["dtk_identity_control_poll_seconds"],
+            )
 
         self.identity_repair_last_mint = time.monotonic()
         s.console(
