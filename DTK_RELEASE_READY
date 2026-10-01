@@ -1,6 +1,8 @@
 DTK-only release snapshot trigger
-package_parent=8a7e572a26b88edfe1529c243ef467715e00f979
-code_regression_head=50eb52b8066e9669275ab51babc390fab56a7d43
+package_parent=dfa7635feecc654995bd306b6c3f2c54626a0f1e
+code_regression_head=dfa7635feecc654995bd306b6c3f2c54626a0f1e
 code_regression_matrix=windows-3.11,windows-3.12,ubuntu-3.11,ubuntu-3.12
 code_regression_result=success
+identity_preflight=strict
+identity_self_heal=enabled
 contains_real_dtk_api_key=false
