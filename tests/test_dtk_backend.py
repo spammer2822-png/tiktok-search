@@ -127,6 +127,38 @@ class ClientTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn(("/api/v1/admin/settings/pool.tiktok.target_size", 8), calls)
         self.assertIn(("/api/v1/admin/settings/pool.douyin.min_size", 0), calls)
 
+    async def test_request_identity_mint_returns_and_tracks_task_ids(self):
+        self.client.key_scopes = {"admin", "identity:manage", "tiktok:read"}
+        self.client.client = AsyncMock()
+        self.client.client.post.return_value = httpx.Response(
+            202,
+            json={
+                "success": True,
+                "data": {"task_ids": ["task-a", "task-b"], "count": 2},
+            },
+        )
+        task_ids = await self.client._request_identity_mint(2, reason="fixture")
+        self.assertEqual(task_ids, ["task-a", "task-b"])
+        self.assertEqual(self.client.identity_task_states["task-a"], "submitted")
+        self.assertEqual(self.client.identity_task_states["task-b"], "submitted")
+        self.client.client.post.assert_awaited_once_with(
+            "/api/v1/admin/identities/mint",
+            json={"platform": "tiktok", "count": 2},
+        )
+
+    async def test_auto_mint_disabled_does_not_bypass_hard_minimum(self):
+        self.client.settings["dtk_auto_mint"] = False
+        self.client.settings["dtk_min_usable_identities"] = 5
+        self.client.settings["dtk_target_identities"] = 8
+        self.client.key_scopes = {"tiktok:read"}
+        self.client._identity_pool_row = AsyncMock(return_value=(
+            {"platforms": [], "activity": {"current": None, "recent": [], "backoff": None}},
+            {"platform": "tiktok", "usable": 1, "min_size": 5, "target_size": 8, "auto": False},
+        ))
+        self.client._emit_identity_activity = AsyncMock()
+        with self.assertRaisesRegex(s.ExporterError, "automatic minting is disabled"):
+            await self.client._ensure_identity_pool()
+
     async def test_identity_supervisor_queues_shortfall_before_ready(self):
         self.client.key_scopes = {"admin", "identity:manage", "tiktok:read"}
         self.client.settings["dtk_min_usable_identities"] = 5
