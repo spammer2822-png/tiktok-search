@@ -9,3 +9,7 @@ direct_session.json
 TiktokSearch_Logs/
 hybrid_bench_*/
 report_fixture_*/
+
+# Local DTK credentials. Never commit these.
+dtk_api_key.txt
+*.dtk_api_key
