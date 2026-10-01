@@ -388,6 +388,9 @@ def _profile_from_author(author, username):
     if isinstance(uid, bool) or not isinstance(uid, (str, int)):
         raise s.InvalidBackendResponse("DTK profile uid is missing.")
     uid = str(uid)
+    sec_uid = author.get("sec_uid")
+    if not isinstance(sec_uid, str) or not sec_uid:
+        raise s.InvalidBackendResponse("DTK profile sec_uid is missing; relationship lists cannot be addressed safely.")
     stats = author.get("stats") if isinstance(author.get("stats"), dict) else {}
     raw = author.get("raw") if isinstance(author.get("raw"), dict) else {}
     privacy = raw.get("privateAccount")
@@ -397,7 +400,7 @@ def _profile_from_author(author, username):
         username=unique,
         uid=uid,
         display_name=author.get("nickname") if isinstance(author.get("nickname"), str) else unique,
-        sec_uid=author.get("sec_uid") if isinstance(author.get("sec_uid"), str) else "",
+        sec_uid=sec_uid,
         profile_url=author.get("web_url") if isinstance(author.get("web_url"), str) else f"{s.TIKTOK_ORIGIN}/@{unique}",
         private_account=False,
         verified=author.get("verified") if isinstance(author.get("verified"), bool) else None,
@@ -753,7 +756,7 @@ class DtkClient:
                 {
                     "url": f"{s.TIKTOK_ORIGIN}/@{username}",
                     "wait": self.settings["dtk_wait_seconds"],
-                    "include_raw": str(bool(s.KEEP_RAW_MEMBER_DATA)).lower(),
+                    # Profile privacy is only exposed by DTK in the untouched TikTok user node.\n                    # Always request it for correctness, but only persist raw data when configured.\n                    "include_raw": "true",
                 },
                 "profile",
             )
