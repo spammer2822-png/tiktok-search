@@ -71,6 +71,51 @@ class ConfigTests(unittest.TestCase):
             d._profile_from_author(value, "person1")
 
 
+    def test_verified_cloakbrowser_revision_is_v0511_publisher_commit(self):
+        self.assertEqual(
+            d.CLOAKBROWSER_COMMIT,
+            "9bc5e374d7fc3a4099360bbd93e570b1e7ec8618",
+        )
+
+    def test_running_browser_pin_reads_container_stamp(self):
+        stamped = (
+            "OTHER=value\n"
+            "DTK_BROWSER_BACKEND_PIN=https://github.com/CloakHQ/cloakbrowser@"
+            + d.CLOAKBROWSER_COMMIT
+            + "\n"
+        )
+        result = SimpleNamespace(returncode=0, stdout=stamped)
+        with patch.object(d, "_docker_ready", return_value=True), patch.object(d, "_run", return_value=result):
+            pin = d._running_browser_pin()
+        self.assertTrue(pin.endswith("@" + d.CLOAKBROWSER_COMMIT))
+
+    def test_browser_revision_rebuilds_only_when_pin_differs(self):
+        settings = dict(d.DEFAULTS)
+        fake_repo = Path("fixture-dtk")
+        with (
+            patch.object(d, "_docker_ready", return_value=True),
+            patch.object(d, "_ensure_repo", return_value=fake_repo),
+            patch.object(d, "_ensure_dtk_env") as ensure_env,
+            patch.object(d, "_compose_up") as compose_up,
+            patch.object(d, "_running_browser_pin", return_value="https://github.com/CloakHQ/cloakbrowser@old"),
+            patch.object(s, "console"),
+        ):
+            d._ensure_browser_revision(settings)
+        ensure_env.assert_called_once_with(fake_repo)
+        compose_up.assert_called_once_with(fake_repo, force_browser_rebuild=True)
+
+        with (
+            patch.object(d, "_docker_ready", return_value=True),
+            patch.object(d, "_ensure_repo") as ensure_repo,
+            patch.object(
+                d,
+                "_running_browser_pin",
+                return_value="https://github.com/CloakHQ/cloakbrowser@" + d.CLOAKBROWSER_COMMIT,
+            ),
+        ):
+            d._ensure_browser_revision(settings)
+        ensure_repo.assert_not_called()
+
 class ClientTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.gate = s.AsyncRequestGate(0, 0, asyncio.Event(), ceiling=8, initial=8, adaptive=False)
