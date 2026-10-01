@@ -107,6 +107,12 @@
       "mode": "worker",
       "workers": 100,
       "returncode": 0
+    },
+    {
+      "variant": "original",
+      "mode": "worker",
+      "workers": 500,
+      "returncode": 0
     }
   ]
 }
