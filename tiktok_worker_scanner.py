@@ -1192,6 +1192,19 @@ class SecretLogFilter(logging.Filter):
         return False
 
 
+def verification_flag(value: Any) -> bool | None:
+    """Normalize DTK verification values without inventing a value."""
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        token = value.strip().casefold()
+        if token in {"yes", "yes✅", "true", "1", "verified"}:
+            return True
+        if token in {"no", "no❌", "false", "0", "unverified"}:
+            return False
+    return None
+
+
 def parse_count(value: Any) -> int | None:
     """Return only exact counts. '28.5M' is preserved separately, never an exact total."""
     if isinstance(value, int) and not isinstance(value, bool) and value >= 0:
@@ -1239,7 +1252,7 @@ def normalize_member(entry: Any) -> tuple[str, dict[str, Any]] | None:
         # Keep the Worker's display value exactly; expose a separate boolean
         # for consumers that need a verification predicate.
         "verified": entry.get("verified") if isinstance(entry.get("verified"), str) else None,
-        "is_verified": worker_verified(entry.get("verified")),
+        "is_verified": verification_flag(entry.get("verified")),
         "private_account": entry.get("privateAccount") if isinstance(entry.get("privateAccount"), bool) else None,
     }
     if KEEP_RAW_MEMBER_DATA:
