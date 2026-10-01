@@ -33,7 +33,7 @@ DEFAULTS = {
     "dtk_auto_mint": True,
     "dtk_min_usable_identities": 3,
     "dtk_target_identities": 8,
-    "dtk_identity_wait_seconds": 120,
+    "dtk_identity_wait_seconds": 600,
     "dtk_page_size": 35,
     "dtk_wait_seconds": 30,
     "dtk_request_attempts": 5,
@@ -77,6 +77,16 @@ IDENTITY_RECOVERY_CODES = {
     "SIGNING_FAILED",
 }
 IDENTITY_REPAIR_COOLDOWN_SECONDS = 15.0
+IDENTITY_MINT_TASK_CAP = 10
+IDENTITY_POLL_SECONDS = 2.0
+IDENTITY_DEBUG_SECONDS = 5.0
+IDENTITY_RETRY_MAX_SECONDS = 30.0
+IDENTITY_FATAL_REASONS = {
+    "browser_rpc_unconfigured",
+    "no_free_proxy",
+    "proxy_not_found",
+    "proxy_undecryptable",
+}
 
 
 def _bool(value, name):
@@ -115,6 +125,11 @@ def migrate_config(config):
     migrated = dict(config)
     for key, value in DEFAULTS.items():
         migrated.setdefault(key, value)
+    # The earlier DTK-only build generated 120 seconds here, which is shorter
+    # than DTK's own manual-mint queue can legitimately need. Upgrade only that
+    # old generated default; explicit custom values are otherwise preserved.
+    if migrated.get("dtk_identity_wait_seconds") == 120:
+        migrated["dtk_identity_wait_seconds"] = 600
     migrated["backend_mode"] = "dtk"
     migrated.pop("direct_session_file", None)
     migrated.pop("worker_backend_max_connections", None)
@@ -498,6 +513,10 @@ class DtkClient:
         self.identity_repair_lock = asyncio.Lock()
         self.identity_repair_last_mint = 0.0
         self.dtk_error_lock = asyncio.Lock()
+        self.identity_task_states = {}
+        self.identity_activity_seen = set()
+        self.identity_activity_current = None
+        self.identity_activity_backoff = None
         if avatar_directory is not None:
             from avatar_cache import AvatarCache
             self.avatars = AvatarCache(
@@ -558,7 +577,12 @@ class DtkClient:
             raise s.ExporterError("DTK API key lacks the tiktok:read scope.")
         self.key_scopes = scopes
         limit = data.get("rate_limit_per_min")
-        rendered = "unlimited" if isinstance(limit, (int, float)) and limit <= 0 else f"{limit} requests/minute"
+        if limit is None:
+            rendered = "not reported"
+        elif isinstance(limit, (int, float)) and limit <= 0:
+            rendered = "unlimited"
+        else:
+            rendered = f"{limit} requests/minute"
         s.console(f"[DTK DEBUG] Authenticated local API key; effective rate limit: {rendered}.")
 
     async def _record_dtk_error(self, exc, context):
@@ -578,6 +602,7 @@ class DtkClient:
             "retryable": retryable,
             "retry_after": retry_after,
             "request_id": request_id,
+            "details": getattr(exc, "details", None),
             "message": safe_message,
         }
         s.console(f"[DTK ERROR] {context}: {safe_message}", error=True)
@@ -592,9 +617,21 @@ class DtkClient:
             f"usable={int(row.get('usable') or 0)}/{minimum}",
             f"target={target}",
         ]
-        for key in ("total", "healthy", "unhealthy", "pending", "minting", "min_size", "target_size", "auto"):
+        labels = {
+            "total": "total",
+            "healthy": "healthy",
+            "unhealthy": "unhealthy",
+            "pending": "pending",
+            # This is a database identity-state count, NOT the number of queued
+            # /identity/mint tasks. Label it plainly so minting=0 cannot mislead.
+            "minting": "pool_minting_rows",
+            "min_size": "min_size",
+            "target_size": "target_size",
+            "auto": "auto",
+        }
+        for key, label in labels.items():
             if key in row and row.get(key) is not None:
-                parts.append(f"{key}={row.get(key)}")
+                parts.append(f"{label}={row.get(key)}")
         return " | ".join(parts)
 
     def _unwrap(self, response):
@@ -756,78 +793,369 @@ class DtkClient:
 
     async def _request_identity_mint(self, count, *, reason):
         if count <= 0:
-            return 0
+            return []
         if not self._can_manage_identities():
             raise s.ExporterError(
                 "DTK needs more TikTok identities, but this API key cannot mint them "
                 "(identity:manage or admin scope required)."
             )
-        count = min(10, max(1, int(count)))
+        count = min(IDENTITY_MINT_TASK_CAP, max(1, int(count)))
         response = await self.client.post(
             "/api/v1/admin/identities/mint",
             json={"platform": "tiktok", "count": count},
         )
         data = self._unwrap(response)
-        task_ids = list(data.get("task_ids") or []) if isinstance(data, dict) else []
-        queued = len(task_ids) if task_ids else count
+        task_ids = [
+            str(task_id) for task_id in (data.get("task_ids") or [])
+            if isinstance(task_id, (str, int)) and str(task_id)
+        ] if isinstance(data, dict) else []
+        if not task_ids:
+            raise DtkApiError(
+                "INVALID_RESPONSE",
+                "identity mint was accepted without any task ids",
+                status=response.status_code,
+            )
         self.identity_repair_last_mint = time.monotonic()
         s.console(
-            f"[DTK DEBUG] Queued {queued} TikTok guest identit{'y' if queued == 1 else 'ies'} "
-            f"({reason}); DTK browser mint tasks are running."
+            f"[DTK DEBUG] Queued {len(task_ids)} TikTok guest identit"
+            f"{'y' if len(task_ids) == 1 else 'ies'} ({reason}). "
+            f"Tracking every DTK mint task until it succeeds or reports an error."
         )
-        # Mint jobs are asynchronous. The pool itself is the source of truth, so
-        # poll usable identities instead of waiting serially on every task result.
-        return queued
+        for task_id in task_ids:
+            self.identity_task_states[task_id] = "submitted"
+        return task_ids
 
-    async def _wait_for_minimum_identities(self, minimum, *, initial_usable=0):
-        deadline = time.monotonic() + self.settings["dtk_identity_wait_seconds"]
-        target = self.settings["dtk_target_identities"]
-        best = int(initial_usable or 0)
-        next_log = 0.0
-        last_row = {"usable": best}
-        while True:
+    def _task_error(self, task_id, task):
+        error = task.get("error") if isinstance(task, dict) and isinstance(task.get("error"), dict) else {}
+        return DtkApiError(
+            str(error.get("code") or "INTERNAL"),
+            str(error.get("message") or "identity mint task failed"),
+            retry_after=error.get("retry_after"),
+            request_id=f"task:{task_id}",
+            details=error.get("details"),
+        )
+
+    def _mint_failure_action(self, exc):
+        details = exc.details if isinstance(getattr(exc, "details", None), dict) else {}
+        reason = str(details.get("reason") or "")
+        if exc.dtk_code == "NOT_CONFIGURED" or reason in IDENTITY_FATAL_REASONS:
+            if reason == "no_free_proxy":
+                return (
+                    "DTK cannot create another TikTok identity because proxies are configured "
+                    "but no unused proxy is available. DTK intentionally binds at most one live "
+                    "identity to an automatically selected proxy. Add another usable proxy, retire "
+                    "an old identity, or lower the scanner minimum."
+                )
+            if reason in {"browser_rpc_unconfigured"} or exc.dtk_code == "NOT_CONFIGURED":
+                return "DTK browser-rpc is not configured, so automatic identity minting cannot work."
+            if reason == "proxy_undecryptable":
+                return "DTK cannot decrypt the selected proxy credential, so identity minting cannot continue safely."
+            if reason == "proxy_not_found":
+                return "DTK's identity mint task references a proxy that no longer exists."
+            return f"DTK identity minting cannot continue: {reason or exc.dtk_code}."
+        return None
+
+    async def _identity_task_view(self, task_id):
+        response = await self.client.get(f"/api/v1/tasks/{task_id}")
+        task = self._unwrap(response)
+        if not isinstance(task, dict):
+            raise DtkApiError(
+                "INVALID_RESPONSE",
+                f"identity mint task {task_id} returned an invalid task document",
+            )
+        return task
+
+    async def _poll_identity_tasks(self, pending):
+        """Poll all queued/running mint tasks once and return task outcomes."""
+        failed = []
+        succeeded = []
+        max_retry_after = 0.0
+        for task_id in list(pending):
             try:
-                _pool, row = await self._identity_pool_row()
-                last_row = row
-                best = int(row.get("usable") or 0)
-                if best >= minimum:
-                    s.console(
-                        f"[DTK READY] Identity pool ready before scan traffic: "
-                        f"{self._identity_debug(row, minimum, target)}."
-                    )
-                    return row
+                task = await self._identity_task_view(task_id)
             except DtkApiError as exc:
-                await self._record_dtk_error(exc, "identity preflight pool check")
+                await self._record_dtk_error(exc, f"identity mint task {task_id} poll")
+                # A task that can no longer be read cannot count as an active
+                # replacement forever. Remove it so the supervisor can submit
+                # another one while staying within the active-task cap.
+                if not exc.retryable:
+                    pending.discard(task_id)
+                    failed.append(exc)
+                else:
+                    max_retry_after = max(max_retry_after, float(exc.retry_after or 1))
+                continue
+
+            state = str(task.get("state") or "unknown")
+            previous = self.identity_task_states.get(task_id)
+            if state != previous:
+                self.identity_task_states[task_id] = state
+                s.console(f"[DTK DEBUG] Mint task {task_id[:8]}: {previous or 'submitted'} -> {state}.")
+
+            if state == "done":
+                data = task.get("data") if isinstance(task.get("data"), dict) else {}
+                if data.get("minted") is True:
+                    identity_id = str(data.get("identity_id") or "")
+                    s.console(
+                        f"[DTK DEBUG] Mint task {task_id[:8]} completed successfully"
+                        + (f"; identity {identity_id[:8]} created." if identity_id else ".")
+                    )
+                    pending.discard(task_id)
+                    succeeded.append(task_id)
+                else:
+                    exc = DtkApiError(
+                        "INVALID_RESPONSE",
+                        "identity mint task finished without minted=true",
+                        request_id=f"task:{task_id}",
+                        details={"task_data": data},
+                    )
+                    await self._record_dtk_error(exc, f"identity mint task {task_id}")
+                    pending.discard(task_id)
+                    failed.append(exc)
+            elif state == "failed":
+                exc = self._task_error(task_id, task)
+                await self._record_dtk_error(exc, f"identity mint task {task_id}")
+                pending.discard(task_id)
+                failed.append(exc)
+                max_retry_after = max(max_retry_after, float(exc.retry_after or 0))
+            elif state not in {"queued", "running"}:
+                exc = DtkApiError(
+                    "INVALID_RESPONSE",
+                    f"identity mint task entered unknown state {state!r}",
+                    request_id=f"task:{task_id}",
+                )
+                await self._record_dtk_error(exc, f"identity mint task {task_id}")
+                pending.discard(task_id)
+                failed.append(exc)
+
+        return succeeded, failed, max_retry_after
+
+    async def _emit_identity_activity(self, pool):
+        """Surface DTK's official mint activity feed without repeating old rows."""
+        activity = pool.get("activity") if isinstance(pool, dict) and isinstance(pool.get("activity"), dict) else {}
+        current = activity.get("current") if isinstance(activity.get("current"), dict) else None
+        current_sig = json.dumps(current, sort_keys=True, default=str) if current else None
+        if current_sig != self.identity_activity_current:
+            self.identity_activity_current = current_sig
+            if current:
+                s.console(
+                    f"[DTK DEBUG] DTK browser mint in progress: "
+                    f"platform={current.get('platform')} started_at={current.get('started_at')}."
+                )
+            elif current_sig is None:
+                s.console("[DTK DEBUG] DTK reports no browser mint currently in flight.")
+
+        recent = activity.get("recent") if isinstance(activity.get("recent"), list) else []
+        for entry in reversed(recent):
+            if not isinstance(entry, dict) or entry.get("platform") != "tiktok":
+                continue
+            signature = json.dumps(entry, sort_keys=True, default=str)
+            if signature in self.identity_activity_seen:
+                continue
+            self.identity_activity_seen.add(signature)
+            if len(self.identity_activity_seen) > 200:
+                # Bounded dedupe only; the API itself keeps at most a few rows.
+                self.identity_activity_seen = set(list(self.identity_activity_seen)[-100:])
+            if entry.get("ok") is True:
+                identity_id = str(entry.get("identity_id") or "")
+                s.console(
+                    f"[DTK DEBUG] DTK mint activity succeeded: reason={entry.get('reason')}"
+                    + (f" identity={identity_id[:8]}." if identity_id else ".")
+                )
+            else:
+                message = (
+                    f"DTK mint activity failed: reason={entry.get('reason') or 'unknown'}"
+                    + (f"; {entry.get('error')}" if entry.get("error") else "")
+                )
+                synthetic = DtkApiError(
+                    "INTERNAL",
+                    message,
+                    request_id="mint-activity",
+                    details={
+                        "reason": entry.get("reason"),
+                        "platform": entry.get("platform"),
+                        "activity_timestamp": entry.get("ts"),
+                    },
+                )
+                await self._record_dtk_error(synthetic, "DTK mint activity")
+
+        backoff = activity.get("backoff") if isinstance(activity.get("backoff"), dict) else None
+        backoff_sig = json.dumps(backoff, sort_keys=True, default=str) if backoff else None
+        if backoff_sig != self.identity_activity_backoff:
+            self.identity_activity_backoff = backoff_sig
+            if backoff:
+                s.console(
+                    f"[DTK DEBUG] DTK automatic refill backoff: failures={backoff.get('failures')} "
+                    f"until={backoff.get('until')}."
+                )
+
+    async def _wait_for_minimum_identities(self, minimum, *, initial_usable=0, reason="identity minimum"):
+        """Mint, observe every task, replace failures, and never scan below minimum."""
+        target = self.settings["dtk_target_identities"]
+        deadline = time.monotonic() + self.settings["dtk_identity_wait_seconds"]
+        best = int(initial_usable or 0)
+        pending = set()
+        next_log = 0.0
+        next_mint = 0.0
+        failure_streak = 0
+        last_row = {"usable": best}
+        last_pool = {}
+
+        while True:
+            self.gate.check()
+            try:
+                pool, row = await self._identity_pool_row()
+                last_pool, last_row = pool, row
+                best = int(row.get("usable") or 0)
+                await self._emit_identity_activity(pool)
+            except DtkApiError as exc:
+                await self._record_dtk_error(exc, f"{reason} pool check")
                 if exc.kind == "access_denied":
                     raise s.ExporterError(
-                        "DTK could not verify the TikTok identity pool while waiting for startup."
+                        "DTK could not verify the TikTok identity pool while waiting for identities."
                     ) from None
+                pool, row = last_pool, last_row
+
+            succeeded, failed, retry_after = await self._poll_identity_tasks(pending)
+            if succeeded:
+                failure_streak = 0
+            if failed:
+                failure_streak += len(failed)
+                fatal = next((self._mint_failure_action(exc) for exc in failed if self._mint_failure_action(exc)), None)
+                if fatal:
+                    raise s.ExporterError(fatal)
+                next_mint = max(
+                    next_mint,
+                    time.monotonic() + max(
+                        retry_after,
+                        min(IDENTITY_RETRY_MAX_SECONDS, float(2 ** min(failure_streak, 5))),
+                    ),
+                )
+
+            # Re-read after completed task(s) so the just-committed identity can
+            # satisfy the minimum immediately instead of waiting another tick.
+            if succeeded:
+                try:
+                    pool, row = await self._identity_pool_row()
+                    last_pool, last_row = pool, row
+                    best = int(row.get("usable") or 0)
+                    await self._emit_identity_activity(pool)
+                except DtkApiError as exc:
+                    await self._record_dtk_error(exc, f"{reason} post-mint pool check")
+
+            if best >= minimum:
+                s.console(
+                    f"[DTK READY] Identity pool ready before scan traffic: "
+                    f"{self._identity_debug(last_row, minimum, target)}."
+                )
+                return last_row
 
             now = time.monotonic()
             if now >= deadline:
                 break
+
+            # A task in queued/running state already represents one requested
+            # identity. Only submit the uncovered shortfall and never keep more
+            # than DTK's documented per-call maximum active at once.
+            uncovered = max(0, minimum - best - len(pending))
+            capacity = max(0, IDENTITY_MINT_TASK_CAP - len(pending))
+            if uncovered and capacity and now >= next_mint:
+                request_count = min(uncovered, capacity)
+                try:
+                    task_ids = await self._request_identity_mint(
+                        request_count,
+                        reason=f"{reason}; need {minimum}, currently {best}",
+                    )
+                    pending.update(task_ids)
+                    next_mint = now + 1.0
+                except DtkApiError as exc:
+                    await self._record_dtk_error(exc, f"{reason} mint submission")
+                    fatal = self._mint_failure_action(exc)
+                    if fatal:
+                        raise s.ExporterError(fatal) from None
+                    failure_streak += 1
+                    next_mint = now + max(
+                        float(exc.retry_after or 0),
+                        min(IDENTITY_RETRY_MAX_SECONDS, float(2 ** min(failure_streak, 5))),
+                    )
+
             if now >= next_log:
+                counts = {}
+                for task_id in pending:
+                    state = self.identity_task_states.get(task_id, "submitted")
+                    counts[state] = counts.get(state, 0) + 1
+                task_text = ", ".join(f"{key}={value}" for key, value in sorted(counts.items())) or "none"
                 remaining = max(0, int(deadline - now))
                 s.console(
-                    f"[DTK DEBUG] Identity preflight waiting: "
+                    f"[DTK DEBUG] Identity supervisor: "
                     f"{self._identity_debug(last_row, minimum, target)} | "
-                    f"startup_budget_remaining={remaining}s. "
-                    "TikTok scan requests are still blocked."
+                    f"mint_tasks={task_text} | retry_streak={failure_streak} | "
+                    f"budget_remaining={remaining}s. TikTok scan requests are still blocked."
                 )
-                next_log = now + 5.0
-            await asyncio.sleep(min(2.0, max(0.1, deadline - now)))
+                next_log = now + IDENTITY_DEBUG_SECONDS
+
+            await asyncio.sleep(min(IDENTITY_POLL_SECONDS, max(0.1, deadline - now)))
+
+        for task_id in sorted(pending):
+            state = self.identity_task_states.get(task_id, "unknown")
+            s.console(f"[DTK DEBUG] Mint task {task_id[:8]} still {state} when startup budget expired.")
 
         error = s.ExporterError(
             f"DTK identity startup blocked: need at least {minimum} usable TikTok identities, "
-            f"but only {best} became usable. No TikTok scan requests were started."
+            f"but only {best} became usable after {self.settings['dtk_identity_wait_seconds']} seconds. "
+            "Every submitted mint task was monitored and failed/stuck task details were saved. "
+            "No TikTok scan requests were started."
         )
-        s.console(f"[DTK ERROR] {error}", error=True)
+        await self._record_dtk_error(error, f"{reason} timeout")
+        raise error
+
+    async def _mint_one_replacement(self, reason):
+        """Create one confirmed replacement identity, retrying failed mint tasks."""
+        deadline = time.monotonic() + min(self.settings["dtk_identity_wait_seconds"], 300)
+        pending = set()
+        failure_streak = 0
+        next_mint = 0.0
+        while time.monotonic() < deadline:
+            self.gate.check()
+            succeeded, failed, retry_after = await self._poll_identity_tasks(pending)
+            if succeeded:
+                return True
+            if failed:
+                failure_streak += len(failed)
+                fatal = next((self._mint_failure_action(exc) for exc in failed if self._mint_failure_action(exc)), None)
+                if fatal:
+                    raise s.ExporterError(fatal)
+                next_mint = max(
+                    next_mint,
+                    time.monotonic() + max(
+                        retry_after,
+                        min(IDENTITY_RETRY_MAX_SECONDS, float(2 ** min(failure_streak, 5))),
+                    ),
+                )
+            now = time.monotonic()
+            if not pending and now >= next_mint:
+                try:
+                    pending.update(await self._request_identity_mint(1, reason=reason))
+                except DtkApiError as exc:
+                    await self._record_dtk_error(exc, f"{reason} replacement submission")
+                    fatal = self._mint_failure_action(exc)
+                    if fatal:
+                        raise s.ExporterError(fatal) from None
+                    failure_streak += 1
+                    next_mint = now + max(
+                        float(exc.retry_after or 0),
+                        min(IDENTITY_RETRY_MAX_SECONDS, float(2 ** min(failure_streak, 5))),
+                    )
+            try:
+                pool, _row = await self._identity_pool_row()
+                await self._emit_identity_activity(pool)
+            except DtkApiError as exc:
+                await self._record_dtk_error(exc, f"{reason} replacement activity")
+            await asyncio.sleep(IDENTITY_POLL_SECONDS)
+        error = s.ExporterError(f"DTK could not confirm a replacement TikTok identity after {reason}.")
+        await self._record_dtk_error(error, "identity replacement timeout")
         raise error
 
     async def _ensure_identity_pool(self):
-        if not self.settings.get("dtk_auto_mint", True):
-            return
-
         minimum = self.settings["dtk_min_usable_identities"]
         target = self.settings["dtk_target_identities"]
         s.console(
@@ -866,6 +1194,7 @@ class DtkClient:
                 pool, row = await self._identity_pool_row()
 
         usable = int(row.get("usable") or 0)
+        await self._emit_identity_activity(pool)
         s.console(f"[DTK DEBUG] Identity pool snapshot: {self._identity_debug(row, minimum, target)}.")
         if usable >= minimum:
             s.console(
@@ -874,19 +1203,25 @@ class DtkClient:
             )
             return
 
-        # Startup is strict: do not release the scanner client until the configured
-        # minimum is actually usable.
-        shortfall = minimum - usable
-        try:
-            await self._request_identity_mint(shortfall, reason=f"startup minimum {minimum}")
-        except DtkApiError as exc:
-            await self._record_dtk_error(exc, "startup identity mint")
-            s.console(
-                f"[DTK DEBUG] Immediate startup mint failed ({exc.dtk_code}); "
-                "DTK background refill will still be observed."
+        if not self.settings.get("dtk_auto_mint", True):
+            raise s.ExporterError(
+                f"DTK has only {usable}/{minimum} usable TikTok identities and automatic minting is disabled. "
+                "No TikTok scan requests were started."
+            )
+        if not self._can_manage_identities():
+            raise s.ExporterError(
+                f"DTK has only {usable}/{minimum} usable TikTok identities and this API key cannot create more. "
+                "No TikTok scan requests were started."
             )
 
-        await self._wait_for_minimum_identities(minimum, initial_usable=usable)
+        # The supervisor submits the shortfall, follows each task's queued /
+        # running / done / failed state, replaces failed tasks, and only returns
+        # when the hard minimum is genuinely usable.
+        await self._wait_for_minimum_identities(
+            minimum,
+            initial_usable=usable,
+            reason="startup identity preflight",
+        )
 
     async def _repair_identity_pool(self, reason):
         if not self.settings.get("dtk_auto_mint", True):
@@ -897,7 +1232,8 @@ class DtkClient:
         async with self.identity_repair_lock:
             minimum = self.settings["dtk_min_usable_identities"]
             target = self.settings["dtk_target_identities"]
-            _pool, row = await self._identity_pool_row()
+            pool, row = await self._identity_pool_row()
+            await self._emit_identity_activity(pool)
             usable = int(row.get("usable") or 0)
 
             now = time.monotonic()
@@ -907,25 +1243,31 @@ class DtkClient:
                 and now - self.identity_repair_last_mint < IDENTITY_REPAIR_COOLDOWN_SECONDS
             )
 
-            if below_minimum:
-                count = minimum - usable
-            elif cooldown_active:
-                count = 0
-            else:
-                # DTK abstracts which identity served a failed request. Queue one
-                # replacement rather than trying to guess and mutate a specific row.
-                # The cooldown keeps concurrent failures from multiplying this count.
-                count = 1
-
             s.console(
                 f"[DTK DEBUG] Identity self-heal triggered by {reason}: "
                 f"{usable} usable, minimum {minimum}, target {target}."
             )
-            if count:
-                await self._request_identity_mint(count, reason=f"self-heal after {reason}")
-
             if below_minimum:
-                await self._wait_for_minimum_identities(minimum, initial_usable=usable)
+                # Hard gate: stop this failing request path here and restore the
+                # configured pool before request retries can resume.
+                await self._wait_for_minimum_identities(
+                    minimum,
+                    initial_usable=usable,
+                    reason=f"runtime self-heal after {reason}",
+                )
+                return
+
+            if cooldown_active:
+                s.console(
+                    f"[DTK DEBUG] Replacement mint suppressed by the {IDENTITY_REPAIR_COOLDOWN_SECONDS:.0f}s "
+                    "global cooldown; another recovery already requested one."
+                )
+                return
+
+            # Even when the pool count has not fallen yet, an identity-specific
+            # failure is evidence that one session may be deteriorating. Request
+            # one replacement and confirm the mint task instead of fire-and-forget.
+            await self._mint_one_replacement(f"runtime self-heal after {reason}")
 
     async def lookup_profile(self, username):
         key = username.casefold()
