@@ -3362,7 +3362,10 @@ async def _execute_session(
     # Preserve the requested count, while reporting the separate safe runtime cap.
     workers = config["workers"]
     console(f"[ASYNC] Configured workers: {workers}; global request spacing {pacing[0]}-{pacing[1]}s.")
-    console(f"[PHASE {state.current_phase}] Starting/resuming {'double-phase' if config['scan_mode']=='double_phase' else 'normal'} scan.")
+    console(
+        f"[PHASE {state.current_phase}] Preparing {'double-phase' if config['scan_mode']=='double_phase' else 'normal'} scan; "
+        "DTK identity preflight must pass before TikTok traffic starts."
+    )
     return await run_scan([], output_directory=root, worker_count=workers, pacing=pacing,
         success_recorder=success, state_recorder=state, use_resume=True,
         pool=pool, initial_concurrency=workers, adaptive=True)
