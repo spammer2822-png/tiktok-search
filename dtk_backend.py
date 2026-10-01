@@ -549,7 +549,11 @@ class DtkClient:
             trust_env=False,
             follow_redirects=False,
         )
-        await self._validate_key()
+        try:
+            await self._validate_key()
+        except DtkApiError as exc:
+            await self._record_dtk_error(exc, "DTK startup authentication")
+            raise
         await self._ensure_identity_pool()
         return self
 
@@ -565,8 +569,34 @@ class DtkClient:
         if self.client is not None:
             await self.client.aclose()
 
+    async def _control_request(self, method, path, **kwargs):
+        """Normalize local DTK control-plane transport failures into safe DTK errors."""
+        try:
+            return await self.client.request(method, path, **kwargs)
+        except (self.httpx.ConnectError, self.httpx.ConnectTimeout):
+            raise DtkApiError(
+                "INTERNAL",
+                "DTK local API connection failed during a control-plane request",
+                retry_after=2,
+                details={"path": path, "transport": "connect"},
+            ) from None
+        except self.httpx.TimeoutException:
+            raise DtkApiError(
+                "INTERNAL",
+                "DTK local API timed out during a control-plane request",
+                retry_after=2,
+                details={"path": path, "transport": "timeout"},
+            ) from None
+        except self.httpx.RequestError:
+            raise DtkApiError(
+                "INTERNAL",
+                "DTK local API transport failed during a control-plane request",
+                retry_after=2,
+                details={"path": path, "transport": "request_error"},
+            ) from None
+
     async def _validate_key(self):
-        response = await self.client.get("/api/v1/auth/me")
+        response = await self._control_request("GET", "/api/v1/auth/me")
         data = self._unwrap(response)
         if not isinstance(data, dict):
             raise s.ExporterError("DTK /auth/me returned an invalid response.")
@@ -773,11 +803,11 @@ class DtkClient:
         raise last or s.ExporterError("DTK retry budget exhausted.")
 
     async def _admin_get(self, path):
-        response = await self.client.get(path)
+        response = await self._control_request("GET", path)
         return self._unwrap(response)
 
     async def _admin_put(self, path, value):
-        response = await self.client.put(path, json={"value": value})
+        response = await self._control_request("PUT", path, json={"value": value})
         return self._unwrap(response)
 
     async def _identity_pool_row(self):
@@ -800,7 +830,8 @@ class DtkClient:
                 "(identity:manage or admin scope required)."
             )
         count = min(IDENTITY_MINT_TASK_CAP, max(1, int(count)))
-        response = await self.client.post(
+        response = await self._control_request(
+            "POST",
             "/api/v1/admin/identities/mint",
             json={"platform": "tiktok", "count": count},
         )
@@ -856,7 +887,7 @@ class DtkClient:
         return None
 
     async def _identity_task_view(self, task_id):
-        response = await self.client.get(f"/api/v1/tasks/{task_id}")
+        response = await self._control_request("GET", f"/api/v1/tasks/{task_id}")
         task = self._unwrap(response)
         if not isinstance(task, dict):
             raise DtkApiError(
@@ -1176,22 +1207,26 @@ class DtkClient:
         # This scanner is TikTok-only. Keep DTK's background filler aligned with
         # the scanner's configured pool marks and stop it wasting browser mints on Douyin.
         if self._can_manage_identities():
-            platforms = pool.get("platforms") if isinstance(pool, dict) else []
-            desired = (
-                ("pool.tiktok.min_size", minimum, row.get("min_size")),
-                ("pool.tiktok.target_size", target, row.get("target_size")),
-            )
-            for name, value, current in desired:
-                if current != value:
-                    await self._admin_put(f"/api/v1/admin/settings/{name}", value)
-            douyin = next((x for x in platforms or [] if x.get("platform") == "douyin"), None)
-            if douyin and douyin.get("min_size") != 0:
-                try:
-                    await self._admin_put("/api/v1/admin/settings/pool.douyin.min_size", 0)
-                except DtkApiError:
-                    pass
-            if row.get("min_size") != minimum or row.get("target_size") != target or not row.get("auto", True):
-                pool, row = await self._identity_pool_row()
+            try:
+                platforms = pool.get("platforms") if isinstance(pool, dict) else []
+                desired = (
+                    ("pool.tiktok.min_size", minimum, row.get("min_size")),
+                    ("pool.tiktok.target_size", target, row.get("target_size")),
+                )
+                for name, value, current in desired:
+                    if current != value:
+                        await self._admin_put(f"/api/v1/admin/settings/{name}", value)
+                douyin = next((x for x in platforms or [] if x.get("platform") == "douyin"), None)
+                if douyin and douyin.get("min_size") != 0:
+                    try:
+                        await self._admin_put("/api/v1/admin/settings/pool.douyin.min_size", 0)
+                    except DtkApiError as exc:
+                        await self._record_dtk_error(exc, "disable unused Douyin identity refill")
+                if row.get("min_size") != minimum or row.get("target_size") != target or not row.get("auto", True):
+                    pool, row = await self._identity_pool_row()
+            except DtkApiError as exc:
+                await self._record_dtk_error(exc, "identity pool settings alignment")
+                raise
 
         usable = int(row.get("usable") or 0)
         await self._emit_identity_activity(pool)
