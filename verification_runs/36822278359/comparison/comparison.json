@@ -1,0 +1,1154 @@
+[
+  {
+    "case": "worker_100.json",
+    "comparison": "original_vs_first",
+    "metric": "completion_seconds",
+    "original": 1.8431754670000373,
+    "changed": 1.9060049920001347,
+    "ratio_original_over_changed": 0.9670360123589367
+  },
+  {
+    "case": "worker_100.json",
+    "comparison": "original_vs_first",
+    "metric": "successful_rps",
+    "original": 162.76258303735003,
+    "changed": 157.39727926167927,
+    "ratio_original_over_changed": 1.0340876526000855
+  },
+  {
+    "case": "worker_100.json",
+    "comparison": "original_vs_first",
+    "metric": "accounts_per_second",
+    "original": 54.25419434578335,
+    "changed": 52.465759753893096,
+    "ratio_original_over_changed": 1.0340876526000855
+  },
+  {
+    "case": "worker_100.json",
+    "comparison": "original_vs_first",
+    "metric": "followers_per_second",
+    "original": 203.45322879668754,
+    "changed": 196.74659907709912,
+    "ratio_original_over_changed": 1.0340876526000853
+  },
+  {
+    "case": "worker_100.json",
+    "comparison": "original_vs_first",
+    "metric": "following_per_second",
+    "original": 203.45322879668754,
+    "changed": 196.74659907709912,
+    "ratio_original_over_changed": 1.0340876526000853
+  },
+  {
+    "case": "worker_100.json",
+    "comparison": "original_vs_first",
+    "metric": "cpu_seconds",
+    "original": 1.821260077,
+    "changed": 1.8989655660000002,
+    "ratio_original_over_changed": 0.9590800958209685
+  },
+  {
+    "case": "worker_100.json",
+    "comparison": "original_vs_first",
+    "metric": "peak_rss_bytes",
+    "original": 69730304,
+    "changed": 69046272,
+    "ratio_original_over_changed": 1.0099068636174884
+  },
+  {
+    "case": "worker_100.json",
+    "comparison": "original_vs_first",
+    "metric": "report_seconds",
+    "original": 0.06387929799984704,
+    "changed": 0.06514633899996625,
+    "ratio_original_over_changed": 0.9805508487572899
+  },
+  {
+    "case": "worker_100.json",
+    "comparison": "original_vs_first",
+    "metric": "resume_seconds",
+    "original": 0.012208808000195859,
+    "changed": 0.01263269100013531,
+    "ratio_original_over_changed": 0.9664455498883879
+  },
+  {
+    "case": "worker_100.json",
+    "comparison": "original_vs_final",
+    "metric": "completion_seconds",
+    "original": 1.8431754670000373,
+    "changed": 2.0723113550000036,
+    "ratio_original_over_changed": 0.8894297966147244
+  },
+  {
+    "case": "worker_100.json",
+    "comparison": "original_vs_final",
+    "metric": "successful_rps",
+    "original": 162.76258303735003,
+    "changed": 144.76589112739745,
+    "ratio_original_over_changed": 1.124315829991438
+  },
+  {
+    "case": "worker_100.json",
+    "comparison": "original_vs_final",
+    "metric": "accounts_per_second",
+    "original": 54.25419434578335,
+    "changed": 48.25529704246581,
+    "ratio_original_over_changed": 1.1243158299914382
+  },
+  {
+    "case": "worker_100.json",
+    "comparison": "original_vs_final",
+    "metric": "followers_per_second",
+    "original": 203.45322879668754,
+    "changed": 180.9573639092468,
+    "ratio_original_over_changed": 1.1243158299914382
+  },
+  {
+    "case": "worker_100.json",
+    "comparison": "original_vs_final",
+    "metric": "following_per_second",
+    "original": 203.45322879668754,
+    "changed": 180.9573639092468,
+    "ratio_original_over_changed": 1.1243158299914382
+  },
+  {
+    "case": "worker_100.json",
+    "comparison": "original_vs_final",
+    "metric": "cpu_seconds",
+    "original": 1.821260077,
+    "changed": 1.8378415650000002,
+    "ratio_original_over_changed": 0.9909777380619857
+  },
+  {
+    "case": "worker_100.json",
+    "comparison": "original_vs_final",
+    "metric": "peak_rss_bytes",
+    "original": 69730304,
+    "changed": 69267456,
+    "ratio_original_over_changed": 1.0066820412749098
+  },
+  {
+    "case": "worker_100.json",
+    "comparison": "original_vs_final",
+    "metric": "report_seconds",
+    "original": 0.06387929799984704,
+    "changed": 0.06481576199999495,
+    "ratio_original_over_changed": 0.9855519094236989
+  },
+  {
+    "case": "worker_100.json",
+    "comparison": "original_vs_final",
+    "metric": "resume_seconds",
+    "original": 0.012208808000195859,
+    "changed": 0.017033787999999106,
+    "ratio_original_over_changed": 0.7167406333926722
+  },
+  {
+    "case": "worker_1000.json",
+    "comparison": "original_vs_first",
+    "metric": "completion_seconds",
+    "original": 1.885902562999945,
+    "changed": 1.9247908160000406,
+    "ratio_original_over_changed": 0.9797961146339474
+  },
+  {
+    "case": "worker_1000.json",
+    "comparison": "original_vs_first",
+    "metric": "successful_rps",
+    "original": 159.07502640156747,
+    "changed": 155.86109280354842,
+    "ratio_original_over_changed": 1.02062049957567
+  },
+  {
+    "case": "worker_1000.json",
+    "comparison": "original_vs_first",
+    "metric": "accounts_per_second",
+    "original": 53.025008800522485,
+    "changed": 51.9536976011828,
+    "ratio_original_over_changed": 1.02062049957567
+  },
+  {
+    "case": "worker_1000.json",
+    "comparison": "original_vs_first",
+    "metric": "followers_per_second",
+    "original": 198.8437830019593,
+    "changed": 194.8263660044355,
+    "ratio_original_over_changed": 1.02062049957567
+  },
+  {
+    "case": "worker_1000.json",
+    "comparison": "original_vs_first",
+    "metric": "following_per_second",
+    "original": 198.8437830019593,
+    "changed": 194.8263660044355,
+    "ratio_original_over_changed": 1.02062049957567
+  },
+  {
+    "case": "worker_1000.json",
+    "comparison": "original_vs_first",
+    "metric": "cpu_seconds",
+    "original": 1.839623117,
+    "changed": 1.902375365,
+    "ratio_original_over_changed": 0.967013740214198
+  },
+  {
+    "case": "worker_1000.json",
+    "comparison": "original_vs_first",
+    "metric": "peak_rss_bytes",
+    "original": 60600320,
+    "changed": 59797504,
+    "ratio_original_over_changed": 1.0134255770943215
+  },
+  {
+    "case": "worker_1000.json",
+    "comparison": "original_vs_first",
+    "metric": "report_seconds",
+    "original": 0.0642952090001927,
+    "changed": 0.06532974199990349,
+    "ratio_original_over_changed": 0.9841644407578968
+  },
+  {
+    "case": "worker_1000.json",
+    "comparison": "original_vs_first",
+    "metric": "resume_seconds",
+    "original": 0.01256726799988428,
+    "changed": 0.012415093000072375,
+    "ratio_original_over_changed": 1.0122572581462754
+  },
+  {
+    "case": "worker_1000.json",
+    "comparison": "original_vs_final",
+    "metric": "completion_seconds",
+    "original": 1.885902562999945,
+    "changed": 1.9658564110000043,
+    "ratio_original_over_changed": 0.9593287446872135
+  },
+  {
+    "case": "worker_1000.json",
+    "comparison": "original_vs_final",
+    "metric": "successful_rps",
+    "original": 159.07502640156747,
+    "changed": 152.60524538890107,
+    "ratio_original_over_changed": 1.0423955349383878
+  },
+  {
+    "case": "worker_1000.json",
+    "comparison": "original_vs_final",
+    "metric": "accounts_per_second",
+    "original": 53.025008800522485,
+    "changed": 50.86841512963369,
+    "ratio_original_over_changed": 1.0423955349383878
+  },
+  {
+    "case": "worker_1000.json",
+    "comparison": "original_vs_final",
+    "metric": "followers_per_second",
+    "original": 198.8437830019593,
+    "changed": 190.75655673612633,
+    "ratio_original_over_changed": 1.0423955349383878
+  },
+  {
+    "case": "worker_1000.json",
+    "comparison": "original_vs_final",
+    "metric": "following_per_second",
+    "original": 198.8437830019593,
+    "changed": 190.75655673612633,
+    "ratio_original_over_changed": 1.0423955349383878
+  },
+  {
+    "case": "worker_1000.json",
+    "comparison": "original_vs_final",
+    "metric": "cpu_seconds",
+    "original": 1.839623117,
+    "changed": 1.8647509579999997,
+    "ratio_original_over_changed": 0.9865248274080791
+  },
+  {
+    "case": "worker_1000.json",
+    "comparison": "original_vs_final",
+    "metric": "peak_rss_bytes",
+    "original": 60600320,
+    "changed": 59322368,
+    "ratio_original_over_changed": 1.0215424981012222
+  },
+  {
+    "case": "worker_1000.json",
+    "comparison": "original_vs_final",
+    "metric": "report_seconds",
+    "original": 0.0642952090001927,
+    "changed": 0.06527785200000125,
+    "ratio_original_over_changed": 0.9849467626506992
+  },
+  {
+    "case": "worker_1000.json",
+    "comparison": "original_vs_final",
+    "metric": "resume_seconds",
+    "original": 0.01256726799988428,
+    "changed": 0.012459089000003587,
+    "ratio_original_over_changed": 1.0086827375485208
+  },
+  {
+    "case": "worker_10000accounts.json",
+    "comparison": "original_vs_first",
+    "metric": "completion_seconds",
+    "original": 224.26546070100017,
+    "changed": 223.95379610700002,
+    "ratio_original_over_changed": 1.0013916468459916
+  },
+  {
+    "case": "worker_10000accounts.json",
+    "comparison": "original_vs_first",
+    "metric": "successful_rps",
+    "original": 133.77004156693224,
+    "changed": 133.95620222336703,
+    "ratio_original_over_changed": 0.9986102871435218
+  },
+  {
+    "case": "worker_10000accounts.json",
+    "comparison": "original_vs_first",
+    "metric": "accounts_per_second",
+    "original": 44.59001385564408,
+    "changed": 44.652067407789005,
+    "ratio_original_over_changed": 0.9986102871435221
+  },
+  {
+    "case": "worker_10000accounts.json",
+    "comparison": "original_vs_first",
+    "metric": "followers_per_second",
+    "original": 167.2125519586653,
+    "changed": 167.44525277920877,
+    "ratio_original_over_changed": 0.9986102871435221
+  },
+  {
+    "case": "worker_10000accounts.json",
+    "comparison": "original_vs_first",
+    "metric": "following_per_second",
+    "original": 167.2125519586653,
+    "changed": 167.44525277920877,
+    "ratio_original_over_changed": 0.9986102871435221
+  },
+  {
+    "case": "worker_10000accounts.json",
+    "comparison": "original_vs_first",
+    "metric": "cpu_seconds",
+    "original": 215.366481427,
+    "changed": 215.818943953,
+    "ratio_original_over_changed": 0.9979035087573288
+  },
+  {
+    "case": "worker_10000accounts.json",
+    "comparison": "original_vs_first",
+    "metric": "peak_rss_bytes",
+    "original": 597733376,
+    "changed": 610328576,
+    "ratio_original_over_changed": 0.9793632471175657
+  },
+  {
+    "case": "worker_10000accounts.json",
+    "comparison": "original_vs_first",
+    "metric": "report_seconds",
+    "original": 6.3421230229998855,
+    "changed": 6.270902268999862,
+    "ratio_original_over_changed": 1.0113573375799687
+  },
+  {
+    "case": "worker_10000accounts.json",
+    "comparison": "original_vs_first",
+    "metric": "resume_seconds",
+    "original": 0.9498523419999856,
+    "changed": 0.9490465390001646,
+    "ratio_original_over_changed": 1.0008490658431461
+  },
+  {
+    "case": "worker_10000accounts.json",
+    "comparison": "original_vs_final",
+    "metric": "completion_seconds",
+    "original": 224.26546070100017,
+    "changed": 218.08868194000001,
+    "ratio_original_over_changed": 1.0283223260650431
+  },
+  {
+    "case": "worker_10000accounts.json",
+    "comparison": "original_vs_final",
+    "metric": "successful_rps",
+    "original": 133.77004156693224,
+    "changed": 137.55872030192526,
+    "ratio_original_over_changed": 0.9724577349463754
+  },
+  {
+    "case": "worker_10000accounts.json",
+    "comparison": "original_vs_final",
+    "metric": "accounts_per_second",
+    "original": 44.59001385564408,
+    "changed": 45.85290676730842,
+    "ratio_original_over_changed": 0.9724577349463756
+  },
+  {
+    "case": "worker_10000accounts.json",
+    "comparison": "original_vs_final",
+    "metric": "followers_per_second",
+    "original": 167.2125519586653,
+    "changed": 171.94840037740656,
+    "ratio_original_over_changed": 0.9724577349463757
+  },
+  {
+    "case": "worker_10000accounts.json",
+    "comparison": "original_vs_final",
+    "metric": "following_per_second",
+    "original": 167.2125519586653,
+    "changed": 171.94840037740656,
+    "ratio_original_over_changed": 0.9724577349463757
+  },
+  {
+    "case": "worker_10000accounts.json",
+    "comparison": "original_vs_final",
+    "metric": "cpu_seconds",
+    "original": 215.366481427,
+    "changed": 207.032824439,
+    "ratio_original_over_changed": 1.0402528295239262
+  },
+  {
+    "case": "worker_10000accounts.json",
+    "comparison": "original_vs_final",
+    "metric": "peak_rss_bytes",
+    "original": 597733376,
+    "changed": 555995136,
+    "ratio_original_over_changed": 1.0750694337009452
+  },
+  {
+    "case": "worker_10000accounts.json",
+    "comparison": "original_vs_final",
+    "metric": "report_seconds",
+    "original": 6.3421230229998855,
+    "changed": 6.242021227999999,
+    "ratio_original_over_changed": 1.0160367597839715
+  },
+  {
+    "case": "worker_10000accounts.json",
+    "comparison": "original_vs_final",
+    "metric": "resume_seconds",
+    "original": 0.9498523419999856,
+    "changed": 0.9716644890000339,
+    "ratio_original_over_changed": 0.9775517709590316
+  },
+  {
+    "case": "worker_1000accounts.json",
+    "comparison": "original_vs_first",
+    "metric": "completion_seconds",
+    "original": 20.031759828000077,
+    "changed": 19.910147048,
+    "ratio_original_over_changed": 1.0061080804529916
+  },
+  {
+    "case": "worker_1000accounts.json",
+    "comparison": "original_vs_first",
+    "metric": "successful_rps",
+    "original": 149.7621789477851,
+    "changed": 150.67693838561348,
+    "ratio_original_over_changed": 0.993929001693097
+  },
+  {
+    "case": "worker_1000accounts.json",
+    "comparison": "original_vs_first",
+    "metric": "accounts_per_second",
+    "original": 49.92072631592836,
+    "changed": 50.225646128537825,
+    "ratio_original_over_changed": 0.993929001693097
+  },
+  {
+    "case": "worker_1000accounts.json",
+    "comparison": "original_vs_first",
+    "metric": "followers_per_second",
+    "original": 187.20272368473135,
+    "changed": 188.34617298201687,
+    "ratio_original_over_changed": 0.9939290016930968
+  },
+  {
+    "case": "worker_1000accounts.json",
+    "comparison": "original_vs_first",
+    "metric": "following_per_second",
+    "original": 187.20272368473135,
+    "changed": 188.34617298201687,
+    "ratio_original_over_changed": 0.9939290016930968
+  },
+  {
+    "case": "worker_1000accounts.json",
+    "comparison": "original_vs_first",
+    "metric": "cpu_seconds",
+    "original": 19.578102708,
+    "changed": 20.24876679,
+    "ratio_original_over_changed": 0.9668787690156413
+  },
+  {
+    "case": "worker_1000accounts.json",
+    "comparison": "original_vs_first",
+    "metric": "peak_rss_bytes",
+    "original": 233426944,
+    "changed": 262021120,
+    "ratio_original_over_changed": 0.8908707206503048
+  },
+  {
+    "case": "worker_1000accounts.json",
+    "comparison": "original_vs_first",
+    "metric": "report_seconds",
+    "original": 0.6210511379999843,
+    "changed": 0.6396005029998832,
+    "ratio_original_over_changed": 0.9709985140522908
+  },
+  {
+    "case": "worker_1000accounts.json",
+    "comparison": "original_vs_first",
+    "metric": "resume_seconds",
+    "original": 0.09899692600015442,
+    "changed": 0.10041969100007009,
+    "ratio_original_over_changed": 0.9858318126081997
+  },
+  {
+    "case": "worker_1000accounts.json",
+    "comparison": "original_vs_final",
+    "metric": "completion_seconds",
+    "original": 20.031759828000077,
+    "changed": 19.201479163000002,
+    "ratio_original_over_changed": 1.0432404534021509
+  },
+  {
+    "case": "worker_1000accounts.json",
+    "comparison": "original_vs_final",
+    "metric": "successful_rps",
+    "original": 149.7621789477851,
+    "changed": 156.2379634679814,
+    "ratio_original_over_changed": 0.9585517861571242
+  },
+  {
+    "case": "worker_1000accounts.json",
+    "comparison": "original_vs_final",
+    "metric": "accounts_per_second",
+    "original": 49.92072631592836,
+    "changed": 52.079321155993796,
+    "ratio_original_over_changed": 0.9585517861571242
+  },
+  {
+    "case": "worker_1000accounts.json",
+    "comparison": "original_vs_final",
+    "metric": "followers_per_second",
+    "original": 187.20272368473135,
+    "changed": 195.29745433497672,
+    "ratio_original_over_changed": 0.9585517861571243
+  },
+  {
+    "case": "worker_1000accounts.json",
+    "comparison": "original_vs_final",
+    "metric": "following_per_second",
+    "original": 187.20272368473135,
+    "changed": 195.29745433497672,
+    "ratio_original_over_changed": 0.9585517861571243
+  },
+  {
+    "case": "worker_1000accounts.json",
+    "comparison": "original_vs_final",
+    "metric": "cpu_seconds",
+    "original": 19.578102708,
+    "changed": 18.577845255,
+    "ratio_original_over_changed": 1.0538414137522645
+  },
+  {
+    "case": "worker_1000accounts.json",
+    "comparison": "original_vs_final",
+    "metric": "peak_rss_bytes",
+    "original": 233426944,
+    "changed": 249749504,
+    "ratio_original_over_changed": 0.9346442746088497
+  },
+  {
+    "case": "worker_1000accounts.json",
+    "comparison": "original_vs_final",
+    "metric": "report_seconds",
+    "original": 0.6210511379999843,
+    "changed": 0.6111262950000054,
+    "ratio_original_over_changed": 1.0162402486706597
+  },
+  {
+    "case": "worker_1000accounts.json",
+    "comparison": "original_vs_final",
+    "metric": "resume_seconds",
+    "original": 0.09899692600015442,
+    "changed": 0.10073780300000124,
+    "ratio_original_over_changed": 0.9827187317173594
+  },
+  {
+    "case": "worker_10kfollowers.json",
+    "comparison": "original_vs_first",
+    "metric": "completion_seconds",
+    "original": 6.166782408000017,
+    "changed": 6.578260465000085,
+    "ratio_original_over_changed": 0.9374488044081936
+  },
+  {
+    "case": "worker_10kfollowers.json",
+    "comparison": "original_vs_first",
+    "metric": "successful_rps",
+    "original": 162.3212777381973,
+    "changed": 152.1678877456834,
+    "ratio_original_over_changed": 1.0667249190544272
+  },
+  {
+    "case": "worker_10kfollowers.json",
+    "comparison": "original_vs_first",
+    "metric": "accounts_per_second",
+    "original": 0.16215911861957774,
+    "changed": 0.15201587187380958,
+    "ratio_original_over_changed": 1.0667249190544275
+  },
+  {
+    "case": "worker_10kfollowers.json",
+    "comparison": "original_vs_first",
+    "metric": "followers_per_second",
+    "original": 1621.5911861957773,
+    "changed": 1520.158718738096,
+    "ratio_original_over_changed": 1.0667249190544272
+  },
+  {
+    "case": "worker_10kfollowers.json",
+    "comparison": "original_vs_first",
+    "metric": "following_per_second",
+    "original": 1621.5911861957773,
+    "changed": 1520.158718738096,
+    "ratio_original_over_changed": 1.0667249190544272
+  },
+  {
+    "case": "worker_10kfollowers.json",
+    "comparison": "original_vs_first",
+    "metric": "cpu_seconds",
+    "original": 4.40882635,
+    "changed": 4.843982376,
+    "ratio_original_over_changed": 0.9101656463169594
+  },
+  {
+    "case": "worker_10kfollowers.json",
+    "comparison": "original_vs_first",
+    "metric": "peak_rss_bytes",
+    "original": 48762880,
+    "changed": 49889280,
+    "ratio_original_over_changed": 0.9774220032840722
+  },
+  {
+    "case": "worker_10kfollowers.json",
+    "comparison": "original_vs_first",
+    "metric": "report_seconds",
+    "original": 0.028610091000018656,
+    "changed": 0.030271635999952196,
+    "ratio_original_over_changed": 0.945112150531403
+  },
+  {
+    "case": "worker_10kfollowers.json",
+    "comparison": "original_vs_first",
+    "metric": "resume_seconds",
+    "original": 0.0033522610001455178,
+    "changed": 0.003630021999924793,
+    "ratio_original_over_changed": 0.9234822819847842
+  },
+  {
+    "case": "worker_10kfollowers.json",
+    "comparison": "original_vs_final",
+    "metric": "completion_seconds",
+    "original": 6.166782408000017,
+    "changed": 6.56371157400001,
+    "ratio_original_over_changed": 0.9395267202824241
+  },
+  {
+    "case": "worker_10kfollowers.json",
+    "comparison": "original_vs_final",
+    "metric": "successful_rps",
+    "original": 162.3212777381973,
+    "changed": 152.50517770542098,
+    "ratio_original_over_changed": 1.064365683712963
+  },
+  {
+    "case": "worker_10kfollowers.json",
+    "comparison": "original_vs_final",
+    "metric": "accounts_per_second",
+    "original": 0.16215911861957774,
+    "changed": 0.15235282488054044,
+    "ratio_original_over_changed": 1.064365683712963
+  },
+  {
+    "case": "worker_10kfollowers.json",
+    "comparison": "original_vs_final",
+    "metric": "followers_per_second",
+    "original": 1621.5911861957773,
+    "changed": 1523.5282488054045,
+    "ratio_original_over_changed": 1.064365683712963
+  },
+  {
+    "case": "worker_10kfollowers.json",
+    "comparison": "original_vs_final",
+    "metric": "following_per_second",
+    "original": 1621.5911861957773,
+    "changed": 1523.5282488054045,
+    "ratio_original_over_changed": 1.064365683712963
+  },
+  {
+    "case": "worker_10kfollowers.json",
+    "comparison": "original_vs_final",
+    "metric": "cpu_seconds",
+    "original": 4.40882635,
+    "changed": 4.892177723,
+    "ratio_original_over_changed": 0.9011991386315383
+  },
+  {
+    "case": "worker_10kfollowers.json",
+    "comparison": "original_vs_final",
+    "metric": "peak_rss_bytes",
+    "original": 48762880,
+    "changed": 51154944,
+    "ratio_original_over_changed": 0.9532388501881656
+  },
+  {
+    "case": "worker_10kfollowers.json",
+    "comparison": "original_vs_final",
+    "metric": "report_seconds",
+    "original": 0.028610091000018656,
+    "changed": 0.0288204659999991,
+    "ratio_original_over_changed": 0.9927004997080737
+  },
+  {
+    "case": "worker_10kfollowers.json",
+    "comparison": "original_vs_final",
+    "metric": "resume_seconds",
+    "original": 0.0033522610001455178,
+    "changed": 0.0038893990000019585,
+    "ratio_original_over_changed": 0.8618969152159061
+  },
+  {
+    "case": "worker_2500.json",
+    "comparison": "original_vs_first",
+    "metric": "completion_seconds",
+    "original": 1.8614290839998375,
+    "changed": 1.9256043970001429,
+    "ratio_original_over_changed": 0.9666726389385677
+  },
+  {
+    "case": "worker_2500.json",
+    "comparison": "original_vs_first",
+    "metric": "successful_rps",
+    "original": 161.1664943771912,
+    "changed": 155.79524042807728,
+    "ratio_original_over_changed": 1.0344763674060606
+  },
+  {
+    "case": "worker_2500.json",
+    "comparison": "original_vs_first",
+    "metric": "accounts_per_second",
+    "original": 53.72216479239707,
+    "changed": 51.93174680935909,
+    "ratio_original_over_changed": 1.0344763674060606
+  },
+  {
+    "case": "worker_2500.json",
+    "comparison": "original_vs_first",
+    "metric": "followers_per_second",
+    "original": 201.458117971489,
+    "changed": 194.7440505350966,
+    "ratio_original_over_changed": 1.0344763674060606
+  },
+  {
+    "case": "worker_2500.json",
+    "comparison": "original_vs_first",
+    "metric": "following_per_second",
+    "original": 201.458117971489,
+    "changed": 194.7440505350966,
+    "ratio_original_over_changed": 1.0344763674060606
+  },
+  {
+    "case": "worker_2500.json",
+    "comparison": "original_vs_first",
+    "metric": "cpu_seconds",
+    "original": 1.832550436,
+    "changed": 1.9068698720000001,
+    "ratio_original_over_changed": 0.9610254285878191
+  },
+  {
+    "case": "worker_2500.json",
+    "comparison": "original_vs_first",
+    "metric": "peak_rss_bytes",
+    "original": 59785216,
+    "changed": 60481536,
+    "ratio_original_over_changed": 0.9884870648787756
+  },
+  {
+    "case": "worker_2500.json",
+    "comparison": "original_vs_first",
+    "metric": "report_seconds",
+    "original": 0.06411322999997537,
+    "changed": 0.0652132289999372,
+    "ratio_original_over_changed": 0.983132272135108
+  },
+  {
+    "case": "worker_2500.json",
+    "comparison": "original_vs_first",
+    "metric": "resume_seconds",
+    "original": 0.01250667399995109,
+    "changed": 0.01231577700013986,
+    "ratio_original_over_changed": 1.0155001994441002
+  },
+  {
+    "case": "worker_2500.json",
+    "comparison": "original_vs_final",
+    "metric": "completion_seconds",
+    "original": 1.8614290839998375,
+    "changed": 1.9036358779999958,
+    "ratio_original_over_changed": 0.9778283260533512
+  },
+  {
+    "case": "worker_2500.json",
+    "comparison": "original_vs_final",
+    "metric": "successful_rps",
+    "original": 161.1664943771912,
+    "changed": 157.59316341273572,
+    "ratio_original_over_changed": 1.0226744034263526
+  },
+  {
+    "case": "worker_2500.json",
+    "comparison": "original_vs_final",
+    "metric": "accounts_per_second",
+    "original": 53.72216479239707,
+    "changed": 52.53105447091191,
+    "ratio_original_over_changed": 1.0226744034263526
+  },
+  {
+    "case": "worker_2500.json",
+    "comparison": "original_vs_final",
+    "metric": "followers_per_second",
+    "original": 201.458117971489,
+    "changed": 196.99145426591966,
+    "ratio_original_over_changed": 1.0226744034263526
+  },
+  {
+    "case": "worker_2500.json",
+    "comparison": "original_vs_final",
+    "metric": "following_per_second",
+    "original": 201.458117971489,
+    "changed": 196.99145426591966,
+    "ratio_original_over_changed": 1.0226744034263526
+  },
+  {
+    "case": "worker_2500.json",
+    "comparison": "original_vs_final",
+    "metric": "cpu_seconds",
+    "original": 1.832550436,
+    "changed": 1.7943239709999999,
+    "ratio_original_over_changed": 1.021304104285413
+  },
+  {
+    "case": "worker_2500.json",
+    "comparison": "original_vs_final",
+    "metric": "peak_rss_bytes",
+    "original": 59785216,
+    "changed": 59179008,
+    "ratio_original_over_changed": 1.0102436323366555
+  },
+  {
+    "case": "worker_2500.json",
+    "comparison": "original_vs_final",
+    "metric": "report_seconds",
+    "original": 0.06411322999997537,
+    "changed": 0.0646752310000025,
+    "ratio_original_over_changed": 0.9913104137188609
+  },
+  {
+    "case": "worker_2500.json",
+    "comparison": "original_vs_final",
+    "metric": "resume_seconds",
+    "original": 0.01250667399995109,
+    "changed": 0.012645859000002702,
+    "ratio_original_over_changed": 0.9889936302427869
+  },
+  {
+    "case": "worker_500.json",
+    "comparison": "original_vs_first",
+    "metric": "completion_seconds",
+    "original": 1.8394067970000378,
+    "changed": 1.950059549000116,
+    "ratio_original_over_changed": 0.9432567317973367
+  },
+  {
+    "case": "worker_500.json",
+    "comparison": "original_vs_first",
+    "metric": "successful_rps",
+    "original": 163.09605927806834,
+    "changed": 153.84145584365544,
+    "ratio_original_over_changed": 1.0601567593316206
+  },
+  {
+    "case": "worker_500.json",
+    "comparison": "original_vs_first",
+    "metric": "accounts_per_second",
+    "original": 54.365353092689446,
+    "changed": 51.28048528121848,
+    "ratio_original_over_changed": 1.0601567593316203
+  },
+  {
+    "case": "worker_500.json",
+    "comparison": "original_vs_first",
+    "metric": "followers_per_second",
+    "original": 203.87007409758544,
+    "changed": 192.3018198045693,
+    "ratio_original_over_changed": 1.0601567593316206
+  },
+  {
+    "case": "worker_500.json",
+    "comparison": "original_vs_first",
+    "metric": "following_per_second",
+    "original": 203.87007409758544,
+    "changed": 192.3018198045693,
+    "ratio_original_over_changed": 1.0601567593316206
+  },
+  {
+    "case": "worker_500.json",
+    "comparison": "original_vs_first",
+    "metric": "cpu_seconds",
+    "original": 1.831595629,
+    "changed": 1.905407954,
+    "ratio_original_over_changed": 0.9612616684815204
+  },
+  {
+    "case": "worker_500.json",
+    "comparison": "original_vs_first",
+    "metric": "peak_rss_bytes",
+    "original": 60755968,
+    "changed": 60276736,
+    "ratio_original_over_changed": 1.0079505300353357
+  },
+  {
+    "case": "worker_500.json",
+    "comparison": "original_vs_first",
+    "metric": "report_seconds",
+    "original": 0.06379612199998519,
+    "changed": 0.06545189799999207,
+    "ratio_original_over_changed": 0.9747023990044249
+  },
+  {
+    "case": "worker_500.json",
+    "comparison": "original_vs_first",
+    "metric": "resume_seconds",
+    "original": 0.012107035000099131,
+    "changed": 0.012565917000074478,
+    "ratio_original_over_changed": 0.9634820124967699
+  },
+  {
+    "case": "worker_500.json",
+    "comparison": "original_vs_final",
+    "metric": "completion_seconds",
+    "original": 1.8394067970000378,
+    "changed": 1.89757101,
+    "ratio_original_over_changed": 0.9693480704050373
+  },
+  {
+    "case": "worker_500.json",
+    "comparison": "original_vs_final",
+    "metric": "successful_rps",
+    "original": 163.09605927806834,
+    "changed": 158.09685035186115,
+    "ratio_original_over_changed": 1.0316211797710133
+  },
+  {
+    "case": "worker_500.json",
+    "comparison": "original_vs_final",
+    "metric": "accounts_per_second",
+    "original": 54.365353092689446,
+    "changed": 52.69895011728705,
+    "ratio_original_over_changed": 1.0316211797710133
+  },
+  {
+    "case": "worker_500.json",
+    "comparison": "original_vs_final",
+    "metric": "followers_per_second",
+    "original": 203.87007409758544,
+    "changed": 197.62106293982643,
+    "ratio_original_over_changed": 1.0316211797710135
+  },
+  {
+    "case": "worker_500.json",
+    "comparison": "original_vs_final",
+    "metric": "following_per_second",
+    "original": 203.87007409758544,
+    "changed": 197.62106293982643,
+    "ratio_original_over_changed": 1.0316211797710135
+  },
+  {
+    "case": "worker_500.json",
+    "comparison": "original_vs_final",
+    "metric": "cpu_seconds",
+    "original": 1.831595629,
+    "changed": 1.8000794500000001,
+    "ratio_original_over_changed": 1.017508215540153
+  },
+  {
+    "case": "worker_500.json",
+    "comparison": "original_vs_final",
+    "metric": "peak_rss_bytes",
+    "original": 60755968,
+    "changed": 59019264,
+    "ratio_original_over_changed": 1.0294260531612187
+  },
+  {
+    "case": "worker_500.json",
+    "comparison": "original_vs_final",
+    "metric": "report_seconds",
+    "original": 0.06379612199998519,
+    "changed": 0.06440916599999724,
+    "ratio_original_over_changed": 0.9904820379134845
+  },
+  {
+    "case": "worker_500.json",
+    "comparison": "original_vs_final",
+    "metric": "resume_seconds",
+    "original": 0.012107035000099131,
+    "changed": 0.012383192000001486,
+    "ratio_original_over_changed": 0.9776990456174529
+  },
+  {
+    "case": "worker_5000.json",
+    "comparison": "original_vs_first",
+    "metric": "completion_seconds",
+    "original": 1.9314576669999042,
+    "changed": 1.9249098890002188,
+    "ratio_original_over_changed": 1.0034016023488177
+  },
+  {
+    "case": "worker_5000.json",
+    "comparison": "original_vs_first",
+    "metric": "successful_rps",
+    "original": 155.32310395701512,
+    "changed": 155.85145139226094,
+    "ratio_original_over_changed": 0.9966099293235581
+  },
+  {
+    "case": "worker_5000.json",
+    "comparison": "original_vs_first",
+    "metric": "accounts_per_second",
+    "original": 51.7743679856717,
+    "changed": 51.95048379742031,
+    "ratio_original_over_changed": 0.996609929323558
+  },
+  {
+    "case": "worker_5000.json",
+    "comparison": "original_vs_first",
+    "metric": "followers_per_second",
+    "original": 194.1538799462689,
+    "changed": 194.81431424032618,
+    "ratio_original_over_changed": 0.996609929323558
+  },
+  {
+    "case": "worker_5000.json",
+    "comparison": "original_vs_first",
+    "metric": "following_per_second",
+    "original": 194.1538799462689,
+    "changed": 194.81431424032618,
+    "ratio_original_over_changed": 0.996609929323558
+  },
+  {
+    "case": "worker_5000.json",
+    "comparison": "original_vs_first",
+    "metric": "cpu_seconds",
+    "original": 1.828347154,
+    "changed": 1.9121226910000002,
+    "ratio_original_over_changed": 0.9561871539968038
+  },
+  {
+    "case": "worker_5000.json",
+    "comparison": "original_vs_first",
+    "metric": "peak_rss_bytes",
+    "original": 60473344,
+    "changed": 59527168,
+    "ratio_original_over_changed": 1.0158948599738526
+  },
+  {
+    "case": "worker_5000.json",
+    "comparison": "original_vs_first",
+    "metric": "report_seconds",
+    "original": 0.06377142700011973,
+    "changed": 0.06505828000013025,
+    "ratio_original_over_changed": 0.9802199965937011
+  },
+  {
+    "case": "worker_5000.json",
+    "comparison": "original_vs_first",
+    "metric": "resume_seconds",
+    "original": 0.01263236899990261,
+    "changed": 0.012772894999898199,
+    "ratio_original_over_changed": 0.9889981088863011
+  },
+  {
+    "case": "worker_5000.json",
+    "comparison": "original_vs_final",
+    "metric": "completion_seconds",
+    "original": 1.9314576669999042,
+    "changed": 1.8992462589999946,
+    "ratio_original_over_changed": 1.0169601008017095
+  },
+  {
+    "case": "worker_5000.json",
+    "comparison": "original_vs_final",
+    "metric": "successful_rps",
+    "original": 155.32310395701512,
+    "changed": 157.9573994569605,
+    "ratio_original_over_changed": 0.9833227470887607
+  },
+  {
+    "case": "worker_5000.json",
+    "comparison": "original_vs_final",
+    "metric": "accounts_per_second",
+    "original": 51.7743679856717,
+    "changed": 52.6524664856535,
+    "ratio_original_over_changed": 0.9833227470887607
+  },
+  {
+    "case": "worker_5000.json",
+    "comparison": "original_vs_final",
+    "metric": "followers_per_second",
+    "original": 194.1538799462689,
+    "changed": 197.44674932120063,
+    "ratio_original_over_changed": 0.9833227470887607
+  },
+  {
+    "case": "worker_5000.json",
+    "comparison": "original_vs_final",
+    "metric": "following_per_second",
+    "original": 194.1538799462689,
+    "changed": 197.44674932120063,
+    "ratio_original_over_changed": 0.9833227470887607
+  },
+  {
+    "case": "worker_5000.json",
+    "comparison": "original_vs_final",
+    "metric": "cpu_seconds",
+    "original": 1.828347154,
+    "changed": 1.810151999,
+    "ratio_original_over_changed": 1.0100517277057683
+  },
+  {
+    "case": "worker_5000.json",
+    "comparison": "original_vs_final",
+    "metric": "peak_rss_bytes",
+    "original": 60473344,
+    "changed": 59330560,
+    "ratio_original_over_changed": 1.019261304798067
+  },
+  {
+    "case": "worker_5000.json",
+    "comparison": "original_vs_final",
+    "metric": "report_seconds",
+    "original": 0.06377142700011973,
+    "changed": 0.06448889800000046,
+    "ratio_original_over_changed": 0.9888745036412201
+  },
+  {
+    "case": "worker_5000.json",
+    "comparison": "original_vs_final",
+    "metric": "resume_seconds",
+    "original": 0.01263236899990261,
+    "changed": 0.012596715999997343,
+    "ratio_original_over_changed": 1.0028303408527488
+  }
+]
