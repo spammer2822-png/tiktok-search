@@ -3819,7 +3819,7 @@ def default_scan_config(metadata: dict[str, Any] | None = None) -> dict[str, Any
             "scan_mode": "normal", "double_phase_enabled": False,
             "workers": DEFAULT_WORKERS, "max_connections": 0, "request_delay": {"minimum_seconds": 0.0, "maximum_seconds": 0.0},
             "use_proxies": False, "proxy_file": str(configured_proxy_path() or WEBSHARE_PROXY_FILE),
-            "proxy_only": os.getenv("TIKTOK_PROXY_ONLY", "0").strip().casefold() in {"1", "true", "yes"}, "keep_raw": KEEP_RAW_MEMBER_DATA, "retry_attempts": FETCH_ATTEMPTS,
+            "proxy_only": False, "keep_raw": KEEP_RAW_MEMBER_DATA, "retry_attempts": FETCH_ATTEMPTS,
             "timeouts": {"response": 40.0, "connect": 10.0, "write": 20.0, "pool": 10.0, "total": 55.0},
             "current_phase": int((metadata or {}).get("current_phase", 1)),
             "progress": {"processed": 0, "total": 0}, "created_at_utc": utc_iso(),
@@ -3882,6 +3882,8 @@ def read_scan_config(root: Path) -> dict[str, Any]:
         config = json.loads((root / CONFIG_FILE_NAME).read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
         raise ExporterError(f"Cannot read this search's scan_config.json: {root.name}") from exc
+    from dtk_backend import migrate_config
+    config = migrate_config(config)
     validate_scan_config(config)
     return config
 
@@ -3953,14 +3955,13 @@ def edit_scan_config(config: dict[str, Any], *, new: bool = False) -> dict[str, 
             updated["request_delay"] = {"minimum_seconds": low, "maximum_seconds": high}
             break
         console("[ERROR] Minimum delay cannot exceed maximum delay. Enter the pair again.")
-    console(f"Current proxy mode: {'Webshare' if updated['use_proxies'] else 'direct'}")
-    updated["use_proxies"] = ask_bool("Use proxies? [Y/N, Enter = keep]: ", updated["use_proxies"])
-    if updated["use_proxies"]:
-        console(f"Proxy file: {updated['proxy_file']} (credentials remain in that file)")
+    # DTK owns TikTok identities/proxies. The scanner no longer has a separate
+    # Worker/Direct proxy routing layer.
+    updated["use_proxies"] = False
+    updated["proxy_only"] = False
     if not new:
-        console(f"Current proxy-only mode: {updated['proxy_only']}; raw API files: {updated['keep_raw']}")
-        updated["proxy_only"] = ask_bool("Require proxies, without direct fallback? [Y/N, Enter = keep]: ", updated["proxy_only"])
-        updated["keep_raw"] = ask_bool("Keep raw API/member data? [Y/N, Enter = keep]: ", updated["keep_raw"])
+        console(f"Raw API files: {updated['keep_raw']}")
+        updated["keep_raw"] = ask_bool("Keep raw DTK/member data? [Y/N, Enter = keep]: ", updated["keep_raw"])
     validate_scan_config(updated)
     return updated
 
@@ -3972,11 +3973,13 @@ def display_config(root: Path, config: dict[str, Any], state: dict[str, Any], he
     console(f"\n{'='*50}\n{heading}\n{'='*50}\nTarget: @{config['target_username']}\nStarting source: {source}\n"
             f"Follower skip limit: {config['follower_skip_limit']:,}\nFollowing skip limit: {config['following_skip_limit']:,}\n"
             f"Scan mode: {'Double Phase' if config['scan_mode']=='double_phase' else 'Normal'}\nWorkers: {config['workers']}\n"
-            f"Backend: {config.get('backend_mode', 'worker')}\n"
+            f"Backend: DTK only ({config.get('dtk_base_url', 'http://127.0.0.1:8000')})\n"
+            f"Docker auto-start: {config.get('dtk_auto_start', True)} | Identity auto-mint: {config.get('dtk_auto_mint', True)}\n"
+            f"Identity minimum/target: {config.get('dtk_min_usable_identities', 3)}/{config.get('dtk_target_identities', 8)}\n"
             f"Minimum request delay: {delay['minimum_seconds']} seconds\nMaximum request delay: {delay['maximum_seconds']} seconds\n"
             f"Current phase: Phase {state.get('current_phase', config.get('current_phase', 1))}\n"
             f"Progress: {summary.get('processed_profiles', 0):,} / {summary.get('total_profiles', 0):,}\n"
-            f"Proxy mode: {'Webshare' if config['use_proxies'] else 'direct'}\nExisting progress preserved: yes\n"
+            f"Existing progress preserved: yes\n"
             f"Output folder:\n{root}\n{'='*50}")
 
 
@@ -3985,35 +3988,12 @@ _RETRY_FAILED: dict[str, bool] = {}  # One execution only; never sticky in confi
 
 
 def prepare_proxy_pool(root: Path, config: dict[str, Any]) -> ProxyPool | None:
-    """Last setup step, before the final Start/Resume confirmation."""
+    """DTK owns platform egress and identity/proxy pairing."""
     global REDACTOR
-    configs = load_proxy_configs(Path(config["proxy_file"])) if config["use_proxies"] else []
-    REDACTOR = CredentialRedactor(configs)
-    pool = ProxyPool(configs, proxy_only=config["proxy_only"])
-    if not config["use_proxies"]:
-        if config["proxy_only"]:
-            console("Proxy-only mode requires proxies. Edit the configuration.")
-            return None
-        return pool
-    console("\n[1] Check all proxies before starting/resuming\n[2] Skip check/use current configuration")
-    choice = ask_choice("Proxy validation: ", {"1", "2"})
-    if choice == "2" and (configs or not config["proxy_only"]): return pool
-    while True:
-        if configs and choice == "1":
-            from proxy_validation import validate_pool
-            if asyncio.run(validate_pool(sys.modules[__name__], pool, config, root)):
-                return pool
-        console("[PROXY] No usable proxies.\n[1] Continue without proxies (explicitly disable proxy-only mode)\n[2] Retest\n[0] Return to configuration")
-        choice = ask_choice("Select an option: ", {"0", "1", "2"})
-        if choice == "0": return None
-        if choice == "1":
-            config.update(use_proxies=False, proxy_only=False)
-            save_scan_config(root, config)
-            return ProxyPool([])
-        choice = "1"
-        # Retest the same loaded configurations, including previously invalid
-        # routes. It is a new pass; never edit the uploaded proxy file.
-        pool = ProxyPool(configs, proxy_only=config["proxy_only"])
+    REDACTOR = CredentialRedactor()
+    config["use_proxies"] = False
+    config["proxy_only"] = False
+    return ProxyPool([])
 
 
 def confirmation_menu(root: Path, config: dict[str, Any], state: dict[str, Any], *, resume: bool) -> dict[str, Any] | None:
@@ -4033,7 +4013,7 @@ def confirmation_menu(root: Path, config: dict[str, Any], state: dict[str, Any],
             config = edit_scan_config(config)
             save_scan_config(root, config)
             continue
-        console(f"[1] {'Resume' if resume else 'Start'} scan\n[2] Edit configuration\n[3] Backend configuration\n[0] Cancel")
+        console(f"[1] {'Resume' if resume else 'Start'} scan\n[2] Edit scan configuration\n[3] DTK configuration\n[0] Cancel")
         choice = ask_choice("Select an option: ", {"0", "1", "2", "3"})
         if choice == "0": return None
         if choice == "1":
@@ -4043,7 +4023,7 @@ def confirmation_menu(root: Path, config: dict[str, Any], state: dict[str, Any],
             _PREPARED_POOLS[str(root)] = pool
             return config
         if choice == '3':
-            from hybrid_backend import edit_backend_config
+            from dtk_backend import edit_backend_config
             config = edit_backend_config(config)
         else:
             config = edit_scan_config(config)
