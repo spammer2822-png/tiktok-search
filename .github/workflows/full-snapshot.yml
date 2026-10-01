@@ -3,9 +3,10 @@ name: Full repository snapshot
 on:
   push:
     branches:
-      - work/final-verification-20261001
+      - work/dtk-only-20261001
     paths:
       - .github/workflows/full-snapshot.yml
+      - DTK_RELEASE_READY
 
 permissions:
   contents: read
@@ -37,10 +38,10 @@ jobs:
                   manifest[name] = hashlib.sha256(path.read_bytes()).hexdigest()
 
           info = {
-              'branch': 'work/final-verification-20261001',
+              'branch': 'work/dtk-only-20261001',
               'commit': subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip(),
               'tracked_files': len(manifest),
-              'note': 'Full tracked repository snapshot including runtime source, .github workflows, specs, audits, verification_runs, verification_analysis, benchmarks, tests, and documentation.'
+              'note': 'Full tracked DTK-only repository snapshot including runtime source, .github workflows, historical evidence, tests, and documentation.'
           }
           Path('FULL_SNAPSHOT_INFO.json').write_text(json.dumps(info, indent=2)+'\n', encoding='utf-8')
           Path('FULL_SNAPSHOT_SHA256.json').write_text(json.dumps(dict(sorted(manifest.items())), indent=2)+'\n', encoding='utf-8')
