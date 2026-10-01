@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [comparison, network, browser, shutdown]
+        job: [comparison, network, browser, shutdown, cpu]
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
-          python-version: '3.12'
+          python-version: ${{ matrix.job == 'cpu' && '3.11' || '3.12' }}
       - run: python -m pip install -r requirements-test.txt
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         if: matrix.job == 'browser'

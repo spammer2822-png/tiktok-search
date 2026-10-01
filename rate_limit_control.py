@@ -63,7 +63,7 @@ class RateLimitController:
                 'direct_recovery_attempts', 'direct_recovery_successes', 'direct_recovery_429s')},
             'findtik_disabled_after_429': self.worker_disabled,
             'direct_rate_limit_state': self.direct_state,
-            'direct_cooldown_remaining_seconds': max(0., self.cooldown_until-time.monotonic())
+            'direct_cooldown_remaining_seconds': max(0., self.cooldown_until-time.perf_counter())
                 if self.direct_state == 'COOLDOWN' else 0.,
             'scanner_stopped_due_to_all_backends_rate_limited':
                 bool(events['scanner_stopped_due_to_all_backends_rate_limited']),
@@ -148,7 +148,7 @@ class RateLimitController:
         self.gates['direct'].local.set_limit(1)
         self.metrics.events['direct_cooldown_count'] += 1
         delay = retry_after if retry_after is not None else self.settings.get('direct_429_cooldown', 60.)
-        self.cooldown_until = time.monotonic()+max(0., delay)
+        self.cooldown_until = time.perf_counter()+max(0., delay)
         self.interrupt_network('direct')
         self.save_state()
         s.console(f'[429] Direct paused for {delay:.2f}s. One recovery probe will follow.', error=True)
@@ -157,12 +157,19 @@ class RateLimitController:
     async def cooldown(self):
         try:
             try:
-                await asyncio.wait_for(self.parent.stop_event.wait(),
-                                       timeout=max(0., self.cooldown_until-time.monotonic()))
-            except asyncio.TimeoutError:
-                self.direct_state = 'PROBING'
-                self.recovery_used = True
-                self.metrics.events['direct_recovery_attempts'] += 1
+                # Timer callbacks can run early on coarse-clock event loops.
+                # Recheck a high-resolution deadline before admitting a probe.
+                while not self.parent.stop_event.is_set():
+                    remaining = self.cooldown_until-time.perf_counter()
+                    if remaining <= 0:
+                        self.direct_state = 'PROBING'
+                        self.recovery_used = True
+                        self.metrics.events['direct_recovery_attempts'] += 1
+                        break
+                    try:
+                        await asyncio.wait_for(self.parent.stop_event.wait(), timeout=remaining)
+                    except asyncio.TimeoutError:
+                        continue
             finally:
                 self.ready.set()
         finally:

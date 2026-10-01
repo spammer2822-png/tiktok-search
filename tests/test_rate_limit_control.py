@@ -141,6 +141,42 @@ class RateLimitTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(client.metrics.events['direct_recovery_429s'], 1)
         self.assertTrue(all(c.is_closed for c in self.clients))
 
+    async def test_direct_cooldown_rechecks_early_timer_and_stop(self):
+        from rate_limit_control import RateLimitController
+        from backend_metrics import BackendMetrics
+        for stop_early in (False, True):
+            with self.subTest(stop_early=stop_early):
+                controller = RateLimitController(BackendMetrics(), {})
+                controller.parent = self.gate
+                controller.direct_state = 'COOLDOWN'
+                controller.cooldown_until = 10.1
+                controller.ready.clear()
+                self.gate.stop_event.clear()
+                now, waits = [10.], []
+                async def early_timeout(awaitable, *, timeout):
+                    awaitable.close()
+                    waits.append(timeout)
+                    self.assertEqual(controller.direct_state, 'COOLDOWN')
+                    self.assertFalse(controller.ready.is_set())
+                    now[0] += min(timeout, .04)
+                    if stop_early:
+                        self.gate.stop_event.set()
+                        return True
+                    raise asyncio.TimeoutError
+                with patch('rate_limit_control.time.perf_counter', side_effect=lambda: now[0]), \
+                     patch('rate_limit_control.asyncio.wait_for', side_effect=early_timeout):
+                    await controller.cooldown()
+                self.assertTrue(controller.ready.is_set())
+                self.assertIsNone(controller.timer)
+                self.assertEqual(controller.metrics.events['direct_recovery_attempts'], 0 if stop_early else 1)
+                if not stop_early:
+                    self.assertGreaterEqual(now[0], controller.cooldown_until)
+                    self.assertEqual(len(waits), 3)
+                    self.assertEqual(controller.direct_state, 'PROBING')
+                else:
+                    self.assertEqual(controller.direct_state, 'COOLDOWN')
+        self.gate.stop_event.clear()
+
     async def test_bootstrap_client_boundary_retains_disable_but_new_execution_resets(self):
         from scan_statistics import ScanStatistics
         stats = ScanStatistics(self.root, 100)

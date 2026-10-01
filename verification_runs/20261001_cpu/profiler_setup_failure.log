@@ -1,0 +1,14 @@
+Exception in thread scan-log-writer:
+Traceback (most recent call last):
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+Exception in thread scan-writer_0:
+Traceback (most recent call last):
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+    self.run()
+  File "/workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/tests/profile_cpu.py", line 33, in profile_thread
+    profiler.enable()
+ValueError: Another profiling tool is already active
+    self.run()
+  File "/workspace/scratch/44b13c627f46/resume_20260930/TikTokScanner/tests/profile_cpu.py", line 33, in profile_thread
+    profiler.enable()
+ValueError: Another profiling tool is already active

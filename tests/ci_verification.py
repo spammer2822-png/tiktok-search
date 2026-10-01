@@ -152,9 +152,26 @@ def browser():
         publish(f'avatar {engine}')
 
 
+def cpu():
+    # Independent per-thread profilers require Python 3.11; this job is pinned
+    # separately from the unprofiled Python 3.12 throughput comparison.
+    for label, source in SOURCES.items():
+        modes = ('worker',) if label == 'original' else ('worker', 'direct', 'hybrid')
+        for mode in modes:
+            name = f'{label}_{mode}'
+            run([PYTHON, str(HARNESS/'profile_cpu.py'), '--output', str(RESULTS/(name+'_cpu')),
+                 '--source', str(source), '--backend', mode, '--workers', '2500',
+                 '--accounts', '1000', '--latency', '.001', '--result', str(RESULTS/(name+'_scan.json'))]
+                + (['--original'] if label == 'original' else []), name)
+        for sample in range(1, 4):
+            name = f'{label}_observability_{sample}'
+            run([PYTHON, str(HARNESS/'benchmark_observability.py'), '--source', str(source),
+                 '--result', str(RESULTS/(name+'.json'))], name)
+
+
 try:
     publish('start from preserved source snapshots')
-    {'comparison': compare, 'network': network, 'browser': browser}[JOB]()
+    {'comparison': compare, 'network': network, 'browser': browser, 'cpu': cpu}[JOB]()
     (RESULTS/'completion.json').write_text(json.dumps({'status':'COMPLETED', **provenance}, indent=2))
     publish('completed')
 except BaseException:
