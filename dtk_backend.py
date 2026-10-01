@@ -867,18 +867,17 @@ class DtkClient:
 
     async def _mint_proxy_inventory(self):
         """Healthy proxy candidates, excluding exits already bound to live TikTok identities."""
-        proxies = await self._admin_get(
-            "/api/v1/admin/proxies",
-            params={"healthy_only": "true"},
-        )
         all_proxies = await self._admin_get("/api/v1/admin/proxies")
         identities = await self._admin_get(
             "/api/v1/admin/identities",
             params={"platform": "tiktok", "limit": 200},
         )
-        proxies = proxies if isinstance(proxies, list) else []
         all_proxies = all_proxies if isinstance(all_proxies, list) else []
         identities = identities if isinstance(identities, list) else []
+        proxies = [
+            proxy for proxy in all_proxies
+            if isinstance(proxy, dict) and proxy.get("healthy") is True
+        ]
 
         bound = {
             str(row.get("proxy_id"))
