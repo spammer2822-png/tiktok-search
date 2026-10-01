@@ -1,10 +1,16 @@
 DTK-only release snapshot trigger
-package_parent=89e8a4d50566263090d57a25f06c54abc3323ad4
-code_regression_head=89e8a4d50566263090d57a25f06c54abc3323ad4
+package_parent=591f43ea99552d6627234d98db896a3024935b06
+code_regression_head=591f43ea99552d6627234d98db896a3024935b06
 code_regression_matrix=windows-3.11,windows-3.12,ubuntu-3.11,ubuntu-3.12
 code_regression_result=success
+code_regression_tests=22
+upstream_dtk_pin=d8f874cd5b647b0ca087a57b15a458c3864439fa
 identity_preflight=strict
+identity_mint_task_tracking=enabled
+identity_failed_task_replacement=enabled
 identity_self_heal=enabled
+identity_wait_seconds_default=600
 preflight_console=dtk_debug_only
 structured_dtk_errors=dtk_errors.jsonl
+control_plane_error_normalization=enabled
 contains_real_dtk_api_key=false
